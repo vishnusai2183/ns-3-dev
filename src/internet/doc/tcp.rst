@@ -897,13 +897,24 @@ On receipt of an ACK:
 .. math::
 
   One way delay = Receiver timestamp - Receiver timestamp echo reply
+  
+  
+  
+
+.. math::
   Smoothed one way delay = 7/8 * Old Smoothed one way delay + 1/8 * one way delay
+
+
+
+Pseudocode::
+  
   If smoothed one way delay > owdMin + 15 * (owdMax - owdMin) / 100
     if LP_WITHIN_INF
       cwnd = 1
     else
       cwnd = cwnd / 2
     Inference timer is set
+
 
 where owdMin and owdMax are the minimum and maximum one way delays experienced
 throughout the connection, LP_WITHIN_INF indicates if TCP-LP is in inference
