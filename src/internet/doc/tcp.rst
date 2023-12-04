@@ -844,7 +844,7 @@ On receipt of an ACK::
        currentdelay = acknowledgement.delay
        basedelay = min(basedelay, currentdelay)
        queuingdelay = currentdelay - basedelay
-       offtarget =(TARGET - queuingdelay) / TARGET
+       offtarget = (TARGET - queuingdelay) / TARGET
        cWnd += GAIN * offtarget * bytesnewlyacked * MSS / cWnd
 
 ``TARGET`` is the maximum queueing delay that LEDBAT itself may introduce in the
