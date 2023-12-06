@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Ad Hoc On-Demand Distance Vector (AODV) &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="ad-hoc-on-demand-distance-vector-aodv">
+<h1>Ad Hoc On-Demand Distance Vector (AODV)<a class="headerlink" href="#ad-hoc-on-demand-distance-vector-aodv" title="Link to this heading">¶</a></h1>
+<p>This model implements the base specification of the Ad Hoc On-Demand
+Distance Vector (AODV) protocol. The implementation is based on
+<span class="target" id="index-0"></span><a class="rfc reference external" href="https://datatracker.ietf.org/doc/html/rfc3561.html"><strong>RFC 3561</strong></a>.</p>
+<p>The model was written by Elena Buchatskaia and Pavel Boyko of ITTP RAS,
+and is based on the ns-2 AODV model developed by the CMU/MONARCH group
+and optimized and tuned by Samir Das and Mahesh Marina, University of
+Cincinnati, and also on the AODV-UU implementation by Erik Nordström of
+Uppsala University.</p>
+<section id="model-description">
+<h2>Model Description<a class="headerlink" href="#model-description" title="Link to this heading">¶</a></h2>
+<p>The source code for the AODV model lives in the directory <cite>src/aodv</cite>.</p>
+<section id="design">
+<h3>Design<a class="headerlink" href="#design" title="Link to this heading">¶</a></h3>
+<p>Class <code class="docutils literal notranslate"><span class="pre">ns3::aodv::RoutingProtocol</span></code> implements all functionality of
+service packet exchange and inherits from <code class="docutils literal notranslate"><span class="pre">ns3::Ipv4RoutingProtocol</span></code>.
+The base class defines two virtual functions for packet routing and
+forwarding.  The first one, <code class="docutils literal notranslate"><span class="pre">ns3::aodv::RouteOutput</span></code>, is used for
+locally originated packets, and the second one, <code class="docutils literal notranslate"><span class="pre">ns3::aodv::RouteInput</span></code>,
+is used for forwarding and/or delivering received packets.</p>
+<p>Protocol operation depends on many adjustable parameters. Parameters for
+this functionality are attributes of <code class="docutils literal notranslate"><span class="pre">ns3::aodv::RoutingProtocol</span></code>.
+Parameter default values are drawn from the RFC and allow the
+enabling/disabling protocol features, such as broadcasting HELLO messages,
+broadcasting data packets and so on.</p>
+<p>AODV discovers routes on demand.  Therefore, the AODV model buffers all
+packets while a route request packet (RREQ) is disseminated.
+A packet queue is implemented in aodv-rqueue.cc. A smart pointer to
+the packet, <code class="docutils literal notranslate"><span class="pre">ns3::Ipv4RoutingProtocol::ErrorCallback</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ns3::Ipv4RoutingProtocol::UnicastForwardCallback</span></code>, and the IP header
+are stored in this queue. The packet queue implements garbage collection
+of old packets and a queue size limit.</p>
+<p>The routing table implementation supports garbage collection of
+old entries and state machine, defined in the standard.
+It is implemented as a STL map container. The key is a destination IP address.</p>
+<p>Some elements of protocol operation aren’t described in the RFC. These
+elements generally concern cooperation of different OSI model layers.
+The model uses the following heuristics:</p>
+<ul class="simple">
+<li><p>This AODV implementation can detect the presence of unidirectional
+links and avoid them if necessary.  If the node the model receives an
+RREQ for is a neighbor, the cause may be a unidirectional link.
+This heuristic is taken from AODV-UU implementation and can be disabled.</p></li>
+<li><p>Protocol operation strongly depends on broken link detection mechanism.
+The model implements two such heuristics.  First, this implementation
+support HELLO messages. However HELLO messages are not a good way to
+perform neighbor sensing in a wireless environment (at least not over
+802.11). Therefore, one may experience bad performance when running over
+wireless.  There are several reasons for this: 1) HELLO messages are
+broadcasted. In 802.11, broadcasting is often done at a
+lower bit rate than unicasting, thus HELLO messages can travel further
+than unicast data. 2) HELLO messages are small, thus less prone to
+bit errors than data transmissions, and 3) Broadcast transmissions are
+not guaranteed to be bidirectional, unlike unicast transmissions.
+Second, we use layer 2 feedback when possible. Link are considered to be
+broken if frame transmission results in a transmission failure for all
+retries. This mechanism is meant for active links and works faster than
+the first method.</p></li>
+</ul>
+<p>The layer 2 feedback implementation relies on the <code class="docutils literal notranslate"><span class="pre">TxErrHeader</span></code> trace source,
+currently supported in AdhocWifiMac only.</p>
+</section>
+<section id="scope-and-limitations">
+<h3>Scope and Limitations<a class="headerlink" href="#scope-and-limitations" title="Link to this heading">¶</a></h3>
+<p>The model is for IPv4 only.  The following optional protocol optimizations
+are not implemented:</p>
+<ol class="arabic simple">
+<li><p>Local link repair.</p></li>
+<li><p>RREP, RREQ and HELLO message extensions.</p></li>
+</ol>
+<p>These techniques require direct access to IP header, which contradicts
+the assertion from the AODV RFC that AODV works over UDP.  This model uses
+UDP for simplicity, hindering the ability to implement certain protocol
+optimizations. The model doesn’t use low layer raw sockets because they
+are not portable.</p>
+</section>
+<section id="future-work">
+<h3>Future Work<a class="headerlink" href="#future-work" title="Link to this heading">¶</a></h3>
+<p>No announced plans.</p>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/src/aodv/doc/aodv.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

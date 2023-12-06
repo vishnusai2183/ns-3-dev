@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>DSDV Routing &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="dsdv-routing">
+<h1>DSDV Routing<a class="headerlink" href="#dsdv-routing" title="Link to this heading">¶</a></h1>
+<p>Destination-Sequenced Distance Vector (DSDV) routing protocol is a pro-active, table-driven routing protocol
+for MANETs developed by Charles E. Perkins and Pravin Bhagwat in 1994. It uses the hop count as metric in route
+selection.</p>
+<p>This model was developed by
+<a class="reference external" href="https://resilinets.org/">the ResiliNets research group</a>
+at the University of Kansas.  A paper on this model exists at
+<a class="reference external" href="https://resilinets.org/resilinets_publications.html#.E2.80.9CDestination-Sequenced_Distance_Vector_.28DSDV.29_Routing_Protocol_Implementation_in_ns-3.E2.80.9D">this URL</a>.</p>
+<section id="dsdv-routing-overview">
+<h2>DSDV Routing Overview<a class="headerlink" href="#dsdv-routing-overview" title="Link to this heading">¶</a></h2>
+<p>DSDV Routing Table: Every node will maintain a table listing all the other nodes it has known either directly
+or through some neighbors. Every node has a single entry in the routing table. The entry will have information
+about the node’s IP address, last known sequence number and the hop count to reach that node. Along with these
+details the table also keeps track of the nexthop neighbor to reach the destination node, the timestamp of the last
+update received for that node.</p>
+<p>The DSDV update message consists of three fields, Destination Address, Sequence Number and Hop Count.</p>
+<p>Each node uses 2 mechanisms to send out the DSDV updates. They are,</p>
+<ol class="arabic simple">
+<li><dl class="simple">
+<dt>Periodic Updates</dt><dd><p>Periodic updates are sent out after every m_periodicUpdateInterval(default:15s). In this update the node broadcasts
+out its entire routing table.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Trigger Updates</dt><dd><p>Trigger Updates are small updates in-between the periodic updates. These updates are sent out whenever a node
+receives a DSDV packet that caused a change in its routing table. The original paper did not clearly mention
+when for what change in the table should a DSDV update be sent out. The current implementation sends out an update
+irrespective of the change in the routing table.</p>
+</dd>
+</dl>
+</li>
+</ol>
+<p>The updates are accepted based on the metric for a particular node. The first factor determining the acceptance of
+an update is the sequence number. It has to accept the update if the sequence number of the update message is higher
+irrespective of the metric. If the update with same sequence number is received, then the update with least metric
+(hopCount) is given precedence.</p>
+<p>In highly mobile scenarios, there is a high chance of route fluctuations, thus we have the concept of weighted
+settling time where an update with change in metric will not be advertised to neighbors. The node waits for
+the settling time to make sure that it did not receive the update from its old neighbor before sending out
+that update.</p>
+<p>The current implementation covers all the above features of DSDV. The current implementation also has a request queue
+to buffer packets that have no routes to destination. The default is set to buffer up to 5 packets per destination.</p>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h2>
+<p>Link to the Paper: <a class="reference external" href="http://portal.acm.org/citation.cfm?doid=190314.190336">http://portal.acm.org/citation.cfm?doid=190314.190336</a></p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/src/dsdv/doc/dsdv.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

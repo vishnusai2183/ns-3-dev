@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Buildings Module &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="buildings-module">
+<h1>Buildings Module<a class="headerlink" href="#buildings-module" title="Link to this heading">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="buildings-design.html">Design documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="buildings-design.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="buildings-design.html#the-building-class">The Building class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="buildings-design.html#the-mobilitybuildinginfo-class">The MobilityBuildingInfo class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="buildings-design.html#itur1238propagationlossmodel">ItuR1238PropagationLossModel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="buildings-design.html#buildingspropagationlossmodel">BuildingsPropagationLossModel</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="buildings-design.html#external-wall-loss-ewl">External Wall Loss (EWL)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="buildings-design.html#internal-walls-loss-iwl">Internal Walls Loss (IWL)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="buildings-design.html#height-gain-model-hg">Height Gain Model (HG)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="buildings-design.html#shadowing-model">Shadowing Model</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="buildings-design.html#pathloss-logics">Pathloss logics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="buildings-design.html#hybridbuildingspropagationlossmodel">HybridBuildingsPropagationLossModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="buildings-design.html#ohbuildingspropagationlossmodel">OhBuildingsPropagationLossModel</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="buildings-user.html">User Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="buildings-user.html#how-to-use-buildings-in-a-simulation">How to use buildings in a simulation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="buildings-user.html#include-the-headers">Include the headers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="buildings-user.html#create-a-building">Create a building</a></li>
+<li class="toctree-l3"><a class="reference internal" href="buildings-user.html#setup-nodes-and-mobility-models">Setup nodes and mobility models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="buildings-user.html#place-some-nodes">Place some nodes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="buildings-user.html#legacy-positioning-methods">Legacy positioning methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="buildings-user.html#building-specific-positioning-methods">Building-specific positioning methods</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="buildings-user.html#making-the-mobility-model-consistent-for-a-node">Making the Mobility Model Consistent for a node</a></li>
+<li class="toctree-l3"><a class="reference internal" href="buildings-user.html#building-aware-pathloss-model">Building-aware pathloss model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="buildings-user.html#building-aware-channel-condition-models">Building-aware channel condition models</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="buildings-user.html#main-configurable-attributes">Main configurable attributes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="buildings-testing.html">Testing Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="buildings-testing.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="buildings-testing.html#description-of-the-test-suites">Description of the test suites</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="buildings-testing.html#buildingshelper-test">BuildingsHelper test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="buildings-testing.html#buildingpositionallocator-test">BuildingPositionAllocator test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="buildings-testing.html#buildings-pathloss-tests">Buildings Pathloss tests</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="buildings-testing.html#test-1-okumura-hata">Test #1 Okumura Hata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="buildings-testing.html#test-2-cost231-model">Test #2 COST231 Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="buildings-testing.html#test-3-2-6-ghz-model">Test #3 2.6 GHz model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="buildings-testing.html#test-4-itu1411-los-model">Test #4 ITU1411 LoS model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="buildings-testing.html#test-5-itu1411-nlos-model">Test #5 ITU1411 NLoS model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="buildings-testing.html#test-6-itup1238-model">Test #6 ITUP1238 model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="buildings-testing.html#test-7-outdoor-indoor-with-okumura-hata-model">Test #7 Outdoor -&gt; Indoor with Okumura Hata model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="buildings-testing.html#test-8-outdoor-indoor-with-itu1411-model">Test #8 Outdoor -&gt; Indoor with ITU1411 model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="buildings-testing.html#test-9-indoor-outdoor-with-itu1411-model">Test #9 Indoor -&gt; Outdoor with ITU1411 model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="buildings-testing.html#test-10-indoor-outdoor-with-itu1411-model">Test #10 Indoor -&gt; Outdoor with ITU1411 model</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="buildings-testing.html#buildings-shadowing-test">Buildings Shadowing Test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="buildings-testing.html#buildings-channel-condition-model-test">Buildings Channel Condition Model Test</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="buildings-references.html">References</a></li>
+</ul>
+</div>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../../_sources/src/buildings/doc/source/buildings.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Design documentation &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="design-documentation">
+<h1>Design documentation<a class="headerlink" href="#design-documentation" title="Link to this heading">¶</a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<p>The Antenna module provides:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>a class (Angles) and utility functions to deal with angles</p></li>
+<li><p>a base class (AntennaModel) that provides an interface for the modeling of the radiation pattern of an antenna;</p></li>
+<li><p>a set of classes derived from this base class that each models the radiation pattern of different types of antennas;</p></li>
+<li><p>a base class (PhasedArrayModel) that provides a flexible interface for modeling a number of Phase Antenna Array (PAA) models</p></li>
+<li><p>a class (UniformPlanarArray) derived from this base class, implementing a Uniform Planar Array (UPA) supporting both rectangular and linear lattices</p></li>
+</ol>
+</div></blockquote>
+</section>
+<section id="angles">
+<h2>Angles<a class="headerlink" href="#angles" title="Link to this heading">¶</a></h2>
+<p>The Angles class holds information about an angle in 3D space using spherical coordinates in radian units.
+Specifically, it uses the azimuth-inclination convention, where</p>
+<ul class="simple">
+<li><p>Inclination is the angle between the zenith direction (positive z-axis) and the desired direction. It is included in the range [0, pi] radians.</p></li>
+<li><p>Azimuth is the signed angle measured from the positive x-axis, where a positive direction goes towards the positive y-axis. It is included in the range [-pi, pi) radians.</p></li>
+</ul>
+<p>Multiple constructors are present, supporting the most common ways to encode information on a direction.
+A static boolean variable allows the user to decide whether angles should be printed in radian or degree units.</p>
+<p>A number of angle-related utilities are offered, such as radians/degree conversions, for both scalars and vectors, and angle wrapping.</p>
+</section>
+<section id="antennamodel">
+<h2>AntennaModel<a class="headerlink" href="#antennamodel" title="Link to this heading">¶</a></h2>
+<p>The AntennaModel uses the coordinate system adopted in <a class="reference internal" href="#balanis" id="id1"><span>[Balanis]</span></a> and
+depicted in Figure <a class="reference internal" href="#fig-antenna-coordinate-system"><span class="std std-ref">Coordinate system of the AntennaModel</span></a>. This system
+is obtained by translating the Cartesian coordinate system used by the
+ns-3 MobilityModel into the new origin <span class="math notranslate nohighlight">\(o\)</span> which is the location
+of the antenna, and then transforming the coordinates of every generic
+point <span class="math notranslate nohighlight">\(p\)</span> of the space from Cartesian coordinates
+<span class="math notranslate nohighlight">\((x,y,z)\)</span> into spherical coordinates
+<span class="math notranslate nohighlight">\((r, \theta,\phi)\)</span>.
+The antenna model neglects the radial component <span class="math notranslate nohighlight">\(r\)</span>, and
+only considers the angle components <span class="math notranslate nohighlight">\((\theta, \phi)\)</span>. An antenna
+radiation pattern is then expressed as a mathematical function
+<span class="math notranslate nohighlight">\(g(\theta, \phi) \longrightarrow \mathcal{R}\)</span> that returns the
+gain (in dB) for each possible direction of
+transmission/reception. All angles are expressed in radians.</p>
+<figure class="align-center" id="id13">
+<span id="fig-antenna-coordinate-system"></span><img alt="src/antenna/doc/source/figures/antenna-coordinate-system.*" src="src/antenna/doc/source/figures/antenna-coordinate-system.*" />
+<figcaption>
+<p><span class="caption-text">Coordinate system of the AntennaModel</span><a class="headerlink" href="#id13" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="single-antenna-models">
+<h2>Single antenna models<a class="headerlink" href="#single-antenna-models" title="Link to this heading">¶</a></h2>
+<p>In this section we describe the antenna radiation pattern models that
+are included within the antenna module.</p>
+<section id="isotropicantennamodel">
+<h3>IsotropicAntennaModel<a class="headerlink" href="#isotropicantennamodel" title="Link to this heading">¶</a></h3>
+<p>This antenna radiation pattern model provides a unitary gain (0 dB)
+for all direction.</p>
+</section>
+<section id="cosineantennamodel">
+<h3>CosineAntennaModel<a class="headerlink" href="#cosineantennamodel" title="Link to this heading">¶</a></h3>
+<p>This is the cosine model described in <a class="reference internal" href="#chunjian" id="id2"><span>[Chunjian]</span></a>: the antenna gain is
+determined as:</p>
+<div class="math notranslate nohighlight">
+\[g(\phi, \theta) = \cos^{n} \left(\frac{\phi - \phi_{0}}{2}  \right)\]</div>
+<p>where <span class="math notranslate nohighlight">\(\phi_{0}\)</span> is the azimuthal orientation of the antenna
+(i.e., its direction of maximum gain) and the exponential</p>
+<div class="math notranslate nohighlight">
+\[n = -\frac{3}{20 \log_{10} \left( \cos \frac{\phi_{3dB}}{4} \right)}\]</div>
+<p>determines the desired 3dB beamwidth <span class="math notranslate nohighlight">\(\phi_{3dB}\)</span>. Note that
+this radiation pattern is independent of the inclination angle
+<span class="math notranslate nohighlight">\(\theta\)</span>.</p>
+<p>A major difference between the model of <a class="reference internal" href="#chunjian" id="id3"><span>[Chunjian]</span></a> and the one
+implemented in the class CosineAntennaModel is that only the element
+factor (i.e., what described by the above formulas) is considered. In
+fact, <a class="reference internal" href="#chunjian" id="id4"><span>[Chunjian]</span></a> also considered an additional antenna array
+factor. The reason why the latter is excluded is that we expect that
+the average user would desire to specify a given beamwidth exactly,
+without adding an array factor at a latter stage which would in
+practice alter the effective beamwidth of the resulting radiation
+pattern.</p>
+</section>
+<section id="parabolicantennamodel">
+<h3>ParabolicAntennaModel<a class="headerlink" href="#parabolicantennamodel" title="Link to this heading">¶</a></h3>
+<p>This model is based on the parabolic approximation of the main lobe radiation pattern. It is often used in the context of cellular system to model the radiation pattern of a cell sector, see for instance <a class="reference internal" href="#r4-092042a" id="id5"><span>[R4-092042a]</span></a> and <a class="reference internal" href="#calcev" id="id6"><span>[Calcev]</span></a>. The antenna gain in dB is determined as:</p>
+<div class="math notranslate nohighlight">
+\[g_{dB}(\phi, \theta) = -\min \left( 12 \left(\frac{\phi  - \phi_{0}}{\phi_{3dB}} \right)^2, A_{max} \right)\]</div>
+<p>where <span class="math notranslate nohighlight">\(\phi_{0}\)</span> is the azimuthal orientation of the antenna
+(i.e., its direction of maximum gain), <span class="math notranslate nohighlight">\(\phi_{3dB}\)</span> is its 3 dB
+beamwidth, and <span class="math notranslate nohighlight">\(A_{max}\)</span> is the maximum attenuation in dB of the
+antenna. Note that this radiation pattern is independent of the inclination angle
+<span class="math notranslate nohighlight">\(\theta\)</span>.</p>
+</section>
+<section id="threegppantennamodel">
+<h3>ThreeGppAntennaModel<a class="headerlink" href="#threegppantennamodel" title="Link to this heading">¶</a></h3>
+<p>This model implements the antenna element described in <a class="footnote-reference brackets" href="#id12" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>38901<span class="fn-bracket">]</span></a>.
+Parameters are fixed from the technical report, thus no attributes nor setters are provided.
+The model is largely based on the <a class="reference internal" href="#parabolicantennamodel">ParabolicAntennaModel</a>.</p>
+</section>
+</section>
+<section id="phased-array-model">
+<h2>Phased Array Model<a class="headerlink" href="#phased-array-model" title="Link to this heading">¶</a></h2>
+<p>The class PhasedArrayModel has been created with flexibility in mind.
+It abstracts the basic idea of a Phased Antenna Array (PAA) by removing any constraint on the
+position of each element, and instead generalizes the concept of steering and beamforming vectors,
+solely based on the generalized location of the antenna elements.
+For details on Phased Array Antennas see for instance <a class="reference internal" href="#mailloux" id="id8"><span>[Mailloux]</span></a>.</p>
+<p>Derived classes must implement the following functions:</p>
+<ul class="simple">
+<li><p>GetNumElems: returns the number of antenna elements</p></li>
+<li><p>GetElementLocation: returns the location of the antenna element with the specified index, normalized with respect to the wavelength</p></li>
+<li><p>GetElementFieldPattern: returns the horizontal and vertical components of the antenna element field pattern at the specified direction. Same polarization (configurable) for all antenna elements of the array is considered.</p></li>
+</ul>
+<p>The class PhasedArrayModel also assumes that all antenna elements are equal, a typical key assumption which allows to model the PAA field pattern as the sum of the array factor, given by the geometry of the location of the antenna elements, and the element field pattern.
+Any class derived from AntennaModel is a valid antenna element for the PhasedArrayModel, allowing for a great flexibility of the framework.</p>
+<section id="uniformplanararray">
+<span id="gpp-antenna-model"></span><h3>UniformPlanarArray<a class="headerlink" href="#uniformplanararray" title="Link to this heading">¶</a></h3>
+<p>The class UniformPlanarArray is a generic implementation of Uniform Planar Arrays (UPAs),
+supporting rectangular and linear regular lattices.
+It closely follows the implementation described in the 3GPP TR 38.901 <a class="footnote-reference brackets" href="#id12" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>38901<span class="fn-bracket">]</span></a>,
+considering only a single panel, i.e., <span class="math notranslate nohighlight">\(N_{g} = M_{g} = 1\)</span>.</p>
+<p>By default, the antenna array is orthogonal to the x-axis, pointing towards the positive
+direction, but the orientation can be changed through the attributes “BearingAngle”,
+which adjusts the azimuth angle, and “DowntiltAngle”, which adjusts the elevation angle.
+The slant angle is instead fixed and assumed to be 0.</p>
+<p>The number of antenna elements in the vertical and horizontal directions can be configured
+through the attributes “NumRows” and “NumColumns”, while the spacing between the horizontal
+and vertical elements can be configured through the attributes “AntennaHorizontalSpacing”
+and “AntennaVerticalSpacing”.</p>
+<p>UniformPlannarArray supports the concept of antenna ports following the sub-array partition
+model for TXRU virtualization, as described in Section 5.2.2 of 3GPP TR 36.897 <a href="#id14"><span class="problematic" id="id10">[36897]_</span></a>.
+The number of antenna ports in vertical and horizontal directions can be configured through
+the attributes “NumVerticalPorts” and “NumHorizontalPorts”, respectively. For example,
+if “NumRows” and “NumColumns” are configured to 2 and 4, and the number of
+“NumVerticalPorts” and “NumHorizontalPorts” to 1 and 2, then the antenna elements belonging
+to the first two columns of the antenna array will belong to the first antenna port,
+and the third and the fourth columns will belong to the second antenna port. Note that
+“NumRows” and “NumColumns” must be a multiple of “NumVerticalPorts” and “NumHorizontalPorts”,
+respectively.</p>
+<p>Whether the antenna is dual-polarized or not is configured through the attribute
+“IsDualPolarized”. In case the antenna array is dual polarized, the total number
+of antenna elements is doubled and the two polarizations are overlapped in space.
+The polarization slant angle of the antenna elements belonging to the first polarization
+are configured through the attribute “PolSlantAngle”; while the antenna elements of
+the second polarization have the polarization slant angle minus 90 degrees,
+as described in <a class="footnote-reference brackets" href="#id12" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>38901<span class="fn-bracket">]</span></a> (i.e., <span class="math notranslate nohighlight">\({\zeta}\)</span>).</p>
+<div role="list" class="citation-list">
+<div class="citation" id="balanis" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">Balanis</a><span class="fn-bracket">]</span></span>
+<p>C.A. Balanis, “Antenna Theory - Analysis and Design”,  Wiley, 2nd Ed.</p>
+</div>
+<div class="citation" id="chunjian" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Chunjian<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id2">1</a>,<a role="doc-backlink" href="#id3">2</a>,<a role="doc-backlink" href="#id4">3</a>)</span>
+<p>Li Chunjian, “Efficient Antenna Patterns for
+Three-Sector WCDMA Systems”, Master of Science Thesis, Chalmers
+University of Technology, Göteborg, Sweden, 2003</p>
+</div>
+<div class="citation" id="calcev" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">Calcev</a><span class="fn-bracket">]</span></span>
+<p>George Calcev and Matt Dillon, “Antenna Tilt Control in
+CDMA Networks”, in Proc. of the 2nd Annual International Wireless
+Internet Conference (WICON), 2006</p>
+</div>
+<div class="citation" id="r4-092042a" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">R4-092042a</a><span class="fn-bracket">]</span></span>
+<p>3GPP TSG RAN WG4 (Radio) Meeting #51, R4-092042, Simulation
+assumptions and parameters for FDD HeNB RF requirements.</p>
+</div>
+</div>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id12" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>38901<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id7">1</a>,<a role="doc-backlink" href="#id9">2</a>,<a role="doc-backlink" href="#id11">3</a>)</span>
+<p>3GPP. 2018. TR 38.901, Study on channel model for frequencies from 0.5 to 100 GHz, V15.0.0. (2018-06).</p>
+</aside>
+</aside>
+<div role="list" class="citation-list">
+<div class="citation" id="mailloux" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">Mailloux</a><span class="fn-bracket">]</span></span>
+<p>Robert J. Mailloux, “Phased Array Antenna Handbook”, Artech House, 2nd Ed.</p>
+</div>
+<div class="citation" id="tr36897" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>TR36897<span class="fn-bracket">]</span></span>
+<p>3GPP. 2015. TR 36.897. Study on elevation beamforming / Full-Dimension (FD)
+Multiple Input Multiple Output (MIMO) for LTE. V13.0.0. (2015-06)</p>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../../_sources/src/antenna/doc/source/antenna-design.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

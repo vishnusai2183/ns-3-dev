@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>6. Windows &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="windows">
+<span id="id1"></span><h1><span class="section-number">6. </span>Windows<a class="headerlink" href="#windows" title="Link to this heading">¶</a></h1>
+<p>This chapter describes installation steps specific to Microsoft Windows (version 10) and its
+derivatives (e.g. Home, Pro, Enterprise) using the Msys2/MinGW64 toolchain.</p>
+<p>There are two documented ways to use <em>ns-3</em> on Windows:  the Windows Subsystem for Linux (WSL) or
+via the Msys2/MinGW64 toolchain.  Both options are listed below; users may choose to install
+either WSL or the Msys2/MinGW64 toolchain (installing both is not required).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><em>ns-3</em> is not fully compatible with Visual Studio IDE / MSVC compiler; only Visual Studio Code
+editor, the Msys2/MinGW64 toolchain, and WSL, as explained below.</p>
+</div>
+<section id="windows-subsystem-for-linux">
+<span id="wsl2"></span><h2><span class="section-number">6.1. </span>Windows Subsystem for Linux<a class="headerlink" href="#windows-subsystem-for-linux" title="Link to this heading">¶</a></h2>
+<p>Windows Subsystem for Linux (WSL), particularly WSL2, can be used on Windows for <em>ns-3</em>.  WSL2
+runs a real Linux kernel on Windows’s Hyper-V hypervisor, providing 100% code compatibility with
+Linux and seamless integration with Windows.  VS Code has excellent support and integration with
+WSL, enabling Windows users to develop for ns-3 in a native environment. It is recommended to
+install the WSL extension in VS Code for this purpose.</p>
+<p>Users starting with WSL2 can follow the Linux installation instructions to fill out other
+package prerequisites.  Note that <em>ns-3</em> emulation features using WSL2 are not tested/supported.</p>
+<p>For more information:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://learn.microsoft.com/en-us/windows/wsl/">WSL</a></p></li>
+<li><p><a class="reference external" href="https://code.visualstudio.com/docs/remote/wsl">Developing in WSL with VS Code</a></p></li>
+<li><p><a class="reference external" href="https://code.visualstudio.com/docs/remote/wsl-tutorial">WSL tutorial</a></p></li>
+</ul>
+</section>
+<section id="windows-10-package-prerequisites">
+<span id="id2"></span><h2><span class="section-number">6.2. </span>Windows 10 package prerequisites<a class="headerlink" href="#windows-10-package-prerequisites" title="Link to this heading">¶</a></h2>
+<p>The following instructions are relevant to the ns-3.37 release and Windows 10.</p>
+<section id="installation-of-the-msys2-environment">
+<h3><span class="section-number">6.2.1. </span>Installation of the Msys2 environment<a class="headerlink" href="#installation-of-the-msys2-environment" title="Link to this heading">¶</a></h3>
+<p>The <a class="reference external" href="https://www.msys2.org/">Msys2</a> includes ports of Unix tools for Windows built with multiple toolchains,
+including: MinGW32, MinGW64, Clang64, UCRT.</p>
+<p><em>ns-3</em> has been tested with the  MinGW64 (GCC) toolchain.  MinGW32 is 32-bit, which <em>ns-3</em> does
+not support.  The project’s Windows maintainer has tested Clang64 unsuccessfully, and has
+not tested the UCRT toolchain (which may work).</p>
+<p>The <a class="reference external" href="https://www.msys2.org/">Msys2</a> installer can be found on their site.
+Msys2 will be installed by default in the <code class="docutils literal notranslate"><span class="pre">C:\msys64</span></code> directory.</p>
+<p>The next required step is adding the binaries directories from the MinGW64 toolchain and generic Msys2 tools
+to the PATH environment variable. This can be accomplished via the GUI (search for system environment variable),
+or via the following command (assuming it was installed to the default directory):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">C:\&gt; setx PATH &quot;C:\msys64\mingw64\bin;C:\msys64\usr\bin;%PATH%;&quot; /m</span>
+</pre></div>
+</div>
+<p>Note: if the MinGW64 binary directory doesn’t precede the Windows/System32 directory (already in <code class="docutils literal notranslate"><span class="pre">%PATH%</span></code>),
+the documentation build will fail since Windows has a conflicting <code class="docutils literal notranslate"><span class="pre">convert</span></code> command (FAT-to-NTFS). Similarly,
+if the Msys64 binary directory doesn’t precede the Windows/System2 directory, running the <code class="docutils literal notranslate"><span class="pre">bash</span></code> command will
+result in Windows trying to run the Windows Subsystem for Linux (WSL) bash shell.</p>
+</section>
+<section id="accessing-the-mingw64-shell">
+<h3><span class="section-number">6.2.2. </span>Accessing the MinGW64 shell<a class="headerlink" href="#accessing-the-mingw64-shell" title="Link to this heading">¶</a></h3>
+<p>After installing Msys2 and adding the binary directories to the <code class="docutils literal notranslate"><span class="pre">PATH</span></code>, we can access the Unix-like MinGW64 shell
+and use the Pacman package manager.</p>
+<p>The Pacman package manager is similar to the one used by Arch Linux, and can be accessed via one of the Msys2 shells.
+In this case, we will be using the MinGW64 shell. We can take this opportunity to update the package cache and packages.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">C:\ns-3-dev\&gt; set MSYSTEM MINGW64</span>
+<span class="go">C:\ns-3-dev\&gt; bash</span>
+<span class="go">/c/ns-3-dev/ MINGW64$ pacman -Syu</span>
+</pre></div>
+</div>
+<p>Pacman will request you to close the shell and re-open it to proceed after the upgrade.</p>
+</section>
+<section id="minimal-requirements-for-c-release">
+<h3><span class="section-number">6.2.3. </span>Minimal requirements for C++ (release)<a class="headerlink" href="#minimal-requirements-for-c-release" title="Link to this heading">¶</a></h3>
+<p>This is the minimal set of packages needed to run ns-3 C++ programs from a released tarball.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">/c/ns-3-dev/ MINGW64$ pacman -S \</span>
+<span class="go">mingw-w64-x86_64-toolchain \</span>
+<span class="go">mingw-w64-x86_64-cmake \</span>
+<span class="go">mingw-w64-x86_64-ninja \</span>
+<span class="go">mingw-w64-x86_64-grep \</span>
+<span class="go">mingw-w64-x86_64-sed \</span>
+<span class="go">mingw-w64-x86_64-python</span>
+</pre></div>
+</div>
+</section>
+<section id="netanim-animator">
+<h3><span class="section-number">6.2.4. </span>Netanim animator<a class="headerlink" href="#netanim-animator" title="Link to this heading">¶</a></h3>
+<p>Qt5 development tools are needed for Netanim animator. Qt4 will also work but we have migrated to qt5.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">/c/ns-3-dev/ MINGW64$ pacman -S mingw-w64-x86_64-qt5 git</span>
+</pre></div>
+</div>
+</section>
+<section id="support-for-mpi-based-distributed-emulation">
+<h3><span class="section-number">6.2.5. </span>Support for MPI-based distributed emulation<a class="headerlink" href="#support-for-mpi-based-distributed-emulation" title="Link to this heading">¶</a></h3>
+<p>The MPI setup requires two parts.</p>
+<p>The first part is the Microsoft MPI SDK required to build the MPI applications,
+which is distributed via Msys2.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">/c/ns-3-dev/ MINGW64$ pacman -S mingw-w64-x86_64-msmpi</span>
+</pre></div>
+</div>
+<p>The second part is the <a class="reference external" href="https://www.microsoft.com/en-us/download/details.aspx?id=100593">Microsoft MPI</a> executors (mpiexec, mpirun) package,
+which is distributed as an installable (<code class="docutils literal notranslate"><span class="pre">msmpisetup.exe</span></code>).</p>
+<p>After installing it, the path containing the executors also need to be included to <code class="docutils literal notranslate"><span class="pre">PATH</span></code>
+environment variable of the Windows and/or the MinGW64 shell, depending on whether
+you want to run MPI programs in either shell or both of them.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">C:\ns-3-dev\&gt; setx PATH &quot;%PATH%;C:\Program Files\Microsoft MPI\Bin&quot; /m</span>
+<span class="go">C:\ns-3-dev\&gt; set MSYSTEM MINGW64</span>
+<span class="go">C:\ns-3-dev\&gt; bash</span>
+<span class="go">/c/ns-3-dev/ MINGW64$ echo &quot;export PATH=$PATH:/c/Program\ Files/Microsoft\ MPI/Bin&quot; &gt;&gt; ~/.bashrc</span>
+</pre></div>
+</div>
+</section>
+<section id="debugging">
+<h3><span class="section-number">6.2.6. </span>Debugging<a class="headerlink" href="#debugging" title="Link to this heading">¶</a></h3>
+<p>GDB is installed along with the mingw-w64-x86_64-toolchain package.</p>
+</section>
+<section id="doxygen-and-related-inline-documentation">
+<h3><span class="section-number">6.2.7. </span>Doxygen and related inline documentation<a class="headerlink" href="#doxygen-and-related-inline-documentation" title="Link to this heading">¶</a></h3>
+<p>To build the Doxygen-based documentation, we need doxygen and a Latex toolchain.
+Getting Doxygen from Msys2 is straightforward.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">/c/ns-3-dev/ MINGW64$ pacman -S mingw-w64-x86_64-imagemagick mingw-w64-x86_64-doxygen mingw-w64-x86_64-graphviz</span>
+</pre></div>
+</div>
+<p>For unknown reasons, the texlive packages in Msys2 are broken,
+so we recommend manually installing the official Texlive.</p>
+<p>Start by installing <a class="reference external" href="https://tug.org/texlive/windows.html">Texlive for Windows</a>. It can be installed either via the network installer or
+directly from the ISO with all optional packages.</p>
+<p>To install it with the network installer, start by creating a texlive folder and downloading the
+texlive configuration profile below. You can change the installation directory (starting with
+<code class="docutils literal notranslate"><span class="pre">C:/texlive/2022</span></code>).</p>
+<div class="highlight-raw notranslate"><div class="highlight"><pre><span></span>selected_scheme scheme-custom
+TEXDIR C:/texlive/2022
+TEXMFCONFIG ~/.texlive2022/texmf-config
+TEXMFHOME ~/texmf
+TEXMFLOCAL C:/texlive/texmf-local
+TEXMFSYSCONFIG C:/texlive/2022/texmf-config
+TEXMFSYSVAR C:/texlive/2022/texmf-var
+TEXMFVAR ~/.texlive2022/texmf-var
+binary_win32 1
+collection-basic 1
+collection-bibtexextra 1
+collection-binextra 1
+collection-context 1
+collection-fontsrecommended 1
+collection-fontutils 1
+collection-games 1
+collection-humanities 1
+collection-langenglish 1
+collection-latex 1
+collection-latexextra 1
+collection-latexrecommended 1
+collection-luatex 1
+collection-mathscience 1
+collection-metapost 1
+collection-music 1
+collection-pictures 1
+collection-plaingeneric 1
+collection-pstricks 1
+collection-publishers 1
+collection-texworks 1
+collection-wintools 1
+collection-xetex 1
+instopt_adjustpath 1
+instopt_adjustrepo 1
+instopt_letter 0
+instopt_portable 0
+instopt_write18_restricted 1
+tlpdbopt_autobackup 1
+tlpdbopt_backupdir tlpkg/backups
+tlpdbopt_create_formats 1
+tlpdbopt_desktop_integration 1
+tlpdbopt_file_assocs 1
+tlpdbopt_generate_updmap 0
+tlpdbopt_install_docfiles 0
+tlpdbopt_install_srcfiles 0
+tlpdbopt_post_code 1
+tlpdbopt_sys_bin /usr/local/bin
+tlpdbopt_sys_info /usr/local/share/info
+tlpdbopt_sys_man /usr/local/share/man
+tlpdbopt_w32_multi_user 0
+</pre></div>
+</div>
+<p>Then, download Texlive’s web installer and unpack it to the texlive directory,
+and run the installer.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~$ wget https://linorg.usp.br/CTAN/systems/texlive/tlnet/install-tl.zip</span>
+<span class="go">~$ python3 -c &quot;import shutil; shutil.unpack_archive(&#39;install-tl.zip&#39;, &#39;./&#39;)&quot;</span>
+<span class="go">~$ cd install-tl-*</span>
+<span class="go">~/install-tl-20220923$ .\install-tl-windows.bat --no-gui --lang en -profile ..\texlive.profile</span>
+</pre></div>
+</div>
+<p>After the installation finishes, add the installation directory to the PATH environment variable.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">setx PATH &quot;%PATH%;C:\texlive\2022\bin\win32&quot; /m</span>
+<span class="go">C:\ns-3-dev\&gt; set MSYSTEM MINGW64</span>
+<span class="go">C:\ns-3-dev\&gt; bash</span>
+<span class="go">/c/ns-3-dev/ MINGW64$ echo &quot;export PATH=$PATH:/c/texlive/2022/bin/win32&quot; &gt;&gt; ~/.bashrc</span>
+</pre></div>
+</div>
+</section>
+<section id="the-ns-3-manual-models-and-tutorial">
+<h3><span class="section-number">6.2.8. </span>The ns-3 manual, models and tutorial<a class="headerlink" href="#the-ns-3-manual-models-and-tutorial" title="Link to this heading">¶</a></h3>
+<p>These documents are written in reStructuredText for Sphinx (doc/tutorial, doc/manual, doc/models).
+The figures are typically written in dia.</p>
+<p>The documents can be generated into multiple formats, one of them being pdf,
+which requires the same Latex setup for doxygen.</p>
+<p>Sphinx can be installed via Msys2’s package manager:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">/c/ns-3-dev/ MINGW64$ pacman -S mingw-w64-x86_64-python-sphinx</span>
+</pre></div>
+</div>
+<p><a class="reference external" href="https://sourceforge.net/projects/dia-installer/">Dia</a> on the other hand needs to be downloaded and installed manually.
+After installing it, or unzipping the package (example below), add Dia/bin to the PATH.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">C:\ns-3-dev\&gt; setx PATH &quot;%PATH%;C:\dia_0.97.2_win32\bin&quot; /m</span>
+<span class="go">C:\ns-3-dev\&gt; set MSYSTEM MINGW64</span>
+<span class="go">C:\ns-3-dev\&gt; bash</span>
+<span class="go">/c/ns-3-dev/ MINGW64$ echo &quot;export PATH=$PATH:/c/dia_0.97.2_win32/bin&quot; &gt;&gt; ~/.bashrc</span>
+</pre></div>
+</div>
+</section>
+<section id="gnu-scientific-library-gsl">
+<h3><span class="section-number">6.2.9. </span>GNU Scientific Library (GSL)<a class="headerlink" href="#gnu-scientific-library-gsl" title="Link to this heading">¶</a></h3>
+<p>GSL is used to provide more accurate WiFi error models and can be installed with:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">/c/ns-3-dev/ MINGW64$ pacman -S mingw-w64-x86_64-gsl</span>
+</pre></div>
+</div>
+</section>
+<section id="database-support-for-statistics-framework">
+<h3><span class="section-number">6.2.10. </span>Database support for statistics framework<a class="headerlink" href="#database-support-for-statistics-framework" title="Link to this heading">¶</a></h3>
+<p>SQLite3 is installed along with the mingw-w64-x86_64-toolchain package.</p>
+</section>
+<section id="xml-based-version-of-the-config-store">
+<h3><span class="section-number">6.2.11. </span>Xml-based version of the config store<a class="headerlink" href="#xml-based-version-of-the-config-store" title="Link to this heading">¶</a></h3>
+<p>Requires libxml2 &gt;= version 2.7, which can be installed with the following.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">/c/ns-3-dev/ MINGW64$ pacman -S mingw-w64-x86_64-libxml2</span>
+</pre></div>
+</div>
+</section>
+<section id="support-for-openflow-module">
+<h3><span class="section-number">6.2.12. </span>Support for openflow module<a class="headerlink" href="#support-for-openflow-module" title="Link to this heading">¶</a></h3>
+<p>Requires some boost libraries that can be installed with the following.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">/c/ns-3-dev/ MINGW64$ pacman -S mingw-w64-x86_64-boost</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="windows-10-docker-container">
+<h2><span class="section-number">6.3. </span>Windows 10 Docker container<a class="headerlink" href="#windows-10-docker-container" title="Link to this heading">¶</a></h2>
+<p>Docker containers are not as useful for Windows, since only Windows hosts can use them,
+however we add directions on how to use the Windows container and how to update the Docker
+image for reference.</p>
+<p>First, gather all dependencies previously mentioned to cover all supported features.
+Install them to a base directory for the container (e.g. <code class="docutils literal notranslate"><span class="pre">C:\tools</span></code>).</p>
+<p>Save the following Dockerfile to the base directory.</p>
+<div class="highlight-docker notranslate"><div class="highlight"><pre><span></span><span class="c"># It is really unfortunate we need a 16 GB base image just to get the installers working, but such is life</span>
+<span class="k">FROM</span><span class="w"> </span><span class="s">mcr.microsoft.com/windows:20H2</span>
+
+<span class="c"># Copy the current host directory to the container</span>
+<span class="k">COPY</span><span class="w"> </span>.<span class="se">\\</span><span class="w"> </span>C:/tools
+<span class="k">WORKDIR</span><span class="w"> </span><span class="s">C:\\tools</span>
+
+<span class="c"># Create temporary dir</span>
+<span class="k">RUN</span><span class="w"> </span>mkdir<span class="w"> </span>C:<span class="se">\\</span>tools<span class="se">\\</span>temp
+
+<span class="c"># Export environment variables</span>
+<span class="k">RUN</span><span class="w"> </span>setx<span class="w"> </span>PATH<span class="w"> </span><span class="s2">&quot;C:\\tools\\msys64\\mingw64\\bin;C:\\tools\\msys64\\usr\\bin;%PATH%&quot;</span><span class="w"> </span>/m
+<span class="k">RUN</span><span class="w"> </span>setx<span class="w"> </span>PATH<span class="w"> </span><span class="s2">&quot;%PATH%;C:\\Program Files\\Microsoft MPI\\bin;C:\\tools\\dia\bin;C:\tools\texlive\2022\bin\win32&quot;</span><span class="w"> </span>/m
+<span class="k">RUN</span><span class="w"> </span>setx<span class="w"> </span>MSYSTEM<span class="w"> </span><span class="s2">&quot;MINGW64&quot;</span><span class="w"> </span>/m
+
+<span class="c"># Install Msys2</span>
+<span class="k">RUN</span><span class="w"> </span>.<span class="se">\\</span>msys2-x86_64-20220503.exe<span class="w"> </span><span class="k">in</span><span class="w"> </span>--confirm-command<span class="w"> </span>--accept-messages<span class="w"> </span>--root<span class="w"> </span>C:<span class="se">\\</span>tools<span class="se">\\</span>msys64
+
+<span class="c"># Update base packages</span>
+<span class="k">RUN</span><span class="w"> </span>C:<span class="se">\\</span>tools<span class="se">\\</span>msys64<span class="se">\\</span>usr<span class="se">\\</span>bin<span class="se">\\</span>pacman<span class="w"> </span>-Syyuu<span class="w"> </span>--noconfirm
+
+<span class="c"># Install base packages</span>
+<span class="k">RUN</span><span class="w"> </span>bash<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;echo export PATH=</span><span class="nv">$PATH</span><span class="s2">:/c/Program\ Files/Microsoft\ MPI/Bin &gt;&gt; /c/tools/msys64/home/</span><span class="nv">$USER</span><span class="s2">/.bashrc&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>bash<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;echo export PATH=</span><span class="nv">$PATH</span><span class="s2">:/c/tools/dia/bin &gt;&gt; /c/tools/msys64/home/</span><span class="nv">$USER</span><span class="s2">/.bashrc&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>bash<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;echo export PATH=</span><span class="nv">$PATH</span><span class="s2">:/c/tools/texlive/2022/bin/win32 &gt;&gt; /c/tools/msys64/home/</span><span class="nv">$USER</span><span class="s2">/.bashrc&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>bash<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;pacman -S mingw-w64-x86_64-toolchain \</span>
+<span class="s2">                   mingw-w64-x86_64-cmake \</span>
+<span class="s2">                   mingw-w64-x86_64-ninja \</span>
+<span class="s2">                   mingw-w64-x86_64-grep \</span>
+<span class="s2">                   mingw-w64-x86_64-sed \</span>
+<span class="s2">                   mingw-w64-x86_64-qt5 \</span>
+<span class="s2">                   git \</span>
+<span class="s2">                   mingw-w64-x86_64-msmpi \</span>
+<span class="s2">                   mingw-w64-x86_64-uncrustify \</span>
+<span class="s2">                   mingw-w64-x86_64-imagemagick \</span>
+<span class="s2">                   mingw-w64-x86_64-doxygen \</span>
+<span class="s2">                   mingw-w64-x86_64-graphviz \</span>
+<span class="s2">                   mingw-w64-x86_64-python-sphinx \</span>
+<span class="s2">                   mingw-w64-x86_64-gsl \</span>
+<span class="s2">                   mingw-w64-x86_64-libxml2 \</span>
+<span class="s2">                   mingw-w64-x86_64-boost \</span>
+<span class="s2">                   --noconfirm&quot;</span>
+
+<span class="c"># Install Microsoft MPI</span>
+<span class="k">RUN</span><span class="w"> </span>.<span class="se">\\</span>msmpisetup.exe<span class="w"> </span>-unattend<span class="w"> </span>-force<span class="w"> </span>-full<span class="w"> </span>-verbose
+
+<span class="c"># Install TexLive</span>
+<span class="k">RUN</span><span class="w"> </span>.<span class="se">\\</span>install-tl-20220526<span class="se">\\</span>install-tl-windows.bat<span class="w"> </span>--no-gui<span class="w"> </span>--lang<span class="w"> </span>en<span class="w"> </span>-profile<span class="w"> </span>.<span class="se">\\</span>texlive.profile
+
+<span class="c"># Move working directory to temp and start cmd</span>
+<span class="k">WORKDIR</span><span class="w"> </span><span class="s">C:\\tools\\temp</span>
+<span class="k">ENTRYPOINT</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;cmd&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Now you should be able to run <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">build</span> <span class="pre">-t</span> <span class="pre">username/image</span> <span class="pre">.</span></code>.</p>
+<p>After building the container image, you should be able to use it:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>docker<span class="w"> </span>run<span class="w"> </span>-it<span class="w"> </span>username/image
+<span class="go">C:\tools\temp$ git clone https://gitlab.com/nsnam/ns-3-dev</span>
+<span class="go">C:\tools\temp$ cd ns-3-dev</span>
+<span class="go">C:\tools\temp\ns-3-dev$ python ns3 configure --enable-tests --enable-examples</span>
+<span class="go">C:\tools\temp\ns-3-dev$ python ns3 build</span>
+<span class="go">C:\tools\temp\ns-3-dev$ python test.py</span>
+</pre></div>
+</div>
+<p>If testing succeeds, the container image can then be pushed to the Docker Hub using
+<code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">push</span> <span class="pre">username/image</span></code>.</p>
+</section>
+<section id="windows-10-vagrant">
+<h2><span class="section-number">6.4. </span>Windows 10 Vagrant<a class="headerlink" href="#windows-10-vagrant" title="Link to this heading">¶</a></h2>
+<p>As an alternative to manually setting up all dependencies required by ns-3,
+one can use a pre-packaged <a class="reference external" href="https://www.redhat.com/en/topics/virtualization/what-is-a-virtual-machine">virtual machine</a>. There are many ways to do that,
+but for automation, the most used certainly is <a class="reference external" href="https://www.vagrantup.com/">Vagrant</a>.</p>
+<p>Vagrant supports multiple virtual machine providers, is available in all platforms and is
+fairly straightforward to use and configure.</p>
+<p>There are many <a class="reference external" href="https://app.vagrantup.com/boxes/search">boxes available</a> offering guests operating systems such as BSD, Mac, Linux and Windows.</p>
+<section id="using-the-pre-packaged-vagrant-box">
+<h3><span class="section-number">6.4.1. </span>Using the pre-packaged Vagrant box<a class="headerlink" href="#using-the-pre-packaged-vagrant-box" title="Link to this heading">¶</a></h3>
+<p>The provider for the ns-3 Vagrant box is <a class="reference external" href="https://www.virtualbox.org/">VirtualBox</a>.</p>
+<p>The reference Windows virtual machine can be downloaded via the following Vagrant command</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/mingw64_test $ vagrant init gabrielcarvfer/ns3_win10_mingw64</span>
+</pre></div>
+</div>
+<p>After that, a Vagrantfile will be created in the current directory (in this case, mingw64_test).</p>
+<p>The file can be modified to adjust the number of processors and memory available to the virtual machine (VM).</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/mingw64_test $ cat Vagrantfile</span>
+<span class="gp"># </span>-*-<span class="w"> </span>mode:<span class="w"> </span>ruby<span class="w"> </span>-*-
+<span class="gp"># </span>vi:<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="nv">ft</span><span class="o">=</span>ruby<span class="w"> </span>:
+
+<span class="gp"># </span>All<span class="w"> </span>Vagrant<span class="w"> </span>configuration<span class="w"> </span>is<span class="w"> </span><span class="k">done</span><span class="w"> </span>below.<span class="w"> </span>The<span class="w"> </span><span class="s2">&quot;2&quot;</span><span class="w"> </span><span class="k">in</span><span class="w"> </span>Vagrant.configure
+<span class="gp"># </span>configures<span class="w"> </span>the<span class="w"> </span>configuration<span class="w"> </span>version<span class="w"> </span><span class="o">(</span>we<span class="w"> </span>support<span class="w"> </span>older<span class="w"> </span>styles<span class="w"> </span><span class="k">for</span>
+<span class="gp"># </span>backwards<span class="w"> </span>compatibility<span class="o">)</span>.<span class="w"> </span>Please<span class="w"> </span>don<span class="s1">&#39;t change it unless you know what</span>
+<span class="gp"># </span><span class="s1">you&#39;</span>re<span class="w"> </span>doing.
+<span class="go">Vagrant.configure(&quot;2&quot;) do |config|</span>
+<span class="gp"># </span>The<span class="w"> </span>most<span class="w"> </span>common<span class="w"> </span>configuration<span class="w"> </span>options<span class="w"> </span>are<span class="w"> </span>documented<span class="w"> </span>and<span class="w"> </span>commented<span class="w"> </span>below.
+<span class="gp"># </span>For<span class="w"> </span>a<span class="w"> </span><span class="nb">complete</span><span class="w"> </span>reference,<span class="w"> </span>please<span class="w"> </span>see<span class="w"> </span>the<span class="w"> </span>online<span class="w"> </span>documentation<span class="w"> </span>at
+<span class="gp"># </span>https://docs.vagrantup.com.
+
+<span class="gp"># </span>Every<span class="w"> </span>Vagrant<span class="w"> </span>development<span class="w"> </span>environment<span class="w"> </span>requires<span class="w"> </span>a<span class="w"> </span>box.<span class="w"> </span>You<span class="w"> </span>can<span class="w"> </span>search<span class="w"> </span><span class="k">for</span>
+<span class="gp"># </span>boxes<span class="w"> </span>at<span class="w"> </span>https://vagrantcloud.com/search.
+<span class="go">config.vm.box = &quot;gabrielcarvfer/ns3_win10_mingw64&quot;</span>
+
+<span class="gp"># </span>Disable<span class="w"> </span>automatic<span class="w"> </span>box<span class="w"> </span>update<span class="w"> </span>checking.<span class="w"> </span>If<span class="w"> </span>you<span class="w"> </span>disable<span class="w"> </span>this,<span class="w"> </span><span class="k">then</span>
+<span class="gp"># </span>boxes<span class="w"> </span>will<span class="w"> </span>only<span class="w"> </span>be<span class="w"> </span>checked<span class="w"> </span><span class="k">for</span><span class="w"> </span>updates<span class="w"> </span>when<span class="w"> </span>the<span class="w"> </span>user<span class="w"> </span>runs
+<span class="gp"># </span><span class="sb">`</span>vagrant<span class="w"> </span>box<span class="w"> </span>outdated<span class="sb">`</span>.<span class="w"> </span>This<span class="w"> </span>is<span class="w"> </span>not<span class="w"> </span>recommended.
+<span class="gp"># </span>config.vm.box_check_update<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span>
+
+<span class="gp"># </span>Create<span class="w"> </span>a<span class="w"> </span>forwarded<span class="w"> </span>port<span class="w"> </span>mapping<span class="w"> </span>which<span class="w"> </span>allows<span class="w"> </span>access<span class="w"> </span>to<span class="w"> </span>a<span class="w"> </span>specific<span class="w"> </span>port
+<span class="gp"># </span>within<span class="w"> </span>the<span class="w"> </span>machine<span class="w"> </span>from<span class="w"> </span>a<span class="w"> </span>port<span class="w"> </span>on<span class="w"> </span>the<span class="w"> </span>host<span class="w"> </span>machine.<span class="w"> </span>In<span class="w"> </span>the<span class="w"> </span>example<span class="w"> </span>below,
+<span class="gp"># </span>accessing<span class="w"> </span><span class="s2">&quot;localhost:8080&quot;</span><span class="w"> </span>will<span class="w"> </span>access<span class="w"> </span>port<span class="w"> </span><span class="m">80</span><span class="w"> </span>on<span class="w"> </span>the<span class="w"> </span>guest<span class="w"> </span>machine.
+<span class="gp"># </span>NOTE:<span class="w"> </span>This<span class="w"> </span>will<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>public<span class="w"> </span>access<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>opened<span class="w"> </span>port
+<span class="gp"># </span>config.vm.network<span class="w"> </span><span class="s2">&quot;forwarded_port&quot;</span>,<span class="w"> </span>guest:<span class="w"> </span><span class="m">80</span>,<span class="w"> </span>host:<span class="w"> </span><span class="m">8080</span>
+
+<span class="gp"># </span>Create<span class="w"> </span>a<span class="w"> </span>forwarded<span class="w"> </span>port<span class="w"> </span>mapping<span class="w"> </span>which<span class="w"> </span>allows<span class="w"> </span>access<span class="w"> </span>to<span class="w"> </span>a<span class="w"> </span>specific<span class="w"> </span>port
+<span class="gp"># </span>within<span class="w"> </span>the<span class="w"> </span>machine<span class="w"> </span>from<span class="w"> </span>a<span class="w"> </span>port<span class="w"> </span>on<span class="w"> </span>the<span class="w"> </span>host<span class="w"> </span>machine<span class="w"> </span>and<span class="w"> </span>only<span class="w"> </span>allow<span class="w"> </span>access
+<span class="gp"># </span>via<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span>to<span class="w"> </span>disable<span class="w"> </span>public<span class="w"> </span>access
+<span class="gp"># </span>config.vm.network<span class="w"> </span><span class="s2">&quot;forwarded_port&quot;</span>,<span class="w"> </span>guest:<span class="w"> </span><span class="m">80</span>,<span class="w"> </span>host:<span class="w"> </span><span class="m">8080</span>,<span class="w"> </span>host_ip:<span class="w"> </span><span class="s2">&quot;127.0.0.1&quot;</span>
+
+<span class="gp"># </span>Create<span class="w"> </span>a<span class="w"> </span>private<span class="w"> </span>network,<span class="w"> </span>which<span class="w"> </span>allows<span class="w"> </span>host-only<span class="w"> </span>access<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>machine
+<span class="gp"># </span>using<span class="w"> </span>a<span class="w"> </span>specific<span class="w"> </span>IP.
+<span class="gp"># </span>config.vm.network<span class="w"> </span><span class="s2">&quot;private_network&quot;</span>,<span class="w"> </span>ip:<span class="w"> </span><span class="s2">&quot;192.168.33.10&quot;</span>
+
+<span class="gp"># </span>Create<span class="w"> </span>a<span class="w"> </span>public<span class="w"> </span>network,<span class="w"> </span>which<span class="w"> </span>generally<span class="w"> </span>matched<span class="w"> </span>to<span class="w"> </span>bridged<span class="w"> </span>network.
+<span class="gp"># </span>Bridged<span class="w"> </span>networks<span class="w"> </span>make<span class="w"> </span>the<span class="w"> </span>machine<span class="w"> </span>appear<span class="w"> </span>as<span class="w"> </span>another<span class="w"> </span>physical<span class="w"> </span>device<span class="w"> </span>on
+<span class="gp"># </span>your<span class="w"> </span>network.
+<span class="gp"># </span>config.vm.network<span class="w"> </span><span class="s2">&quot;public_network&quot;</span>
+
+<span class="gp"># </span>Share<span class="w"> </span>an<span class="w"> </span>additional<span class="w"> </span>folder<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>guest<span class="w"> </span>VM.<span class="w"> </span>The<span class="w"> </span>first<span class="w"> </span>argument<span class="w"> </span>is
+<span class="gp"># </span>the<span class="w"> </span>path<span class="w"> </span>on<span class="w"> </span>the<span class="w"> </span>host<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>actual<span class="w"> </span>folder.<span class="w"> </span>The<span class="w"> </span>second<span class="w"> </span>argument<span class="w"> </span>is
+<span class="gp"># </span>the<span class="w"> </span>path<span class="w"> </span>on<span class="w"> </span>the<span class="w"> </span>guest<span class="w"> </span>to<span class="w"> </span>mount<span class="w"> </span>the<span class="w"> </span>folder.<span class="w"> </span>And<span class="w"> </span>the<span class="w"> </span>optional<span class="w"> </span>third
+<span class="gp"># </span>argument<span class="w"> </span>is<span class="w"> </span>a<span class="w"> </span><span class="nb">set</span><span class="w"> </span>of<span class="w"> </span>non-required<span class="w"> </span>options.
+<span class="gp"># </span>config.vm.synced_folder<span class="w"> </span><span class="s2">&quot;../data&quot;</span>,<span class="w"> </span><span class="s2">&quot;/vagrant_data&quot;</span>
+
+<span class="gp"># </span>Provider-specific<span class="w"> </span>configuration<span class="w"> </span>so<span class="w"> </span>you<span class="w"> </span>can<span class="w"> </span>fine-tune<span class="w"> </span>various
+<span class="gp"># </span>backing<span class="w"> </span>providers<span class="w"> </span><span class="k">for</span><span class="w"> </span>Vagrant.<span class="w"> </span>These<span class="w"> </span>expose<span class="w"> </span>provider-specific<span class="w"> </span>options.
+<span class="gp"># </span>Example<span class="w"> </span><span class="k">for</span><span class="w"> </span>VirtualBox:
+<span class="gp">#</span>
+<span class="gp"># </span>config.vm.provider<span class="w"> </span><span class="s2">&quot;virtualbox&quot;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="p">|</span>vb<span class="p">|</span>
+<span class="gp">#   </span><span class="c1"># Display the VirtualBox GUI when booting the machine</span>
+<span class="gp">#   </span>vb.gui<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span>
+<span class="gp">#</span>
+<span class="gp">#   </span><span class="c1"># Customize the amount of memory on the VM:</span>
+<span class="gp">#   </span>vb.memory<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;1024&quot;</span>
+<span class="gp"># </span>end
+<span class="gp">#</span>
+<span class="gp"># </span>View<span class="w"> </span>the<span class="w"> </span>documentation<span class="w"> </span><span class="k">for</span><span class="w"> </span>the<span class="w"> </span>provider<span class="w"> </span>you<span class="w"> </span>are<span class="w"> </span>using<span class="w"> </span><span class="k">for</span><span class="w"> </span>more
+<span class="gp"># </span>information<span class="w"> </span>on<span class="w"> </span>available<span class="w"> </span>options.
+
+<span class="gp"># </span>Enable<span class="w"> </span>provisioning<span class="w"> </span>with<span class="w"> </span>a<span class="w"> </span>shell<span class="w"> </span>script.<span class="w"> </span>Additional<span class="w"> </span>provisioners<span class="w"> </span>such<span class="w"> </span>as
+<span class="gp"># </span>Ansible,<span class="w"> </span>Chef,<span class="w"> </span>Docker,<span class="w"> </span>Puppet<span class="w"> </span>and<span class="w"> </span>Salt<span class="w"> </span>are<span class="w"> </span>also<span class="w"> </span>available.<span class="w"> </span>Please<span class="w"> </span>see<span class="w"> </span>the
+<span class="gp"># </span>documentation<span class="w"> </span><span class="k">for</span><span class="w"> </span>more<span class="w"> </span>information<span class="w"> </span>about<span class="w"> </span>their<span class="w"> </span>specific<span class="w"> </span>syntax<span class="w"> </span>and<span class="w"> </span>use.
+<span class="gp"># </span>config.vm.provision<span class="w"> </span><span class="s2">&quot;shell&quot;</span>,<span class="w"> </span>inline:<span class="w"> </span><span class="s">&lt;&lt;-SHELL</span>
+<span class="gp">#   </span><span class="s">apt-get update</span>
+<span class="gp">#   </span><span class="s">apt-get install -y apache2</span>
+<span class="gp"># </span><span class="s">SHELL</span>
+<span class="go">end</span>
+</pre></div>
+</div>
+<p>We can uncomment the virtualbox provider block and change vCPUs and RAM.
+It is recommended never to match the number of vCPUs to the number of thread of the machine,
+or the host operating system can become unresponsive.
+For compilation workloads, it is recommended to allocate 1-2 GB of RAM per vCPU.</p>
+<div class="highlight-console notranslate" id="user-vagrantfile"><div class="highlight"><pre><span></span><span class="go">~/mingw64_test/ $ cat Vagrantfile</span>
+<span class="gp"># </span>-*-<span class="w"> </span>mode:<span class="w"> </span>ruby<span class="w"> </span>-*-
+<span class="gp"># </span>vi:<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="nv">ft</span><span class="o">=</span>ruby<span class="w"> </span>:
+<span class="go">Vagrant.configure(&quot;2&quot;) do |config|</span>
+<span class="go">config.vm.box = &quot;gabrielcarvfer/ns3_win10_mingw64&quot;</span>
+<span class="go">  config.vm.provider &quot;virtualbox&quot; do |vb|</span>
+<span class="go">    vb.cpus = &quot;8&quot;</span>
+<span class="go">    vb.memory = &quot;8096&quot; # 8GB of RAM</span>
+<span class="go">  end</span>
+<span class="go">end</span>
+</pre></div>
+</div>
+<p>After changing the settings, we can start the VM and login via ssh. The default password is “vagrant”.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/mingw64_test/ $ vagrant up</span>
+<span class="go">~/mingw64_test/ $ vagrant ssh</span>
+<span class="go">C:\Users\vagrant&gt;</span>
+</pre></div>
+</div>
+<p>We are now logged into the machine and ready to work. If you prefer to update the tools, get into the
+MinGW64 shell and run pacman.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">C:\Users\vagrant\&gt; set MSYSTEM MINGW64</span>
+<span class="go">C:\Users\vagrant\&gt; bash</span>
+<span class="go">/c/Users/vagrant/ MINGW64$ pacman -Syu</span>
+<span class="go">/c/Users/vagrant/ MINGW64$ exit</span>
+<span class="go">C:\Users\vagrant\&gt;</span>
+</pre></div>
+</div>
+<p>At this point, we can clone ns-3 locally:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">C:\Users\vagrant&gt; git clone `https://gitlab.com/nsnam/ns-3-dev`</span>
+<span class="go">C:\Users\vagrant&gt; cd ns-3-dev</span>
+<span class="go">C:\Users\vagrant\ns-3-dev&gt; python3 ns3 configure --enable-tests --enable-examples --enable-mpi</span>
+<span class="go">C:\Users\vagrant\ns-3-dev&gt; python3 test.py</span>
+</pre></div>
+</div>
+<p>We can also access the ~/mingw64_test/ from the host machine, where the Vagrantfile resides, by accessing
+the synchronized folder C:vagrant.
+If the Vagrantfile is in the host ns-3-dev directory, we can continue working on it.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">C:\Users\vagrant&gt; cd C:\vagrant</span>
+<span class="go">C:\vagrant\&gt; python3 ns3 configure --enable-tests --enable-examples --enable-mpi</span>
+<span class="go">C:\vagrant\&gt; python3 test.py</span>
+</pre></div>
+</div>
+<p>If all the PATH variables were set for the MinGW64 shell, we can also use it instead of the
+default CMD shell.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">C:\vagrant\&gt; set MSYSTEM=MINGW64</span>
+<span class="go">C:\vagrant\&gt; bash</span>
+<span class="go">/c/vagrant/ MINGW64$ ./ns3 clean</span>
+<span class="go">/c/vagrant/ MINGW64$ ./ns3 configure --enable-tests --enable-examples --enable-mpi</span>
+<span class="go">/c/vagrant/ MINGW64$ ./test.py</span>
+</pre></div>
+</div>
+<p>To stop the Vagrant machine, we should close the SSH session then halt.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">/c/vagrant/ MINGW64$ exit</span>
+<span class="go">C:\vagrant\&gt; exit</span>
+<span class="go">~/mingw64_test/ vagrant halt</span>
+</pre></div>
+</div>
+<p>To destroy the machine (e.g. to restore the default settings), use the following.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">vagrant destroy</span>
+</pre></div>
+</div>
+</section>
+<section id="packaging-a-new-vagrant-box">
+<h3><span class="section-number">6.4.2. </span>Packaging a new Vagrant box<a class="headerlink" href="#packaging-a-new-vagrant-box" title="Link to this heading">¶</a></h3>
+<p><strong>BEWARE: DO NOT CHANGE THE SETTINGS MENTIONED ON A REAL MACHINE</strong></p>
+<p><strong>THE SETTINGS ARE MEANT FOR A DISPOSABLE VIRTUAL MACHINE</strong></p>
+<p>Start by downloading the <a class="reference external" href="https://www.microsoft.com/pt-br/software-download/windows10ISO">Windows 10 ISO</a>.</p>
+<p>Then install <a class="reference external" href="https://www.virtualbox.org/">VirtualBox</a>.</p>
+<p>Configure a VirtualBox VM and use the Windows 10 ISO file as the install source.</p>
+<p>During the installation, create a local user named “vagrant” and set its password to “vagrant”.</p>
+<p>Check for any Windows updates and install them.</p>
+<p>The following commands assume administrative permissions and a PowerShell shell.</p>
+<section id="install-the-virtualbox-guest-extensions">
+<h4><span class="section-number">6.4.2.1. </span>Install the VirtualBox guest extensions<a class="headerlink" href="#install-the-virtualbox-guest-extensions" title="Link to this heading">¶</a></h4>
+<p>On the VirtualBox GUI, click on <code class="docutils literal notranslate"><span class="pre">Devices-&gt;Insert</span> <span class="pre">Guest</span> <span class="pre">Additions</span> <span class="pre">CD</span> <span class="pre">Image...</span></code>
+to download the VirtualBox guest extensions ISO and mount it as a CD drive on the guest VM.</p>
+<p>Run the installer to enable USB-passthrough, folder syncing and others.</p>
+<p>After installing, unmount the drive by removing it from the VM. Click on <code class="docutils literal notranslate"><span class="pre">Settings-&gt;Storage</span></code>,
+select the guest drive and remove it clicking the button with an red <code class="docutils literal notranslate"><span class="pre">x</span></code>.</p>
+</section>
+<section id="install-the-openssh-server">
+<h4><span class="section-number">6.4.2.2. </span>Install the OpenSSH server<a class="headerlink" href="#install-the-openssh-server" title="Link to this heading">¶</a></h4>
+<p>Open PowerShell and run the following to install OpenSSH server,
+then set it to start automatically and open the firewall ports.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0</span>
+<span class="go">Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0</span>
+<span class="go">Start-Service sshd</span>
+<span class="go">Set-Service -Name sshd -StartupType &#39;Automatic&#39;</span>
+<span class="go">if (!(Get-NetFirewallRule -Name &quot;OpenSSH-Server-In-TCP&quot; -ErrorAction SilentlyContinue | Select-Object Name, Enabled)) {</span>
+<span class="go">    Write-Output &quot;Firewall Rule &#39;OpenSSH-Server-In-TCP&#39; does not exist, creating it...&quot;</span>
+<span class="go">    New-NetFirewallRule -Name &#39;OpenSSH-Server-In-TCP&#39; -DisplayName &#39;OpenSSH Server (sshd)&#39; -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22</span>
+<span class="go">} else {</span>
+<span class="go">    Write-Output &quot;Firewall rule &#39;OpenSSH-Server-In-TCP&#39; has been created and exists.&quot;</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+</section>
+<section id="enable-essential-services-and-disable-unnecessary-ones">
+<h4><span class="section-number">6.4.2.3. </span>Enable essential services and disable unnecessary ones<a class="headerlink" href="#enable-essential-services-and-disable-unnecessary-ones" title="Link to this heading">¶</a></h4>
+<p>Ensure the following services are set to <strong>automatic</strong> from the Services panel(services.msc):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Base Filtering Engine</p></li>
+<li><p>Remote Procedure Call (RPC)</p></li>
+<li><p>DCOM Server Process Launcher</p></li>
+<li><p>RPC Endpoint Mapper</p></li>
+<li><p>Windows Firewall</p></li>
+</ul>
+</div></blockquote>
+<p>Ensure the following services are set to <strong>disabled</strong> from the Services panel(services.msc):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Windows Update</p></li>
+<li><p>Windows Update Remediation</p></li>
+<li><p>Windows Search</p></li>
+</ul>
+</div></blockquote>
+<p>The same can be accomplished via the command-line with the following commands:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Set-Service -Name BFE -StartupType &#39;Automatic&#39;</span>
+<span class="go">Set-Service -Name RpcSs -StartupType &#39;Automatic&#39;</span>
+<span class="go">Set-Service -Name DcomLaunch -StartupType &#39;Automatic&#39;</span>
+<span class="go">Set-Service -Name RpcEptMapper -StartupType &#39;Automatic&#39;</span>
+<span class="go">Set-Service -Name mpssvc -StartupType &#39;Automatic&#39;</span>
+<span class="go">Set-Service -Name wuauserv -StartupType &#39;Disabled&#39;</span>
+<span class="go">Set-Service -Name WaaSMedicSvc -StartupType &#39;Disabled&#39;</span>
+<span class="go">Set-Service -Name WSearch -StartupType &#39;Disabled&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="install-the-packages-you-need">
+<h4><span class="section-number">6.4.2.4. </span>Install the packages you need<a class="headerlink" href="#install-the-packages-you-need" title="Link to this heading">¶</a></h4>
+<p>In this step we install all the software required by ns-3, as listed in the Section <a class="reference internal" href="#windows-10-package-prerequisites">Windows 10 package prerequisites</a>.</p>
+</section>
+<section id="disable-windows-defender">
+<h4><span class="section-number">6.4.2.5. </span>Disable Windows Defender<a class="headerlink" href="#disable-windows-defender" title="Link to this heading">¶</a></h4>
+<p>After installing everything, it should be safe to disable the Windows security.</p>
+<p>Enter in the Windows Security settings and disable “anti-tamper protection”.
+It rollbacks changes to security settings periodically.</p>
+<p>Enter in the Group Policy Editor (gpedit.msc) and disable:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Realtime protection</p></li>
+<li><p>Behavior monitoring</p></li>
+<li><p>Scanning of archives, removable drives, network files, scripts</p></li>
+<li><p>Windows defender</p></li>
+</ul>
+</div></blockquote>
+<p>The same can be accomplished with the following command-line commands.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Set-MpPreference -DisableArchiveScanning 1 -ErrorAction SilentlyContinue</span>
+<span class="go">Set-MpPreference -DisableBehaviorMonitoring 1 -ErrorAction SilentlyContinue</span>
+<span class="go">Set-MpPreference -DisableIntrusionPreventionSystem 1 -ErrorAction SilentlyContinue</span>
+<span class="go">Set-MpPreference -DisableIOAVProtection 1 -ErrorAction SilentlyContinue</span>
+<span class="go">Set-MpPreference -DisableRemovableDriveScanning 1 -ErrorAction SilentlyContinue</span>
+<span class="go">Set-MpPreference -DisableBlockAtFirstSeen 1 -ErrorAction SilentlyContinue</span>
+<span class="go">Set-MpPreference -DisableScanningMappedNetworkDrivesForFullScan 1 -ErrorAction SilentlyContinue</span>
+<span class="go">Set-MpPreference -DisableScanningNetworkFiles 1 -ErrorAction SilentlyContinue</span>
+<span class="go">Set-MpPreference -DisableScriptScanning 1 -ErrorAction SilentlyContinue</span>
+<span class="go">Set-MpPreference -DisableRealtimeMonitoring 1 -ErrorAction SilentlyContinue</span>
+<span class="go">Set-Service -Name WdNisSvc -StartupType &#39;Disabled&#39;</span>
+<span class="go">Set-Service -Name WinDefend -StartupType &#39;Disabled&#39;</span>
+<span class="go">Set-Service -Name Sense -StartupType &#39;Disabled&#39;</span>
+<span class="go">Set-ItemProperty -Path &quot;HKLM:\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection&quot; -Name SpyNetReporting -Value 0</span>
+<span class="go">Set-ItemProperty -Path &quot;HKLM:\SOFTWARE\Microsoft\Windows Defender\Real-Time Protection&quot; -Name SubmitSamplesConsent -Value 0</span>
+<span class="go">Set-ItemProperty -Path &quot;HKLM:\SOFTWARE\Microsoft\Windows Defender\Features&quot; -Name TamperProtection -Value 4</span>
+<span class="go">Set-ItemProperty -Path &quot;HKLM:\SOFTWARE\Microsoft\Windows Defender&quot; -Name DisableAntiSpyware -Value 1</span>
+<span class="go">Set-ItemProperty -Path &quot;HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender&quot; -Name DisableAntiSpyware -Value 1</span>
+</pre></div>
+</div>
+<p>Note: the previous commands were an excerpt from the complete script in:
+<a class="reference external" href="https://github.com/jeremybeaume/tools/blob/master/disable-defender.ps1">https://github.com/jeremybeaume/tools/blob/master/disable-defender.ps1</a></p>
+</section>
+<section id="turn-off-uac-notifications">
+<h4><span class="section-number">6.4.2.6. </span>Turn off UAC notifications<a class="headerlink" href="#turn-off-uac-notifications" title="Link to this heading">¶</a></h4>
+<p>The UAC notifications are the popups where you can give your OK to elevation to administrative privileges.
+It can be disabled via User Account Control Settings, or via the following commands.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">reg ADD HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /v EnableLUA /t REG_DWORD /d 0 /f</span>
+</pre></div>
+</div>
+</section>
+<section id="change-the-strong-password-security-policy">
+<h4><span class="section-number">6.4.2.7. </span>Change the strong password security Policy<a class="headerlink" href="#change-the-strong-password-security-policy" title="Link to this heading">¶</a></h4>
+<p>Open the Local Security Policy management window. Under Security Settings/Account Policy/Password Policy,
+disable the option saying “Password must meet complexity requirements”.</p>
+</section>
+<section id="testing">
+<h4><span class="section-number">6.4.2.8. </span>Testing<a class="headerlink" href="#testing" title="Link to this heading">¶</a></h4>
+<p>After you reach this point, reboot your machine then log back in.</p>
+<p>Test if all your packages are working as expected.</p>
+<p>In the case of ns-3, try to enable all supported features, run the test.py and test-ns3.py suites.</p>
+<p>If everything works, then try to log in via SSH.</p>
+<p>If everything works, shut down the machine and prepare for packaging.</p>
+<p>The network interface configured should be a NAT. Other interfaces won’t work correctly.</p>
+</section>
+<section id="default-vagrantfile">
+<h4><span class="section-number">6.4.2.9. </span>Default Vagrantfile<a class="headerlink" href="#default-vagrantfile" title="Link to this heading">¶</a></h4>
+<p>Vagrant can package VirtualBox VMs into Vagrant boxes without much more work.
+However, it still needs one more file to do that: the default Vagrantfile.</p>
+<p>This file will be used by Vagrant to configure the VM later on and how to connect to it.</p>
+<div class="highlight-ruby notranslate"><div class="highlight"><pre><span></span><span class="c1"># -*- mode: ruby -*-</span>
+<span class="c1"># vi: set ft=ruby :</span>
+
+<span class="no">Vagrant</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="s2">&quot;2&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
+<span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">box</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;BOX_FILE.box&quot;</span><span class="w"> </span><span class="c1"># name of the box</span>
+<span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">communicator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;winssh&quot;</span><span class="w"> </span><span class="c1"># indicate that we are talking to a windows box via ssh</span>
+<span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">guest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">:windows</span><span class="w"> </span><span class="c1"># indicate that the guest is a windows machine</span>
+<span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">network</span><span class="w"> </span><span class="ss">:forwarded_port</span><span class="p">,</span><span class="w"> </span><span class="ss">guest</span><span class="p">:</span><span class="w"> </span><span class="mi">3389</span><span class="p">,</span><span class="w"> </span><span class="ss">host</span><span class="p">:</span><span class="w"> </span><span class="mi">3389</span><span class="p">,</span><span class="w"> </span><span class="nb">id</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rdp&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">auto_correct</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span>
+<span class="n">config</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;vagrant&quot;</span><span class="w"> </span><span class="c1"># give the default password, so that it stops trying to use a .ssh key-pair</span>
+<span class="n">config</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">insert_key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kp">false</span><span class="w"> </span><span class="c1"># let the user use a written password</span>
+<span class="n">config</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">keys_only</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kp">false</span>
+<span class="n">config</span><span class="o">.</span><span class="n">winssh</span><span class="o">.</span><span class="n">shell</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;cmd&quot;</span><span class="w"> </span><span class="c1"># select the default shell (could be cmd or powershell)</span>
+<span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">provider</span><span class="w"> </span><span class="ss">:virtualbox</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="n">override</span><span class="o">|</span>
+<span class="w">      </span><span class="c1">#v.gui = true # do not show the VirtualBox GUI if unset or set to false</span>
+<span class="w">      </span><span class="n">v</span><span class="o">.</span><span class="n">customize</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;modifyvm&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">:id</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--memory&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">8096</span><span class="o">]</span><span class="w"> </span><span class="c1"># the default settings for the VM are 8GB of RAM</span>
+<span class="w">      </span><span class="n">v</span><span class="o">.</span><span class="n">customize</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;modifyvm&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">:id</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--cpus&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="o">]</span><span class="w"> </span><span class="c1"># the default settings for the VM are 8 vCPUs</span>
+<span class="w">      </span><span class="n">v</span><span class="o">.</span><span class="n">customize</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;modifyvm&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">:id</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--vram&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="o">]</span><span class="w"> </span><span class="c1"># 128 MB or vGPU RAM</span>
+<span class="w">      </span><span class="n">v</span><span class="o">.</span><span class="n">customize</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;modifyvm&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">:id</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--clipboard&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;bidirectional&quot;</span><span class="o">]</span>
+<span class="w">      </span><span class="n">v</span><span class="o">.</span><span class="n">customize</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;setextradata&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;global&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;GUI/SuppressMessages&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;all&quot;</span><span class="w"> </span><span class="o">]</span>
+<span class="w">  </span><span class="k">end</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+<p>This Vagrantfile will be baked into the Vagrant box, and can be modified by the <a class="reference internal" href="#user-vagrantfile">user Vagrantfile</a>.
+After writing the Vagrantfile, we can call the following command.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">vagrant package --vagrantfile Vagrantfile --base VIRTUALBOX_VM_NAME --output BOX_FILE.box</span>
+</pre></div>
+</div>
+<p>It will take an awful long time depending on your drive.</p>
+<p>After it finishes, we can add the box to test it.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">vagrant box add BOX_NAME BOX_FILE</span>
+<span class="go">vagrant up BOX_NAME</span>
+<span class="go">vagrant ssh</span>
+</pre></div>
+</div>
+<p>If it can connect to the box, you are ready to upload it to the Vagrant servers.</p>
+</section>
+<section id="publishing-the-vagrant-box">
+<h4><span class="section-number">6.4.2.10. </span>Publishing the Vagrant box<a class="headerlink" href="#publishing-the-vagrant-box" title="Link to this heading">¶</a></h4>
+<p>Create an account in <a class="reference external" href="https://app.vagrantup.com/">https://app.vagrantup.com/</a> or log in with yours.
+In the dashboard, you can create a new box named BOX_NAME or select an existing one to update.</p>
+<p>After you select your box, click to add a provider. Pick Virtualbox.
+Calculate the MD5 hash of your BOX_FILE.box and fill the field then click to proceed.</p>
+<p>Upload the box.</p>
+<p>Now you should be able to download your box from the Vagrant servers via the the following command.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">vagrant init yourUserName/BOX_NAME</span>
+<span class="go">vagrant up</span>
+<span class="go">vagrant ssh</span>
+</pre></div>
+</div>
+<p>More information on Windows packaging to Vagrant boxes is available here:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="https://www.vagrantup.com/docs/boxes/base">https://www.vagrantup.com/docs/boxes/base</a></p></li>
+<li><p><a class="reference external" href="https://www.vagrantup.com/docs/vagrantfile/machine_settings">https://www.vagrantup.com/docs/vagrantfile/machine_settings</a></p></li>
+<li><p><a class="reference external" href="https://www.vagrantup.com/docs/vagrantfile/ssh_settings">https://www.vagrantup.com/docs/vagrantfile/ssh_settings</a></p></li>
+<li><p><a class="reference external" href="https://www.vagrantup.com/docs/vagrantfile/winssh_settings">https://www.vagrantup.com/docs/vagrantfile/winssh_settings</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pghalliday/windows-vagrant-boxes">https://github.com/pghalliday/windows-vagrant-boxes</a></p></li>
+</ul>
+</div></blockquote>
+</section>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/doc/installation/source/windows.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

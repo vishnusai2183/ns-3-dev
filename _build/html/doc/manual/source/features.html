@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>3. Additional Tools &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="additional-tools">
+<h1><span class="section-number">3. </span>Additional Tools<a class="headerlink" href="#additional-tools" title="Link to this heading">¶</a></h1>
+<p>This chapter covers some additional features provided by ns-3 which can be useful in writing models and scripts.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="random-variables.html">3.1. Random Variables</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="random-variables.html#quick-overview">3.1.1. Quick Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="random-variables.html#background">3.1.2. Background</a></li>
+<li class="toctree-l2"><a class="reference internal" href="random-variables.html#creating-random-variables">3.1.3. Creating random variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="random-variables.html#id1">3.1.4. Seeding and independent replications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="random-variables.html#class-randomvariablestream">3.1.5. Class RandomVariableStream</a></li>
+<li class="toctree-l2"><a class="reference internal" href="random-variables.html#base-class-public-api">3.1.6. Base class public API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="random-variables.html#types-of-randomvariables">3.1.7. Types of RandomVariables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="random-variables.html#semantics-of-randomvariablestream-objects">3.1.8. Semantics of RandomVariableStream objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="random-variables.html#using-other-prng">3.1.9. Using other PRNG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="random-variables.html#setting-the-stream-number">3.1.10. Setting the stream number</a></li>
+<li class="toctree-l2"><a class="reference internal" href="random-variables.html#publishing-your-results">3.1.11. Publishing your results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="random-variables.html#summary">3.1.12. Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hash-functions.html">3.2. Hash Functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hash-functions.html#basic-usage">3.2.1. Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hash-functions.html#incremental-hashing">3.2.2. Incremental Hashing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hash-functions.html#using-an-alternative-hash-function">3.2.3. Using an Alternative Hash Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hash-functions.html#adding-new-hash-function-implementations">3.2.4. Adding New Hash Function Implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hash-functions.html#sources-for-hash-functions">3.2.5. Sources for Hash Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tracing.html">3.3. Tracing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tracing.html#tracing-motivation">3.3.1. Tracing Motivation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tracing.html#overview">3.3.2. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tracing.html#using-the-tracing-api">3.3.3. Using the Tracing API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tracing.html#using-trace-helpers">3.3.4. Using Trace Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tracing.html#tracing-implementation-details">3.3.5. Tracing implementation details</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="helpers.html">3.4. Helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gnuplot.html">3.5. Making Plots using the Gnuplot Class</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gnuplot.html#creating-plots-using-the-gnuplot-class">3.5.1. Creating Plots Using the Gnuplot Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gnuplot.html#an-example-program-that-uses-the-gnuplot-class">3.5.2. An Example Program that Uses the Gnuplot Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gnuplot.html#an-example-2-dimensional-plot">3.5.3. An Example 2-Dimensional Plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gnuplot.html#an-example-2-dimensional-plot-with-error-bars">3.5.4. An Example 2-Dimensional Plot with Error Bars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gnuplot.html#an-example-3-dimensional-plot">3.5.5. An Example 3-Dimensional Plot</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="python.html">3.6. Using Python to Run <em>ns-3</em></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="python.html#introduction">3.6.1. Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="python.html#an-example-python-script-that-runs-ns3">3.6.2. An Example Python Script that Runs <em>ns-3</em></a></li>
+<li class="toctree-l2"><a class="reference internal" href="python.html#running-python-scripts">3.6.3. Running Python Scripts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="python.html#caveats">3.6.4. Caveats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="python.html#working-with-python-bindings">3.6.5. Working with Python Bindings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="python.html#pip-wheel-packaging">3.6.6. Pip wheel packaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="python.html#local-deployment">3.6.7. Local deployment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="python.html#publishing-the-pip-wheel-via-pypi">3.6.8. Publishing the pip wheel via Pypi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="python.html#historical-information">3.6.9. Historical Information</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/doc/manual/source/features.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

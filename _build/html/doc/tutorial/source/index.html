@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ns-3 Tutorial &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="ns-3-tutorial">
+<h1>ns-3 Tutorial<a class="headerlink" href="#ns-3-tutorial" title="Link to this heading">¶</a></h1>
+<p>This is the <em>ns-3 Tutorial</em>. Primary documentation for the ns-3 project is organized as
+follows:</p>
+<ul class="simple">
+<li><p>Several guides that are version controlled for each release (the
+<a class="reference external" href="https://www.nsnam.org/documentation/latest/">latest release</a>) and
+<a class="reference external" href="https://www.nsnam.org/documentation/development-tree/">development tree</a>:</p>
+<ul>
+<li><p>Tutorial <em>(this document)</em></p></li>
+<li><p>Installation Guide</p></li>
+<li><p>Manual</p></li>
+<li><p>Model Library</p></li>
+<li><p>Contributing Guide</p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="https://www.nsnam.org/docs/doxygen/index.html">ns-3 Doxygen</a>: Documentation of the public APIs of
+the simulator</p></li>
+<li><p><a class="reference external" href="https://www.nsnam.org/wiki/Main_Page">ns-3 wiki</a></p></li>
+</ul>
+<p>This document is written in <a class="reference external" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> for <a class="reference external" href="https://www.sphinx-doc.org/">Sphinx</a> and is maintained in the
+<code class="docutils literal notranslate"><span class="pre">doc/tutorial</span></code> directory of ns-3’s source code.  Source file column width is 100 columns.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quick-start.html">1. Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quick-start.html#brief-summary">1.1. Brief Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick-start.html#prerequisites">1.2. Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick-start.html#downloading-ns-3">1.3. Downloading ns-3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick-start.html#building-and-testing-ns-3">1.4. Building and testing ns-3</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">2. Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#about-ns-3">2.1. About ns-3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#for-ns-2-users">2.2. For ns-2 Users</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#contributing">2.3. Contributing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#tutorial-organization">2.4. Tutorial Organization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="resources.html">3. Resources</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="resources.html#the-web">3.1. The Web</a></li>
+<li class="toctree-l2"><a class="reference internal" href="resources.html#git">3.2. Git</a></li>
+<li class="toctree-l2"><a class="reference internal" href="resources.html#cmake">3.3. CMake</a></li>
+<li class="toctree-l2"><a class="reference internal" href="resources.html#development-environment">3.4. Development Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="resources.html#socket-programming">3.5. Socket Programming</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="getting-started.html">4. Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="getting-started.html#overview">4.1. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting-started.html#prerequisites">4.2. Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting-started.html#downloading-ns-3-using-git">4.3. Downloading ns-3 using Git</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting-started.html#building-ns-3">4.4. Building ns-3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting-started.html#testing-ns-3">4.5. Testing ns-3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting-started.html#running-a-script">4.6. Running a Script</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="conceptual-overview.html">5. Conceptual Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="conceptual-overview.html#key-abstractions">5.1. Key Abstractions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="conceptual-overview.html#a-first-ns-3-script">5.2. A First ns-3 Script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="conceptual-overview.html#ns-3-source-code">5.3. Ns-3 Source Code</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tweaking.html">6. Tweaking</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tweaking.html#using-the-logging-module">6.1. Using the Logging Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tweaking.html#using-command-line-arguments">6.2. Using Command Line Arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tweaking.html#using-the-tracing-system">6.3. Using the Tracing System</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="building-topologies.html">7. Building Topologies</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="building-topologies.html#building-a-bus-network-topology">7.1. Building a Bus Network Topology</a></li>
+<li class="toctree-l2"><a class="reference internal" href="building-topologies.html#models-attributes-and-reality">7.2. Models, Attributes and Reality</a></li>
+<li class="toctree-l2"><a class="reference internal" href="building-topologies.html#building-a-wireless-network-topology">7.3. Building a Wireless Network Topology</a></li>
+<li class="toctree-l2"><a class="reference internal" href="building-topologies.html#queues-in-ns-3">7.4. Queues in ns-3</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tracing.html">8. Tracing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tracing.html#background">8.1. Background</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tracing.html#overview">8.2. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tracing.html#real-example">8.3. Real Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tracing.html#trace-helpers">8.4. Trace Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tracing.html#summary">8.5. Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data-collection.html">9. Data Collection</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="data-collection.html#motivation">9.1. Motivation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data-collection.html#example-code">9.2. Example Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data-collection.html#gnuplothelper">9.3. GnuplotHelper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data-collection.html#supported-trace-types">9.4. Supported Trace Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data-collection.html#filehelper">9.5. FileHelper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data-collection.html#summary">9.6. Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="conclusion.html">10. Conclusion</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="conclusion.html#futures">10.1. Futures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="conclusion.html#closing">10.2. Closing</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/doc/tutorial/source/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

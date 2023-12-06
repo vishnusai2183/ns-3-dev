@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Wi-Fi Module &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="wi-fi-module">
+<h1>Wi-Fi Module<a class="headerlink" href="#wi-fi-module" title="Link to this heading">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="wifi-design.html">Design Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="wifi-design.html#overview-of-the-model">Overview of the model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="wifi-design.html#mac-high-models">MAC high models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wifi-design.html#mac-low-layer">MAC low layer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wifi-design.html#phy-layer-models">PHY layer models</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="wifi-design.html#scope-and-limitations">Scope and Limitations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wifi-design.html#design-details">Design Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="wifi-design.html#wifiphy-and-related-models">WifiPhy and related models</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#phyentity">PhyEntity</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="wifi-design.html#a-bit-of-background">A bit of background</a></li>
+<li class="toctree-l5"><a class="reference internal" href="wifi-design.html#architecture">Architecture</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#wifippdu">WifiPpdu</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#yanswifiphy-and-wifiphystatehelper">YansWifiPhy and WifiPhyStateHelper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#interferencehelper">InterferenceHelper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#errorratemodel">ErrorRateModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#tablebasederrorratemodel">TableBasedErrorRateModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#legacy-errorratemodels">Legacy ErrorRateModels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#spectrumwifiphy">SpectrumWifiPhy</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="wifi-design.html#the-mac-model">The MAC model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#infrastructure-association">Infrastructure association</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#roaming">Roaming</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#channel-access">Channel access</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#frame-exchange-managers">Frame Exchange Managers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#mac-queues">MAC queues</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#multi-user-transmissions">Multi-user transmissions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#multi-user-scheduler">Multi-User Scheduler</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#round-robin-multi-user-scheduler">Round-robin Multi-User Scheduler</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#enhanced-multi-link-single-radio-operation-emlsr">Enhanced multi-link single radio operation (EMLSR)</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="wifi-design.html#non-ap-mld-side">Non-AP MLD side</a></li>
+<li class="toctree-l5"><a class="reference internal" href="wifi-design.html#ap-mld-side">AP MLD side</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#ack-manager">Ack manager</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#wifidefaultackmanager">WifiDefaultAckManager</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#protection-manager">Protection manager</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#wifidefaultprotectionmanager">WifiDefaultProtectionManager</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#rate-control-algorithms">Rate control algorithms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#constantratewifimanager">ConstantRateWifiManager</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#idealwifimanager">IdealWifiManager</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#thompsonsamplingwifimanager">ThompsonSamplingWifiManager</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#minstrelwifimanager">MinstrelWifiManager</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#minstrelhtwifimanager">MinstrelHtWifiManager</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#ax-obss-pd-spatial-reuse">802.11ax OBSS PD spatial reuse</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#obss-pd-algorithm">OBSS PD Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#constant-obss-pd-algorithm">Constant OBSS PD Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-design.html#modifying-wifi-model">Modifying Wifi model</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wifi-user.html">User Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="wifi-user.html#using-the-wifinetdevice">Using the WifiNetDevice</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="wifi-user.html#yanswifichannelhelper">YansWifiChannelHelper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wifi-user.html#yanswifiphyhelper">YansWifiPhyHelper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wifi-user.html#channel-frequency-channel-width-and-band-configuration">Channel, frequency, channel width, and band configuration</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="wifi-user.html#wifihelper-setstandard">WifiHelper::SetStandard()</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-user.html#default-settings-for-the-operating-channel">Default settings for the operating channel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-user.html#wifiphy-frequency">WifiPhy::Frequency</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-user.html#wifiphy-channelwidth">WifiPhy::ChannelWidth</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-user.html#wifiphy-channelnumber">WifiPhy::ChannelNumber</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-user.html#wifiphy-primary20mhzindex">WifiPhy::Primary20MHzIndex</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-user.html#order-of-operation-issues">Order of operation issues</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="wifi-user.html#spectrumwifiphyhelper">SpectrumWifiPhyHelper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wifi-user.html#wifimachelper">WifiMacHelper</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="wifi-user.html#selection-of-the-access-category-ac">Selection of the Access Category (AC)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="wifi-user.html#wifihelper">WifiHelper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wifi-user.html#ht-configuration">HT configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wifi-user.html#vht-configuration">VHT configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wifi-user.html#he-configuration">HE configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wifi-user.html#mobility-configuration">Mobility configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wifi-user.html#example-configuration">Example configuration</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="wifi-user.html#adhoc-wifinetdevice-configuration">AdHoc WifiNetDevice configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-user.html#infrastructure-access-point-and-clients-wifinetdevice-configuration">Infrastructure (access point and clients) WifiNetDevice configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="wifi-user.html#multiple-rf-interfaces-configuration">Multiple RF interfaces configuration</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wifi-testing.html">Testing Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="wifi-testing.html#error-model">Error model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wifi-testing.html#mac-validation">MAC validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wifi-testing.html#spectrumwifiphy">SpectrumWiFiPhy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="wifi-testing.html#saturation-performance">Saturation performance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wifi-testing.html#packet-error-rate-performance">Packet error rate performance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wifi-testing.html#interference-performance">Interference performance</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="wifi-testing.html#bianchi-validation">Bianchi validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wifi-testing.html#multi-user-transmissions-validation">Multi-user transmissions validation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wifi-changelog.html">API and behavior changes across releases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="wifi-changelog.html#channelsettings-attribute">ChannelSettings attribute</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wifi-references.html">References</a></li>
+</ul>
+</div>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../../_sources/src/wifi/doc/source/wifi.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

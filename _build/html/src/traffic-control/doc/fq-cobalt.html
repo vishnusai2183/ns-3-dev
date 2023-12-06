@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>FqCobalt queue disc &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="fqcobalt-queue-disc">
+<span id="sec-fq-cobalt"></span><h1>FqCobalt queue disc<a class="headerlink" href="#fqcobalt-queue-disc" title="Link to this heading">¶</a></h1>
+<p>This chapter describes the FqCobalt (<a class="reference internal" href="#pal19" id="id1"><span>[Pal19]</span></a>) queue disc implementation in <a href="#id3"><span class="problematic" id="id4">|ns3|</span></a>.</p>
+<p>The FlowQueue-Cobalt (FQ-Cobalt) algorithm is similar to FlowQueue-CoDel (FQ-CoDel) algorithm available in :<a class="reference internal" href="fq-codel.html#sec-fq-codel"><span class="std std-ref">FqCoDel queue disc</span></a>.
+The documentation for Cobalt is available in
+<code class="docutils literal notranslate"><span class="pre">ns-3-dev/src/traffic-control/doc/cobalt.rst</span></code>.</p>
+<p>FqCobalt is one of the key components of the CAKE smart queue management framework  (<a class="reference internal" href="#hoe18" id="id2"><span>[Hoe18]</span></a>).  The COBALT AQM is preferred to the CoDel AQM for CAKE because
+it adds a heuristic called BLUE to cover cases in which the CoDel control
+law is too sluggish to respond to queue growth.</p>
+<section id="model-description">
+<h2>Model Description<a class="headerlink" href="#model-description" title="Link to this heading">¶</a></h2>
+<p>The source code for the FqCobalt queue disc is located in the directory
+<code class="docutils literal notranslate"><span class="pre">src/traffic-control/model</span></code> and consists of 2 files <cite>fq-cobalt-queue-disc.h</cite>
+and <cite>fq-cobalt-queue-disc.cc</cite> defining a FqCobaltQueueDisc class and a helper
+FqCobaltFlow class. The code was ported to <a href="#id5"><span class="problematic" id="id6">|ns3|</span></a> based on Linux kernel code
+implemented by Jonathan Morton
+(<a class="reference external" href="https://github.com/torvalds/linux/blob/master/net/sched/sch_cake.c">https://github.com/torvalds/linux/blob/master/net/sched/sch_cake.c</a>).</p>
+<p>The Model Description is similar to the FqCoDel documentation mentioned above.</p>
+<section id="references">
+<h3>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h3>
+<div role="list" class="citation-list">
+<div class="citation" id="pal19" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">Pal19</a><span class="fn-bracket">]</span></span>
+<ol class="upperalpha simple" start="10">
+<li><p>Palmei, S. Gupta, P. Imputato, J. Morton, M. Tahiliani, S. Avallone, and D. Taht, Design and Evaluation of COBALT Queue Discipline, 2019 IEEE International Symposium on Local and Metropolitan Area Networks (LANMAN), Paris, France, 2019.</p></li>
+</ol>
+</div>
+<div class="citation" id="hoe18" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">Hoe18</a><span class="fn-bracket">]</span></span>
+<ol class="upperalpha simple" start="20">
+<li><p>Hoiland-Jørgensen, D. Taht and J. Morton, “Piece of CAKE: A Comprehensive Queue Management Solution for Home Gateways,” 2018 IEEE International Symposium on Local and Metropolitan Area Networks (LANMAN), Washington, DC, USA, 2018.</p></li>
+</ol>
+</div>
+</div>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h3>
+<p>Most of the key attributes are similar to the FqCoDel implementation mentioned above.  One difference is the absence of the <code class="docutils literal notranslate"><span class="pre">MinBytes</span></code> parameter.</p>
+<p>Some additional parameters implemented as attributes are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Pdrop:</span></code> Value of drop probability.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Increment:</span></code> Increment value of drop probability. Default value is 1./256 .</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Decrement:</span></code> Decrement value of drop probability. Default value is 1./4096 .</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BlueThreshold:</span></code> The threshold after which Blue is enabled. Default value is 400ms.</p></li>
+</ul>
+<p>Note that if the user wants to disable Blue Enhancement then the user can set
+it to a large value; for example, to <cite>Time::Max ()</cite>.</p>
+</section>
+<section id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h3>
+<p>A typical usage pattern is to create a traffic control helper and to configure
+the type
+and attributes of the queue disc and filters from the helper.
+For example, <cite>FqCobalt</cite> can be configured as follows:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">TrafficControlHelper</span><span class="w"> </span><span class="n">tch</span><span class="p">;</span>
+<span class="n">tch</span><span class="p">.</span><span class="n">SetRootQueueDisc</span><span class="p">(</span><span class="s">&quot;ns3::FqCobaltQueueDisc&quot;</span><span class="p">,</span>
+<span class="w">                      </span><span class="s">&quot;DropBatchSize&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">UintegerValue</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+<span class="w">                     </span><span class="s">&quot;Perturbation&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">UintegerValue</span><span class="p">(</span><span class="mi">256</span><span class="p">));</span>
+<span class="n">QueueDiscContainer</span><span class="w"> </span><span class="n">qdiscs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tch</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">devices</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="validation">
+<h2>Validation<a class="headerlink" href="#validation" title="Link to this heading">¶</a></h2>
+<p>The FqCobalt model is tested using <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">FqCobaltQueueDiscTestSuite</span></code> class defined in <cite>src/test/ns3tc/codel-queue-test-suite.cc</cite>.</p>
+<p>The tests are similar to the ones for FqCoDel queue disc mentioned in first section of this document.
+The test suite can be run using the following commands:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./ns3<span class="w"> </span>configure<span class="w"> </span>--enable-examples<span class="w"> </span>--enable-tests
+$<span class="w"> </span>./ns3<span class="w"> </span>build
+$<span class="w"> </span>./test.py<span class="w"> </span>-s<span class="w"> </span>fq-cobalt-queue-disc
+</pre></div>
+</div>
+<p>or:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nv">NS_LOG</span><span class="o">=</span><span class="s2">&quot;FqCobaltQueueDisc&quot;</span><span class="w"> </span>./ns3<span class="w"> </span>run<span class="w"> </span><span class="s2">&quot;test-runner --suite=fq-cobalt-queue-disc&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/src/traffic-control/doc/fq-cobalt.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

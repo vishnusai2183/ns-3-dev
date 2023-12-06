@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Design &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <p>The files in this directory customize the Doxygen and Sphinx
+layout and rendering to give a common look.</p>
+<section id="design">
+<h1>Design<a class="headerlink" href="#design" title="Link to this heading">¶</a></h1>
+<p>The basic color scheme is taken from the ns3 homepage, <a class="reference external" href="http://www.nsnam.org/">http://www.nsnam.org/</a></p>
+<p>Since Sphinx provides more flexible layout and configuration control,
+the Doxygen layout and images are used as the basis.</p>
+<p>The top bar design is derived from Doxygen’s default when a logo,
+project name and description are given in the Doxygen configuration file.
+The files <code class="docutils literal notranslate"><span class="pre">layout.html</span></code> and <code class="docutils literal notranslate"><span class="pre">ns3_doxy_header.html</span></code> should kept in sync.</p>
+</section>
+<section id="sphinx-files">
+<h1>Sphinx Files<a class="headerlink" href="#sphinx-files" title="Link to this heading">¶</a></h1>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">layout.html</span></code> (<a class="reference internal" href="#sphinx-static-filenames"><span class="std std-ref">static filename</span></a>)</dt><dd><p>Augments the default page layout, including the top bar.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">theme.conf</span></code> (<a class="reference internal" href="#sphinx-static-filenames"><span class="std std-ref">static filename</span></a>)</dt><dd><p>Configuration parameters for <code class="docutils literal notranslate"><span class="pre">layout.html</span></code> and <code class="docutils literal notranslate"><span class="pre">default.css_t</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">static/bc_s.png</span></code></dt><dd><p>Angle bracket in Sphinx relbar, taken from the Doxygen html output.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">static/default.css_t</span></code> (<a class="reference internal" href="#sphinx-static-filenames"><span class="std std-ref">static filename</span></a>)</dt><dd><p>Default Sphinx CSS template, copied from the default theme.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">static/nav_f.png</span></code></dt><dd><p>Background image for headings, taken from the Doxygen html output.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">static/sidebar.js</span></code> (<a class="reference internal" href="#sphinx-static-filenames"><span class="std std-ref">static filename</span></a>)</dt><dd><p>Sidebar script, copied from the default theme.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">static/tab_b.png</span></code></dt><dd><p>Background image for the Sphinx relbar, taken from the Doxygen html output.</p>
+</dd>
+</dl>
+<div class="admonition note" id="sphinx-static-filenames">
+<p class="admonition-title">Note</p>
+<p><strong>Static Filenames</strong></p>
+<p>Sphinx uses hard-coded file  names (and the <code class="docutils literal notranslate"><span class="pre">static</span></code> directory name).
+The files referenced above can’t be renamed.</p>
+</div>
+</section>
+<section id="doxygen-files">
+<h1>Doxygen Files<a class="headerlink" href="#doxygen-files" title="Link to this heading">¶</a></h1>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">ns3_doxy_footer.html</span></code></dt><dd><p>Defines the page footer.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">ns3_doxy_header.html</span></code></dt><dd><p>Defines the page header, including the top bar.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">static/doxygen.css</span></code></dt><dd><p>Default Doxygen CSS file, obtained by the <code class="docutils literal notranslate"><span class="pre">doxygen</span> <span class="pre">-w</span> <span class="pre">html</span> <span class="pre">...</span></code>
+command.</p>
+</dd>
+</dl>
+</section>
+<section id="shared-files">
+<h1>Shared Files<a class="headerlink" href="#shared-files" title="Link to this heading">¶</a></h1>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">README.rst</span></code></dt><dd><p>This file, not used by Doxygen or Sphinx.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">static/bar-top.png</span></code></dt><dd><p>Background image for the top bar, resized from the ns-3 homepage.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">static/favicon.ico</span></code></dt><dd><p>Browser location bar favicon, referenced in <code class="docutils literal notranslate"><span class="pre">layout.html</span></code> and
+<code class="docutils literal notranslate"><span class="pre">ns3_doxy_header.html</span></code>, taken from the ns-3 homepage.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">static/ns-3-inverted-notext-small.png</span></code></dt><dd><p>Logo used in the top bar, taken from the ns-3 media kit.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">static/ns3_stylesheet.css</span></code></dt><dd><p>Style customizations for both Doxygen and Sphinx.</p>
+</dd>
+</dl>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../_sources/doc/ns3_html_theme/README.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

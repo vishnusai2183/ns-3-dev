@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Node and NetDevices Overview &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="node-and-netdevices-overview">
+<h1>Node and NetDevices Overview<a class="headerlink" href="#node-and-netdevices-overview" title="Link to this heading">¶</a></h1>
+<p>This chapter describes how <a href="#id2"><span class="problematic" id="id3">|ns3|</span></a> nodes are put together, and provides a
+walk-through of how packets traverse an internet-based Node.</p>
+<figure class="align-default" id="id1">
+<span id="node-architecture"></span><img alt="src/network/doc/figures/node.*" src="src/network/doc/figures/node.*" />
+<figcaption>
+<p><span class="caption-text">High-level node architecture</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>In <a href="#id4"><span class="problematic" id="id5">|ns3|</span></a>, nodes are instances of <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">ns3::Node</span></code>. This class may be
+subclassed, but instead, the conceptual model is that we <em>aggregate</em> or insert
+objects to it rather than define subclasses.</p>
+<p>One might think of a bare <a href="#id6"><span class="problematic" id="id7">|ns3|</span></a> node as a shell of a computer, to which one may
+add NetDevices (cards) and other innards including the protocols and
+applications. <a class="reference internal" href="#node-architecture"><span class="std std-ref">High-level node architecture</span></a> illustrates that <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">ns3::Node</span></code>
+objects contain a list of <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">ns3::Application</span></code> instances (initially,
+the list is empty), a list of <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">ns3::NetDevice</span></code> instances (initially,
+the list is empty), a list of <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">ns3::Node::ProtocolHandler</span></code> instances,
+a unique integer ID, and a system ID (for distributed simulation).</p>
+<p>The design tries to avoid putting too many dependencies on the class
+<code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">ns3::Node</span></code>, <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">ns3::Application</span></code>, or
+<code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">ns3::NetDevice</span></code> for the following:</p>
+<ul class="simple">
+<li><p>IP version, or whether IP is at all even used in the <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">ns3::Node</span></code>.</p></li>
+<li><p>implementation details of the IP stack.</p></li>
+</ul>
+<p>From a software perspective, the lower interface of applications corresponds to
+the C-based sockets API. The upper interface of <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">ns3::NetDevice</span></code>
+objects corresponds to the device independent sublayer of the Linux stack.
+Everything in between can be aggregated and plumbed together as needed.</p>
+<p>Let’s look more closely at the protocol demultiplexer. We want incoming frames
+at layer-2 to be delivered to the right layer-3 protocol such as IPv4. The
+function of this demultiplexer is to register callbacks for receiving packets.
+The callbacks are indexed based on the <a class="reference external" href="http://en.wikipedia.org/wiki/EtherType">EtherType</a> in the layer-2 frame.</p>
+<p>Many different types of higher-layer protocols may be connected to the
+NetDevice, such as IPv4, IPv6, ARP, MPLS, IEEE 802.1x, and packet sockets.
+Therefore, the use of a callback-based demultiplexer avoids the need to use a
+common base class for all of these protocols, which is problematic because of
+the different types of objects (including packet sockets) expected to be
+registered there.</p>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/src/network/doc/network-overview.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

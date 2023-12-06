@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>7. Building Topologies &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="building-topologies">
+<span id="buildingtopologies"></span><h1><span class="section-number">7. </span>Building Topologies<a class="headerlink" href="#building-topologies" title="Link to this heading">¶</a></h1>
+<section id="building-a-bus-network-topology">
+<h2><span class="section-number">7.1. </span>Building a Bus Network Topology<a class="headerlink" href="#building-a-bus-network-topology" title="Link to this heading">¶</a></h2>
+<p>In this section we are going to expand our mastery of <em>ns-3</em> network
+devices and channels to cover an example of a bus network.  <em>ns-3</em>
+provides a net device and channel we call CSMA (Carrier Sense Multiple Access).</p>
+<p>The <em>ns-3</em> CSMA device models a simple network in the spirit of
+Ethernet.  A real Ethernet uses CSMA/CD (Carrier Sense Multiple Access with
+Collision Detection) scheme with exponentially increasing backoff to contend
+for the shared transmission medium.  The <em>ns-3</em> CSMA device and
+channel models only a subset of this.</p>
+<p>Just as we have seen point-to-point topology helper objects when constructing
+point-to-point topologies, we will see equivalent CSMA topology helpers in
+this section.  The appearance and operation of these helpers should look
+quite familiar to you.</p>
+<p>We provide an example script in our <code class="docutils literal notranslate"><span class="pre">examples/tutorial</span></code> directory.  This script
+builds on the <code class="docutils literal notranslate"><span class="pre">first.cc</span></code> script and adds a CSMA network to the
+point-to-point simulation we’ve already considered.  Go ahead and open
+<code class="docutils literal notranslate"><span class="pre">examples/tutorial/second.cc</span></code> in your favorite editor.  You will have already seen
+enough <em>ns-3</em> code to understand most of what is going on in this
+example, but we will go over the entire script and examine some of the output.</p>
+<p>Just as in the <code class="docutils literal notranslate"><span class="pre">first.cc</span></code> example (and in all ns-3 examples) the file
+begins with an emacs mode line and some GPL boilerplate.</p>
+<p>The actual code begins by loading module include files just as was done in the
+<code class="docutils literal notranslate"><span class="pre">first.cc</span></code> example.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ns3/core-module.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ns3/network-module.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ns3/csma-module.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ns3/internet-module.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ns3/point-to-point-module.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ns3/applications-module.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ns3/ipv4-global-routing-helper.h&quot;</span>
+</pre></div>
+</div>
+<p>One thing that can be surprisingly useful is a small bit of ASCII art that
+shows a cartoon of the network topology constructed in the example.  You will
+find a similar “drawing” in most of our examples.</p>
+<p>In this case, you can see that we are going to extend our point-to-point
+example (the link between the nodes n0 and n1 below) by hanging a bus network
+off of the right side.  Notice that this is the default network topology
+since you can actually vary the number of nodes created on the LAN.  If you
+set nCsma to one, there will be a total of two nodes on the LAN (CSMA
+channel) — one required node and one “extra” node.  By default there are
+three “extra” nodes as seen below:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Default Network Topology</span>
+<span class="c1">//</span>
+<span class="c1">//       10.1.1.0</span>
+<span class="c1">// n0 -------------- n1   n2   n3   n4</span>
+<span class="c1">//    point-to-point  |    |    |    |</span>
+<span class="c1">//                    ================</span>
+<span class="c1">//                      LAN 10.1.2.0</span>
+</pre></div>
+</div>
+<p>Then the ns-3 namespace is <code class="docutils literal notranslate"><span class="pre">used</span></code> and a logging component is defined.
+This is all just as it was in <code class="docutils literal notranslate"><span class="pre">first.cc</span></code>, so there is nothing new yet.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ns3</span><span class="p">;</span>
+
+<span class="n">NS_LOG_COMPONENT_DEFINE</span><span class="p">(</span><span class="s">&quot;SecondScriptExample&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The main program begins with a slightly different twist.  We use a verbose
+flag to determine whether or not the <code class="docutils literal notranslate"><span class="pre">UdpEchoClientApplication</span></code> and
+<code class="docutils literal notranslate"><span class="pre">UdpEchoServerApplication</span></code> logging components are enabled.  This flag
+defaults to true (the logging components are enabled) but allows us to turn
+off logging during regression testing of this example.</p>
+<p>You will see some familiar code that will allow you to change the number
+of devices on the CSMA network via command line argument.  We did something
+similar when we allowed the number of packets sent to be changed in the section
+on command line arguments.  The last line makes sure you have at least one
+“extra” node.</p>
+<p>The code consists of variations of previously covered API so you should be
+entirely comfortable with the following code at this point in the tutorial.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">bool</span><span class="w"> </span><span class="n">verbose</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="kt">uint32_t</span><span class="w"> </span><span class="n">nCsma</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+
+<span class="n">CommandLine</span><span class="w"> </span><span class="n">cmd</span><span class="p">;</span>
+<span class="n">cmd</span><span class="p">.</span><span class="n">AddValue</span><span class="p">(</span><span class="s">&quot;nCsma&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Number of </span><span class="se">\&quot;</span><span class="s">extra</span><span class="se">\&quot;</span><span class="s"> CSMA nodes/devices&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">nCsma</span><span class="p">);</span>
+<span class="n">cmd</span><span class="p">.</span><span class="n">AddValue</span><span class="p">(</span><span class="s">&quot;verbose&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Tell echo applications to log if true&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">verbose</span><span class="p">);</span>
+
+<span class="n">cmd</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">);</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">verbose</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">LogComponentEnable</span><span class="p">(</span><span class="s">&quot;UdpEchoClientApplication&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">LOG_LEVEL_INFO</span><span class="p">);</span>
+<span class="w">    </span><span class="n">LogComponentEnable</span><span class="p">(</span><span class="s">&quot;UdpEchoServerApplication&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">LOG_LEVEL_INFO</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="n">nCsma</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nCsma</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">nCsma</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>The next step is to create two nodes that we will connect via the
+point-to-point link.  The <code class="docutils literal notranslate"><span class="pre">NodeContainer</span></code> is used to do this just as was
+done in <code class="docutils literal notranslate"><span class="pre">first.cc</span></code>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">NodeContainer</span><span class="w"> </span><span class="n">p2pNodes</span><span class="p">;</span>
+<span class="n">p2pNodes</span><span class="p">.</span><span class="n">Create</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Next, we declare another <code class="docutils literal notranslate"><span class="pre">NodeContainer</span></code> to hold the nodes that will be
+part of the bus (CSMA) network.  First, we just instantiate the container
+object itself.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">NodeContainer</span><span class="w"> </span><span class="n">csmaNodes</span><span class="p">;</span>
+<span class="n">csmaNodes</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">p2pNodes</span><span class="p">.</span><span class="n">Get</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+<span class="n">csmaNodes</span><span class="p">.</span><span class="n">Create</span><span class="p">(</span><span class="n">nCsma</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The next line of code <code class="docutils literal notranslate"><span class="pre">Gets</span></code> the first node (as in having an index of one)
+from the point-to-point node container and adds it to the container of nodes
+that will get CSMA devices.  The node in question is going to end up with a
+point-to-point device <em>and</em> a CSMA device.  We then create a number of
+“extra” nodes that compose the remainder of the CSMA network.  Since we
+already have one node in the CSMA network – the one that will have both a
+point-to-point and CSMA net device, the number of “extra” nodes means the
+number nodes you desire in the CSMA section minus one.</p>
+<p>The next bit of code should be quite familiar by now.  We instantiate a
+<code class="docutils literal notranslate"><span class="pre">PointToPointHelper</span></code> and set the associated default <code class="docutils literal notranslate"><span class="pre">Attributes</span></code> so
+that we create a five megabit per second transmitter on devices created using
+the helper and a two millisecond delay on channels created by the helper.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">PointToPointHelper</span><span class="w"> </span><span class="n">pointToPoint</span><span class="p">;</span>
+<span class="n">pointToPoint</span><span class="p">.</span><span class="n">SetDeviceAttribute</span><span class="p">(</span><span class="s">&quot;DataRate&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;5Mbps&quot;</span><span class="p">));</span>
+<span class="n">pointToPoint</span><span class="p">.</span><span class="n">SetChannelAttribute</span><span class="p">(</span><span class="s">&quot;Delay&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;2ms&quot;</span><span class="p">));</span>
+
+<span class="n">NetDeviceContainer</span><span class="w"> </span><span class="n">p2pDevices</span><span class="p">;</span>
+<span class="n">p2pDevices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pointToPoint</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">p2pNodes</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>We then instantiate a <code class="docutils literal notranslate"><span class="pre">NetDeviceContainer</span></code> to keep track of the
+point-to-point net devices and we <code class="docutils literal notranslate"><span class="pre">Install</span></code> devices on the
+point-to-point nodes.</p>
+<p>We mentioned above that you were going to see a helper for CSMA devices and
+channels, and the next lines introduce them.  The <code class="docutils literal notranslate"><span class="pre">CsmaHelper</span></code> works just
+like a <code class="docutils literal notranslate"><span class="pre">PointToPointHelper</span></code>, but it creates and connects CSMA devices and
+channels.  In the case of a CSMA device and channel pair, notice that the data
+rate is specified by a <em>channel</em> <code class="docutils literal notranslate"><span class="pre">Attribute</span></code> instead of a device
+<code class="docutils literal notranslate"><span class="pre">Attribute</span></code>.  This is because a real CSMA network does not allow one to mix,
+for example, 10Base-T and 100Base-T devices on a given channel.  We first set
+the data rate to 100 megabits per second, and then set the speed-of-light delay
+of the channel to 6560 nano-seconds (arbitrarily chosen as 1 nanosecond per foot
+over a 2000 meter segment).  Notice that you can set an <code class="docutils literal notranslate"><span class="pre">Attribute</span></code> using
+its native data type.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">CsmaHelper</span><span class="w"> </span><span class="n">csma</span><span class="p">;</span>
+<span class="n">csma</span><span class="p">.</span><span class="n">SetChannelAttribute</span><span class="p">(</span><span class="s">&quot;DataRate&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;100Mbps&quot;</span><span class="p">));</span>
+<span class="n">csma</span><span class="p">.</span><span class="n">SetChannelAttribute</span><span class="p">(</span><span class="s">&quot;Delay&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">TimeValue</span><span class="p">(</span><span class="n">NanoSeconds</span><span class="p">(</span><span class="mi">6560</span><span class="p">)));</span>
+
+<span class="n">NetDeviceContainer</span><span class="w"> </span><span class="n">csmaDevices</span><span class="p">;</span>
+<span class="n">csmaDevices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">csma</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">csmaNodes</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Just as we created a <code class="docutils literal notranslate"><span class="pre">NetDeviceContainer</span></code> to hold the devices created by
+the <code class="docutils literal notranslate"><span class="pre">PointToPointHelper</span></code> we create a <code class="docutils literal notranslate"><span class="pre">NetDeviceContainer</span></code> to hold
+the devices created by our <code class="docutils literal notranslate"><span class="pre">CsmaHelper</span></code>.  We call the <code class="docutils literal notranslate"><span class="pre">Install</span></code>
+method of the <code class="docutils literal notranslate"><span class="pre">CsmaHelper</span></code> to install the devices into the nodes of the
+<code class="docutils literal notranslate"><span class="pre">csmaNodes</span> <span class="pre">NodeContainer</span></code>.</p>
+<p>We now have our nodes, devices and channels created, but we have no protocol
+stacks present.  Just as in the <code class="docutils literal notranslate"><span class="pre">first.cc</span></code> script, we will use the
+<code class="docutils literal notranslate"><span class="pre">InternetStackHelper</span></code> to install these stacks.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">InternetStackHelper</span><span class="w"> </span><span class="n">stack</span><span class="p">;</span>
+<span class="n">stack</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">p2pNodes</span><span class="p">.</span><span class="n">Get</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
+<span class="n">stack</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">csmaNodes</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Recall that we took one of the nodes from the <code class="docutils literal notranslate"><span class="pre">p2pNodes</span></code> container and
+added it to the <code class="docutils literal notranslate"><span class="pre">csmaNodes</span></code> container.  Thus we only need to install
+the stacks on the remaining <code class="docutils literal notranslate"><span class="pre">p2pNodes</span></code> node, and all of the nodes in the
+<code class="docutils literal notranslate"><span class="pre">csmaNodes</span></code> container to cover all of the nodes in the simulation.</p>
+<p>Just as in the <code class="docutils literal notranslate"><span class="pre">first.cc</span></code> example script, we are going to use the
+<code class="docutils literal notranslate"><span class="pre">Ipv4AddressHelper</span></code> to assign IP addresses to our device interfaces.
+First we use the network 10.1.1.0 to create the two addresses needed for our
+two point-to-point devices.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">Ipv4AddressHelper</span><span class="w"> </span><span class="n">address</span><span class="p">;</span>
+<span class="n">address</span><span class="p">.</span><span class="n">SetBase</span><span class="p">(</span><span class="s">&quot;10.1.1.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;255.255.255.0&quot;</span><span class="p">);</span>
+<span class="n">Ipv4InterfaceContainer</span><span class="w"> </span><span class="n">p2pInterfaces</span><span class="p">;</span>
+<span class="n">p2pInterfaces</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">address</span><span class="p">.</span><span class="n">Assign</span><span class="p">(</span><span class="n">p2pDevices</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Recall that we save the created interfaces in a container to make it easy to
+pull out addressing information later for use in setting up the applications.</p>
+<p>We now need to assign IP addresses to our CSMA device interfaces.  The
+operation works just as it did for the point-to-point case, except we now
+are performing the operation on a container that has a variable number of
+CSMA devices — remember we made the number of CSMA devices changeable by
+command line argument.  The CSMA devices will be associated with IP addresses
+from network number 10.1.2.0 in this case, as seen below.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">address</span><span class="p">.</span><span class="n">SetBase</span><span class="p">(</span><span class="s">&quot;10.1.2.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;255.255.255.0&quot;</span><span class="p">);</span>
+<span class="n">Ipv4InterfaceContainer</span><span class="w"> </span><span class="n">csmaInterfaces</span><span class="p">;</span>
+<span class="n">csmaInterfaces</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">address</span><span class="p">.</span><span class="n">Assign</span><span class="p">(</span><span class="n">csmaDevices</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Now we have a topology built, but we need applications.  This section is
+going to be fundamentally similar to the applications section of
+<code class="docutils literal notranslate"><span class="pre">first.cc</span></code> but we are going to instantiate the server on one of the
+nodes that has a CSMA device and the client on the node having only a
+point-to-point device.</p>
+<p>First, we set up the echo server.  We create a <code class="docutils literal notranslate"><span class="pre">UdpEchoServerHelper</span></code> and
+provide a required <code class="docutils literal notranslate"><span class="pre">Attribute</span></code> value to the constructor which is the server
+port number.  Recall that this port can be changed later using the
+<code class="docutils literal notranslate"><span class="pre">SetAttribute</span></code> method if desired, but we require it to be provided to
+the constructor.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">UdpEchoServerHelper</span><span class="w"> </span><span class="nf">echoServer</span><span class="p">(</span><span class="mi">9</span><span class="p">);</span>
+
+<span class="n">ApplicationContainer</span><span class="w"> </span><span class="n">serverApps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">echoServer</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">csmaNodes</span><span class="p">.</span><span class="n">Get</span><span class="p">(</span><span class="n">nCsma</span><span class="p">));</span>
+<span class="n">serverApps</span><span class="p">.</span><span class="n">Start</span><span class="p">(</span><span class="n">Seconds</span><span class="p">(</span><span class="mf">1.0</span><span class="p">));</span>
+<span class="n">serverApps</span><span class="p">.</span><span class="n">Stop</span><span class="p">(</span><span class="n">Seconds</span><span class="p">(</span><span class="mf">10.0</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>Recall that the <code class="docutils literal notranslate"><span class="pre">csmaNodes</span> <span class="pre">NodeContainer</span></code> contains one of the
+nodes created for the point-to-point network and <code class="docutils literal notranslate"><span class="pre">nCsma</span></code> “extra” nodes.
+What we want to get at is the last of the “extra” nodes.  The zeroth entry of
+the <code class="docutils literal notranslate"><span class="pre">csmaNodes</span></code> container will be the point-to-point node.  The easy
+way to think of this, then, is if we create one “extra” CSMA node, then it
+will be at index one of the <code class="docutils literal notranslate"><span class="pre">csmaNodes</span></code> container.  By induction,
+if we create <code class="docutils literal notranslate"><span class="pre">nCsma</span></code> “extra” nodes the last one will be at index
+<code class="docutils literal notranslate"><span class="pre">nCsma</span></code>.  You see this exhibited in the <code class="docutils literal notranslate"><span class="pre">Get</span></code> of the first line of
+code.</p>
+<p>The client application is set up exactly as we did in the <code class="docutils literal notranslate"><span class="pre">first.cc</span></code>
+example script.  Again, we provide required <code class="docutils literal notranslate"><span class="pre">Attributes</span></code> to the
+<code class="docutils literal notranslate"><span class="pre">UdpEchoClientHelper</span></code> in the constructor (in this case the remote address
+and port).  We tell the client to send packets to the server we just installed
+on the last of the “extra” CSMA nodes.  We install the client on the
+leftmost point-to-point node seen in the topology illustration.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">UdpEchoClientHelper</span><span class="w"> </span><span class="nf">echoClient</span><span class="p">(</span><span class="n">csmaInterfaces</span><span class="p">.</span><span class="n">GetAddress</span><span class="p">(</span><span class="n">nCsma</span><span class="p">),</span><span class="w"> </span><span class="mi">9</span><span class="p">);</span>
+<span class="n">echoClient</span><span class="p">.</span><span class="n">SetAttribute</span><span class="p">(</span><span class="s">&quot;MaxPackets&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">UintegerValue</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+<span class="n">echoClient</span><span class="p">.</span><span class="n">SetAttribute</span><span class="p">(</span><span class="s">&quot;Interval&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">TimeValue</span><span class="p">(</span><span class="n">Seconds</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)));</span>
+<span class="n">echoClient</span><span class="p">.</span><span class="n">SetAttribute</span><span class="p">(</span><span class="s">&quot;PacketSize&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">UintegerValue</span><span class="p">(</span><span class="mi">1024</span><span class="p">));</span>
+
+<span class="n">ApplicationContainer</span><span class="w"> </span><span class="n">clientApps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">echoClient</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">p2pNodes</span><span class="p">.</span><span class="n">Get</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
+<span class="n">clientApps</span><span class="p">.</span><span class="n">Start</span><span class="p">(</span><span class="n">Seconds</span><span class="p">(</span><span class="mf">2.0</span><span class="p">));</span>
+<span class="n">clientApps</span><span class="p">.</span><span class="n">Stop</span><span class="p">(</span><span class="n">Seconds</span><span class="p">(</span><span class="mf">10.0</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>Since we have actually built an internetwork here, we need some form of
+internetwork routing.  <em>ns-3</em> provides what we call global routing to
+help you out.  Global routing takes advantage of the fact that the entire
+internetwork is accessible in the simulation and runs through the all of the
+nodes created for the simulation — it does the hard work of setting up routing
+for you without having to configure routers.</p>
+<p>Basically, what happens is that each node behaves as if it were an OSPF router
+that communicates instantly and magically with all other routers behind the
+scenes.  Each node generates link advertisements and communicates them
+directly to a global route manager which uses this global information to
+construct the routing tables for each node.  Setting up this form of routing
+is a one-liner:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">Ipv4GlobalRoutingHelper</span><span class="o">::</span><span class="n">PopulateRoutingTables</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Next we enable pcap tracing.  The first line of code to enable pcap tracing
+in the point-to-point helper should be familiar to you by now.  The second
+line enables pcap tracing in the CSMA helper and there is an extra parameter
+you haven’t encountered yet.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">pointToPoint</span><span class="p">.</span><span class="n">EnablePcapAll</span><span class="p">(</span><span class="s">&quot;second&quot;</span><span class="p">);</span>
+<span class="n">csma</span><span class="p">.</span><span class="n">EnablePcap</span><span class="p">(</span><span class="s">&quot;second&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">csmaDevices</span><span class="p">.</span><span class="n">Get</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The CSMA network is a multi-point-to-point network.  This means that there
+can (and are in this case) multiple endpoints on a shared medium.  Each of
+these endpoints has a net device associated with it.  There are two basic
+alternatives to gathering trace information from such a network.  One way
+is to create a trace file for each net device and store only the packets
+that are emitted or consumed by that net device.  Another way is to pick
+one of the devices and place it in promiscuous mode.  That single device
+then “sniffs” the network for all packets and stores them in a single
+pcap file.  This is how <code class="docutils literal notranslate"><span class="pre">tcpdump</span></code>, for example, works.  That final
+parameter tells the CSMA helper whether or not to arrange to capture
+packets in promiscuous mode.</p>
+<p>In this example, we are going to select one of the devices on the CSMA
+network and ask it to perform a promiscuous sniff of the network, thereby
+emulating what <code class="docutils literal notranslate"><span class="pre">tcpdump</span></code> would do.  If you were on a Linux machine
+you might do something like <code class="docutils literal notranslate"><span class="pre">tcpdump</span> <span class="pre">-i</span> <span class="pre">eth0</span></code> to get the trace.
+In this case, we specify the device using <code class="docutils literal notranslate"><span class="pre">csmaDevices.Get(1)</span></code>,
+which selects the first device in the container.  Setting the final
+parameter to true enables promiscuous captures.</p>
+<p>The last section of code just runs and cleans up the simulation just like
+the <code class="docutils literal notranslate"><span class="pre">first.cc</span></code> example.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="n">Simulator</span><span class="o">::</span><span class="n">Run</span><span class="p">();</span>
+<span class="w">  </span><span class="n">Simulator</span><span class="o">::</span><span class="n">Destroy</span><span class="p">();</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In order to run this example, copy the <code class="docutils literal notranslate"><span class="pre">second.cc</span></code> example script into
+the scratch directory and use the <code class="docutils literal notranslate"><span class="pre">ns3</span></code> build script to build just as you did with
+the <code class="docutils literal notranslate"><span class="pre">first.cc</span></code> example.  If you are in the top-level directory of the
+repository you just type,</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>cp<span class="w"> </span>examples/tutorial/second.cc<span class="w"> </span>scratch/mysecond.cc
+$<span class="w"> </span>./ns3<span class="w"> </span>build
+</pre></div>
+</div>
+<p>Warning:  We use the file <code class="docutils literal notranslate"><span class="pre">second.cc</span></code> as one of our regression tests to
+verify that it works exactly as we think it should in order to make your
+tutorial experience a positive one.  This means that an executable named
+<code class="docutils literal notranslate"><span class="pre">second</span></code> already exists in the project.  To avoid any confusion
+about what you are executing, please do the renaming to <code class="docutils literal notranslate"><span class="pre">mysecond.cc</span></code>
+suggested above.</p>
+<p>If you are following the tutorial closely, you will
+still have the NS_LOG variable set, so go ahead and clear that variable and
+run the program.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="nv">NS_LOG</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+$<span class="w"> </span>./ns3<span class="w"> </span>run<span class="w"> </span>scratch/mysecond
+</pre></div>
+</div>
+<p>Since we have set up the UDP echo applications to log just as we did in
+<code class="docutils literal notranslate"><span class="pre">first.cc</span></code>, you will see similar output when you run the script.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>At time +2s client sent 1024 bytes to 10.1.2.4 port 9
+At time +2.0078s server received 1024 bytes from 10.1.1.1 port 49153
+At time +2.0078s server sent 1024 bytes to 10.1.1.1 port 49153
+At time +2.01761s client received 1024 bytes from 10.1.2.4 port 9
+</pre></div>
+</div>
+<p>Recall that the first message, “<code class="docutils literal notranslate"><span class="pre">Sent</span> <span class="pre">1024</span> <span class="pre">bytes</span> <span class="pre">to</span> <span class="pre">10.1.2.4</span></code>,” is the
+UDP echo client sending a packet to the server.  In this case, the server
+is on a different network (10.1.2.0).  The second message, “<code class="docutils literal notranslate"><span class="pre">Received</span> <span class="pre">1024</span>
+<span class="pre">bytes</span> <span class="pre">from</span> <span class="pre">10.1.1.1</span></code>,” is from the UDP echo server, generated when it receives
+the echo packet.  The final message, “<code class="docutils literal notranslate"><span class="pre">Received</span> <span class="pre">1024</span> <span class="pre">bytes</span> <span class="pre">from</span> <span class="pre">10.1.2.4</span></code>,”
+is from the echo client, indicating that it has received its echo back from
+the server.</p>
+<p>If you now look in the top level directory, you will find three trace
+files:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>second-0-0.pcap  second-1-0.pcap  second-2-0.pcap
+</pre></div>
+</div>
+<p>Let’s take a moment to look at the naming of these files.  They all have the
+same form, <code class="docutils literal notranslate"><span class="pre">&lt;name&gt;-&lt;node&gt;-&lt;device&gt;.pcap</span></code>.  For example, the first file
+in the listing is <code class="docutils literal notranslate"><span class="pre">second-0-0.pcap</span></code> which is the pcap trace from node
+zero, device zero.  This is the point-to-point net device on node zero.  The
+file <code class="docutils literal notranslate"><span class="pre">second-1-0.pcap</span></code> is the pcap trace for device zero on node one,
+also a point-to-point net device; and the file <code class="docutils literal notranslate"><span class="pre">second-2-0.pcap</span></code> is the
+pcap trace for device zero on node two.</p>
+<p>If you refer back to the topology illustration at the start of the section,
+you will see that node zero is the leftmost node of the point-to-point link
+and node one is the node that has both a point-to-point device and a CSMA
+device.  You will see that node two is the first “extra” node on the CSMA
+network and its device zero was selected as the device to capture the
+promiscuous-mode trace.</p>
+<p>Now, let’s follow the echo packet through the internetwork.  First, do a
+tcpdump of the trace file for the leftmost point-to-point node — node zero.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>tcpdump<span class="w"> </span>-nn<span class="w"> </span>-tt<span class="w"> </span>-r<span class="w"> </span>second-0-0.pcap
+</pre></div>
+</div>
+<p>You should see the contents of the pcap file displayed:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>reading from file second-0-0.pcap, link-type PPP (PPP)
+2.000000 IP 10.1.1.1.49153 &gt; 10.1.2.4.9: UDP, length 1024
+2.017607 IP 10.1.2.4.9 &gt; 10.1.1.1.49153: UDP, length 1024
+</pre></div>
+</div>
+<p>The first line of the dump indicates that the link type is PPP (point-to-point)
+which we expect.  You then see the echo packet leaving node zero via the
+device associated with IP address 10.1.1.1 headed for IP address
+10.1.2.4 (the rightmost CSMA node).  This packet will move over the
+point-to-point link and be received by the point-to-point net device on node
+one.  Let’s take a look:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>tcpdump<span class="w"> </span>-nn<span class="w"> </span>-tt<span class="w"> </span>-r<span class="w"> </span>second-1-0.pcap
+</pre></div>
+</div>
+<p>You should now see the pcap trace output of the other side of the point-to-point
+link:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>reading from file second-1-0.pcap, link-type PPP (PPP)
+2.003686 IP 10.1.1.1.49153 &gt; 10.1.2.4.9: UDP, length 1024
+2.013921 IP 10.1.2.4.9 &gt; 10.1.1.1.49153: UDP, length 1024
+</pre></div>
+</div>
+<p>Here we see that the link type is also PPP as we would expect.  You see the
+packet from IP address 10.1.1.1 (that was sent at 2.000000 seconds) headed
+toward IP address 10.1.2.4 appear on this interface.  Now, internally to this
+node, the packet will be forwarded to the CSMA interface and we should see it
+pop out on that device headed for its ultimate destination.</p>
+<p>Remember that we selected node 2 as the promiscuous sniffer node for the CSMA
+network so let’s then look at second-2-0.pcap and see if its there.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>tcpdump<span class="w"> </span>-nn<span class="w"> </span>-tt<span class="w"> </span>-r<span class="w"> </span>second-2-0.pcap
+</pre></div>
+</div>
+<p>You should now see the promiscuous dump of node two, device zero:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>reading from file second-2-0.pcap, link-type EN10MB (Ethernet)
+2.007698 ARP, Request who-has 10.1.2.4 (ff:ff:ff:ff:ff:ff) tell 10.1.2.1, length 50
+2.007710 ARP, Reply 10.1.2.4 is-at 00:00:00:00:00:06, length 50
+2.007803 IP 10.1.1.1.49153 &gt; 10.1.2.4.9: UDP, length 1024
+2.013815 ARP, Request who-has 10.1.2.1 (ff:ff:ff:ff:ff:ff) tell 10.1.2.4, length 50
+2.013828 ARP, Reply 10.1.2.1 is-at 00:00:00:00:00:03, length 50
+2.013921 IP 10.1.2.4.9 &gt; 10.1.1.1.49153: UDP, length 1024
+</pre></div>
+</div>
+<p>As you can see, the link type is now “Ethernet”.  Something new has appeared,
+though.  The bus network needs <code class="docutils literal notranslate"><span class="pre">ARP</span></code>, the Address Resolution Protocol.
+Node one knows it needs to send the packet to IP address 10.1.2.4, but it
+doesn’t know the MAC address of the corresponding node.  It broadcasts on the
+CSMA network (ff:ff:ff:ff:ff:ff) asking for the device that has IP address
+10.1.2.4.  In this case, the rightmost node replies saying it is at MAC address
+00:00:00:00:00:06.  Note that node two is not directly involved in this
+exchange, but is sniffing the network and reporting all of the traffic it sees.</p>
+<p>This exchange is seen in the following lines,</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>2.007698 ARP, Request who-has 10.1.2.4 (ff:ff:ff:ff:ff:ff) tell 10.1.2.1, length 50
+2.007710 ARP, Reply 10.1.2.4 is-at 00:00:00:00:00:06, length 50
+</pre></div>
+</div>
+<p>Then node one, device one goes ahead and sends the echo packet to the UDP echo
+server at IP address 10.1.2.4.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>2.007803 IP 10.1.1.1.49153 &gt; 10.1.2.4.9: UDP, length 1024
+</pre></div>
+</div>
+<p>The server receives the echo request and turns the packet around trying to send
+it back to the source.  The server knows that this address is on another network
+that it reaches via IP address 10.1.2.1.  This is because we initialized global
+routing and it has figured all of this out for us.  But, the echo server node
+doesn’t know the MAC address of the first CSMA node, so it has to ARP for it
+just like the first CSMA node had to do.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>2.013815 ARP, Request who-has 10.1.2.1 (ff:ff:ff:ff:ff:ff) tell 10.1.2.4, length 50
+2.013828 ARP, Reply 10.1.2.1 is-at 00:00:00:00:00:03, length 50
+</pre></div>
+</div>
+<p>The server then sends the echo back to the forwarding node.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>2.013921 IP 10.1.2.4.9 &gt; 10.1.1.1.49153: UDP, length 1024
+</pre></div>
+</div>
+<p>Looking back at the rightmost node of the point-to-point link,</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>tcpdump<span class="w"> </span>-nn<span class="w"> </span>-tt<span class="w"> </span>-r<span class="w"> </span>second-1-0.pcap
+</pre></div>
+</div>
+<p>You can now see the echoed packet coming back onto the point-to-point link as
+the last line of the trace dump.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>reading from file second-1-0.pcap, link-type PPP (PPP)
+2.003686 IP 10.1.1.1.49153 &gt; 10.1.2.4.9: UDP, length 1024
+2.013921 IP 10.1.2.4.9 &gt; 10.1.1.1.49153: UDP, length 1024
+</pre></div>
+</div>
+<p>Lastly, you can look back at the node that originated the echo</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>tcpdump<span class="w"> </span>-nn<span class="w"> </span>-tt<span class="w"> </span>-r<span class="w"> </span>second-0-0.pcap
+</pre></div>
+</div>
+<p>and see that the echoed packet arrives back at the source at 2.017607 seconds,</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>reading from file second-0-0.pcap, link-type PPP (PPP)
+2.000000 IP 10.1.1.1.49153 &gt; 10.1.2.4.9: UDP, length 1024
+2.017607 IP 10.1.2.4.9 &gt; 10.1.1.1.49153: UDP, length 1024
+</pre></div>
+</div>
+<p>Finally, recall that we added the ability to control the number of CSMA devices
+in the simulation by command line argument.  You can change this argument in
+the same way as when we looked at changing the number of packets echoed in the
+<code class="docutils literal notranslate"><span class="pre">first.cc</span></code> example.  Try running the program with the number of “extra”
+devices set to four, instead of the default value of three (extra nodes):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./ns3<span class="w"> </span>run<span class="w"> </span><span class="s2">&quot;scratch/mysecond --nCsma=4&quot;</span>
+</pre></div>
+</div>
+<p>You should now see,</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>At time +2s client sent 1024 bytes to 10.1.2.5 port 9
+At time +2.0118s server received 1024 bytes from 10.1.1.1 port 49153
+At time +2.0118s server sent 1024 bytes to 10.1.1.1 port 49153
+At time +2.02461s client received 1024 bytes from 10.1.2.5 port 9
+</pre></div>
+</div>
+<p>Notice that the echo server has now been relocated to the last of the CSMA
+nodes, which is 10.1.2.5 instead of the default case, 10.1.2.4.</p>
+<p>It is possible that you may not be satisfied with a trace file generated by
+a bystander in the CSMA network.  You may really want to get a trace from
+a single device and you may not be interested in any other traffic on the
+network.  You can do this fairly easily.</p>
+<p>Let’s take a look at <code class="docutils literal notranslate"><span class="pre">scratch/mysecond.cc</span></code> and add that code enabling us
+to be more specific.  <code class="docutils literal notranslate"><span class="pre">ns-3</span></code> helpers provide methods that take a node
+number and device number as parameters.  Go ahead and replace the
+<code class="docutils literal notranslate"><span class="pre">EnablePcap</span></code> calls with the calls below.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">pointToPoint</span><span class="p">.</span><span class="n">EnablePcap</span><span class="p">(</span><span class="s">&quot;second&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">p2pNodes</span><span class="p">.</span><span class="n">Get</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetId</span><span class="p">(),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="n">csma</span><span class="p">.</span><span class="n">EnablePcap</span><span class="p">(</span><span class="s">&quot;second&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">csmaNodes</span><span class="p">.</span><span class="n">Get</span><span class="p">(</span><span class="n">nCsma</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetId</span><span class="p">(),</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span>
+<span class="n">csma</span><span class="p">.</span><span class="n">EnablePcap</span><span class="p">(</span><span class="s">&quot;second&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">csmaNodes</span><span class="p">.</span><span class="n">Get</span><span class="p">(</span><span class="n">nCsma</span><span class="mi">-1</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetId</span><span class="p">(),</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>We know that we want to create a pcap file with the base name “second” and
+we also know that the device of interest in both cases is going to be zero,
+so those parameters are not really interesting.</p>
+<p>In order to get the node number, you have two choices:  first, nodes are
+numbered in a monotonically increasing fashion starting from zero in the
+order in which you created them.  One way to get a node number is to figure
+this number out “manually” by contemplating the order of node creation.
+If you take a look at the network topology illustration at the beginning of
+the file, we did this for you and you can see that the last CSMA node is
+going to be node number <code class="docutils literal notranslate"><span class="pre">nCsma</span> <span class="pre">+</span> <span class="pre">1</span></code>.  This approach can become
+annoyingly difficult in larger simulations.</p>
+<p>An alternate way, which we use here, is to realize that the
+<code class="docutils literal notranslate"><span class="pre">NodeContainers</span></code> contain pointers to <em>ns-3</em> <code class="docutils literal notranslate"><span class="pre">Node</span></code> Objects.
+The <code class="docutils literal notranslate"><span class="pre">Node</span></code> Object has a method called <code class="docutils literal notranslate"><span class="pre">GetId</span></code> which will return that
+node’s ID, which is the node number we seek.  Let’s go take a look at the
+Doxygen for the <code class="docutils literal notranslate"><span class="pre">Node</span></code> and locate that method, which is further down in
+the <em>ns-3</em> core code than we’ve seen so far; but sometimes you have to
+search diligently for useful things.</p>
+<p>Go to the Doxygen documentation for your release (recall that you can find it
+on the project web site).  You can get to the <code class="docutils literal notranslate"><span class="pre">Node</span></code> documentation by
+looking through at the “Classes” tab and scrolling down the “Class List”
+until you find <code class="docutils literal notranslate"><span class="pre">ns3::Node</span></code>.  Select <code class="docutils literal notranslate"><span class="pre">ns3::Node</span></code> and you will be taken
+to the documentation for the <code class="docutils literal notranslate"><span class="pre">Node</span></code> class.  If you now scroll down to the
+<code class="docutils literal notranslate"><span class="pre">GetId</span></code> method and select it, you will be taken to the detailed
+documentation for the method.  Using the <code class="docutils literal notranslate"><span class="pre">GetId</span></code> method can make
+determining node numbers much easier in complex topologies.</p>
+<p>Let’s clear the old trace files out of the top-level directory to avoid confusion
+about what is going on,</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>rm<span class="w"> </span>*.pcap
+</pre></div>
+</div>
+<p>On line 110, notice the following command to enable tracing on one node
+(the index 1 corresponds to the second CSMA node in the container):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>csma.EnablePcap<span class="o">(</span><span class="s2">&quot;second&quot;</span>,<span class="w"> </span>csmaDevices.Get<span class="o">(</span><span class="m">1</span><span class="o">)</span>,<span class="w"> </span><span class="nb">true</span><span class="o">)</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Change the index to the quantity <code class="docutils literal notranslate"><span class="pre">nCsma</span></code>, corresponding to the last
+node in the topology– the node that contains the echo server:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>csma.EnablePcap<span class="o">(</span><span class="s2">&quot;second&quot;</span>,<span class="w"> </span>csmaDevices.Get<span class="o">(</span>nCsma<span class="o">)</span>,<span class="w"> </span><span class="nb">true</span><span class="o">)</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>If you build the new script and run the simulation setting <code class="docutils literal notranslate"><span class="pre">nCsma</span></code> to 100,</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./ns3<span class="w"> </span>build
+$<span class="w"> </span>./ns3<span class="w"> </span>run<span class="w"> </span><span class="s2">&quot;scratch/mysecond --nCsma=100&quot;</span>
+</pre></div>
+</div>
+<p>you will see the following output:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>At time +2s client sent 1024 bytes to 10.1.2.101 port 9
+At time +2.0068s server received 1024 bytes from 10.1.1.1 port 49153
+At time +2.0068s server sent 1024 bytes to 10.1.1.1 port 49153
+At time +2.01761s client received 1024 bytes from 10.1.2.101 port 9
+</pre></div>
+</div>
+<p>Note that the echo server is now located at 10.1.2.101 which corresponds to
+having 100 “extra” CSMA nodes with the echo server on the last one.  If you
+list the pcap files in the top level directory you will see,</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>second-0-0.pcap  second-1-0.pcap  second-101-0.pcap
+</pre></div>
+</div>
+<p>The trace file <code class="docutils literal notranslate"><span class="pre">second-0-0.pcap</span></code> is the “leftmost” point-to-point device
+which is the echo packet source.  The file <code class="docutils literal notranslate"><span class="pre">second-101-0.pcap</span></code> corresponds
+to the rightmost CSMA device which is where the echo server resides.  You may
+have noticed that the final parameter on the call to enable pcap tracing on the
+echo server node was true.  This means that the trace gathered on that node
+was in promiscuous mode.</p>
+<p>To illustrate the difference between promiscuous and non-promiscuous traces,
+let’s add a non-promiscuous trace for the next-to-last node.  Add the
+following line before or after the existing PCAP trace line; the last
+argument of <code class="docutils literal notranslate"><span class="pre">false</span></code> indicates that you would like a non-promiscuous trace:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>csma.EnablePcap<span class="o">(</span><span class="s2">&quot;second&quot;</span>,<span class="w"> </span>csmaDevices.Get<span class="o">(</span>nCsma<span class="w"> </span>-<span class="w"> </span><span class="m">1</span><span class="o">)</span>,<span class="w"> </span><span class="nb">false</span><span class="o">)</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Now build and run as before:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>rm<span class="w"> </span>*.pcap
+$<span class="w"> </span>./ns3<span class="w"> </span>build
+$<span class="w"> </span>./ns3<span class="w"> </span>run<span class="w"> </span><span class="s2">&quot;scratch/mysecond --nCsma=100&quot;</span>
+</pre></div>
+</div>
+<p>This will produce a new PCAP file, <code class="docutils literal notranslate"><span class="pre">second-100-0.pcap</span></code>.  Go ahead and
+take a look at the <code class="docutils literal notranslate"><span class="pre">tcpdump</span></code> for <code class="docutils literal notranslate"><span class="pre">second-100-0.pcap</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>tcpdump<span class="w"> </span>-nn<span class="w"> </span>-tt<span class="w"> </span>-r<span class="w"> </span>second-100-0.pcap
+</pre></div>
+</div>
+<p>You can now see that node 100 is really a bystander in the echo exchange.  The
+only packets that it receives are the ARP requests which are broadcast to the
+entire CSMA network.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>reading from file second-100-0.pcap, link-type EN10MB (Ethernet)
+2.006698 ARP, Request who-has 10.1.2.101 (ff:ff:ff:ff:ff:ff) tell 10.1.2.1, length 50
+2.013815 ARP, Request who-has 10.1.2.1 (ff:ff:ff:ff:ff:ff) tell 10.1.2.101, length 50
+</pre></div>
+</div>
+<p>Now take a look at the <code class="docutils literal notranslate"><span class="pre">tcpdump</span></code> for <code class="docutils literal notranslate"><span class="pre">second-101-0.pcap</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>tcpdump<span class="w"> </span>-nn<span class="w"> </span>-tt<span class="w"> </span>-r<span class="w"> </span>second-101-0.pcap
+</pre></div>
+</div>
+<p>Node 101 is really the participant in the echo exchange; the following trace
+will exist regardless of whether promiscuous mode is set on that PCAP
+statement.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>reading from file second-101-0.pcap, link-type EN10MB (Ethernet)
+2.006698 ARP, Request who-has 10.1.2.101 (ff:ff:ff:ff:ff:ff) tell 10.1.2.1, length 50
+2.006698 ARP, Reply 10.1.2.101 is-at 00:00:00:00:00:67, length 50
+2.006803 IP 10.1.1.1.49153 &gt; 10.1.2.101.9: UDP, length 1024
+2.013803 ARP, Request who-has 10.1.2.1 (ff:ff:ff:ff:ff:ff) tell 10.1.2.101, length 50
+2.013828 ARP, Reply 10.1.2.1 is-at 00:00:00:00:00:03, length 50
+2.013828 IP 10.1.2.101.9 &gt; 10.1.1.1.49153: UDP, length 1024
+</pre></div>
+</div>
+</section>
+<section id="models-attributes-and-reality">
+<h2><span class="section-number">7.2. </span>Models, Attributes and Reality<a class="headerlink" href="#models-attributes-and-reality" title="Link to this heading">¶</a></h2>
+<p>This is a convenient place to make a small excursion and make an important
+point.  It may or may not be obvious to you, but whenever one is using a
+simulation, it is important to understand exactly what is being modeled and
+what is not.  It is tempting, for example, to think of the CSMA devices
+and channels used in the previous section as if they were real Ethernet
+devices; and to expect a simulation result to directly reflect what will
+happen in a real Ethernet.  This is not the case.</p>
+<p>A model is, by definition, an abstraction of reality.  It is ultimately the
+responsibility of the simulation script author to determine the so-called
+“range of accuracy” and “domain of applicability” of the simulation as
+a whole, and therefore its constituent parts.</p>
+<p>In some cases, like <code class="docutils literal notranslate"><span class="pre">Csma</span></code>, it can be fairly easy to determine what is
+<em>not</em> modeled.  By reading the model description (<code class="docutils literal notranslate"><span class="pre">csma.h</span></code>) you
+can find that there is no collision detection in the CSMA model and decide
+on how applicable its use will be in your simulation or what caveats you
+may want to include with your results.  In other cases, it can be quite easy
+to configure behaviors that might not agree with any reality you can go out
+and buy.  It will prove worthwhile to spend some time investigating a few
+such instances, and how easily you can swerve outside the bounds of reality
+in your simulations.</p>
+<p>As you have seen, <em>ns-3</em> provides <code class="docutils literal notranslate"><span class="pre">Attributes</span></code> which a user
+can easily set to change model behavior.  Consider two of the <code class="docutils literal notranslate"><span class="pre">Attributes</span></code>
+of the <code class="docutils literal notranslate"><span class="pre">CsmaNetDevice</span></code>:  <code class="docutils literal notranslate"><span class="pre">Mtu</span></code> and <code class="docutils literal notranslate"><span class="pre">EncapsulationMode</span></code>.
+The <code class="docutils literal notranslate"><span class="pre">Mtu</span></code> attribute indicates the Maximum Transmission Unit to the
+device.  This is the size of the largest Protocol Data Unit (PDU) that the
+device can send.</p>
+<p>The MTU defaults to 1500 bytes in the <code class="docutils literal notranslate"><span class="pre">CsmaNetDevice</span></code>.  This default
+corresponds to a number found in RFC 894, “A Standard for the Transmission
+of IP Datagrams over Ethernet Networks.”  The number is actually derived
+from the maximum packet size for 10Base5 (full-spec Ethernet) networks –
+1518 bytes.  If you subtract the DIX encapsulation overhead for Ethernet
+packets (18 bytes) you will end up with a maximum possible data size (MTU)
+of 1500 bytes.  One can also find that the <code class="docutils literal notranslate"><span class="pre">MTU</span></code> for IEEE 802.3 networks
+is 1492 bytes.  This is because LLC/SNAP encapsulation adds an extra eight
+bytes of overhead to the packet.  In both cases, the underlying hardware can
+only send 1518 bytes, but the data size is different.</p>
+<p>In order to set the encapsulation mode, the <code class="docutils literal notranslate"><span class="pre">CsmaNetDevice</span></code> provides
+an <code class="docutils literal notranslate"><span class="pre">Attribute</span></code> called <code class="docutils literal notranslate"><span class="pre">EncapsulationMode</span></code> which can take on the
+values <code class="docutils literal notranslate"><span class="pre">Dix</span></code> or <code class="docutils literal notranslate"><span class="pre">Llc</span></code>.  These correspond to Ethernet and LLC/SNAP
+framing respectively.</p>
+<p>If one leaves the <code class="docutils literal notranslate"><span class="pre">Mtu</span></code> at 1500 bytes and changes the encapsulation mode
+to <code class="docutils literal notranslate"><span class="pre">Llc</span></code>, the result will be a network that encapsulates 1500 byte PDUs
+with LLC/SNAP framing resulting in packets of 1526 bytes, which would be
+illegal in many networks, since they can transmit a maximum of 1518 bytes per
+packet.  This would most likely result in a simulation that quite subtly does
+not reflect the reality you might be expecting.</p>
+<p>Just to complicate the picture, there exist jumbo frames (1500 &lt; MTU &lt;= 9000 bytes)
+and super-jumbo (MTU &gt; 9000 bytes) frames that are not officially sanctioned
+by IEEE but are available in some high-speed (Gigabit) networks and NICs.  One
+could leave the encapsulation mode set to <code class="docutils literal notranslate"><span class="pre">Dix</span></code>, and set the <code class="docutils literal notranslate"><span class="pre">Mtu</span></code>
+<code class="docutils literal notranslate"><span class="pre">Attribute</span></code> on a <code class="docutils literal notranslate"><span class="pre">CsmaNetDevice</span></code> to 64000 bytes – even though an
+associated <code class="docutils literal notranslate"><span class="pre">CsmaChannel</span> <span class="pre">DataRate</span></code> was set at 10 megabits per second.
+This would essentially model an Ethernet switch made out of vampire-tapped
+1980s-style 10Base5 networks that support super-jumbo datagrams.  This is
+certainly not something that was ever made, nor is likely to ever be made,
+but it is quite easy for you to configure.</p>
+<p>In the previous example, you used the command line to create a simulation that
+had 100 <code class="docutils literal notranslate"><span class="pre">Csma</span></code> nodes.  You could have just as easily created a simulation
+with 500 nodes.  If you were actually modeling that 10Base5 vampire-tap network,
+the maximum length of a full-spec Ethernet cable is 500 meters, with a minimum
+tap spacing of 2.5 meters.  That means there could only be 200 taps on a
+real network.  You could have quite easily built an illegal network in that
+way as well.  This may or may not result in a meaningful simulation depending
+on what you are trying to model.</p>
+<p>Similar situations can occur in many places in <em>ns-3</em> and in any
+simulator.  For example, you may be able to position nodes in such a way that
+they occupy the same space at the same time, or you may be able to configure
+amplifiers or noise levels that violate the basic laws of physics.</p>
+<p><em>ns-3</em> generally favors flexibility, and many models will allow freely
+setting <code class="docutils literal notranslate"><span class="pre">Attributes</span></code> without trying to enforce any arbitrary consistency
+or particular underlying spec.</p>
+<p>The thing to take home from this is that <em>ns-3</em> is going to provide a
+super-flexible base for you to experiment with.  It is up to you to understand
+what you are asking the system to do and to  make sure that the simulations you
+create have some meaning and some connection with a reality defined by you.</p>
+</section>
+<section id="building-a-wireless-network-topology">
+<h2><span class="section-number">7.3. </span>Building a Wireless Network Topology<a class="headerlink" href="#building-a-wireless-network-topology" title="Link to this heading">¶</a></h2>
+<p>In this section we are going to further expand our knowledge of <em>ns-3</em>
+network devices and channels to cover an example of a wireless network.
+<em>ns-3</em> provides a set of 802.11 models that attempt to provide an
+accurate MAC-level implementation of the 802.11 specification and a
+“not-so-slow” PHY-level model of the 802.11a specification.</p>
+<p>Just as we have seen both point-to-point and CSMA topology helper objects when
+constructing point-to-point topologies, we will see equivalent <code class="docutils literal notranslate"><span class="pre">Wifi</span></code>
+topology helpers in this section.  The appearance and operation of these
+helpers should look quite familiar to you.</p>
+<p>We provide an example script in our <code class="docutils literal notranslate"><span class="pre">examples/tutorial</span></code> directory.  This script
+builds on the <code class="docutils literal notranslate"><span class="pre">second.cc</span></code> script and adds a Wi-Fi network.  Go ahead and
+open <code class="docutils literal notranslate"><span class="pre">examples/tutorial/third.cc</span></code> in your favorite editor.  You will have already
+seen enough <em>ns-3</em> code to understand most of what is going on in
+this example, but there are a few new things, so we will go over the entire
+script and examine some of the output.</p>
+<p>Just as in the <code class="docutils literal notranslate"><span class="pre">second.cc</span></code> example (and in all <em>ns-3</em> examples)
+the file begins with an emacs mode line and some GPL boilerplate.</p>
+<p>Take a look at the ASCII art (reproduced below) that shows the default network
+topology constructed in the example.  You can see that we are going to
+further extend our example by hanging a wireless network off of the left side.
+Notice that this is a default network topology since you can actually vary the
+number of nodes created on the wired and wireless networks.  Just as in the
+<code class="docutils literal notranslate"><span class="pre">second.cc</span></code> script case, if you change <code class="docutils literal notranslate"><span class="pre">nCsma</span></code>, it will give you a
+number of “extra” CSMA nodes.  Similarly, you can set <code class="docutils literal notranslate"><span class="pre">nWifi</span></code> to
+control how many <code class="docutils literal notranslate"><span class="pre">STA</span></code> (station) nodes are created in the simulation.
+There will always be one <code class="docutils literal notranslate"><span class="pre">AP</span></code> (access point) node on the wireless
+network.  By default there are three “extra” CSMA nodes and three wireless
+<code class="docutils literal notranslate"><span class="pre">STA</span></code> nodes.</p>
+<p>The code begins by loading module include files just as was done in the
+<code class="docutils literal notranslate"><span class="pre">second.cc</span></code> example.  There are a couple of new includes corresponding
+to the wifi module and the mobility module which we will discuss below.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ns3/core-module.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ns3/point-to-point-module.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ns3/network-module.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ns3/applications-module.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ns3/wifi-module.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ns3/mobility-module.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ns3/csma-module.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ns3/internet-module.h&quot;</span>
+</pre></div>
+</div>
+<p>The network topology illustration follows:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Default Network Topology</span>
+<span class="c1">//</span>
+<span class="c1">//   Wifi 10.1.3.0</span>
+<span class="c1">//                 AP</span>
+<span class="c1">//  *    *    *    *</span>
+<span class="c1">//  |    |    |    |    10.1.1.0</span>
+<span class="c1">// n5   n6   n7   n0 -------------- n1   n2   n3   n4</span>
+<span class="c1">//                   point-to-point  |    |    |    |</span>
+<span class="c1">//                                   ================</span>
+<span class="c1">//                                     LAN 10.1.2.0</span>
+</pre></div>
+</div>
+<p>You can see that we are adding a new network device to the node on the left
+side of the point-to-point link that becomes the access point for the wireless
+network.  A number of wireless STA nodes are created to fill out the new
+10.1.3.0 network as shown on the left side of the illustration.</p>
+<p>After the illustration, the <code class="docutils literal notranslate"><span class="pre">ns-3</span></code> namespace is <code class="docutils literal notranslate"><span class="pre">used</span></code> and a logging
+component is defined.  This should all be quite familiar by now.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ns3</span><span class="p">;</span>
+
+<span class="n">NS_LOG_COMPONENT_DEFINE</span><span class="p">(</span><span class="s">&quot;ThirdScriptExample&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The main program begins just like <code class="docutils literal notranslate"><span class="pre">second.cc</span></code> by adding some command line
+parameters for enabling or disabling logging components and for changing the
+number of devices created.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">bool</span><span class="w"> </span><span class="n">verbose</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="kt">uint32_t</span><span class="w"> </span><span class="n">nCsma</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+<span class="kt">uint32_t</span><span class="w"> </span><span class="n">nWifi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+
+<span class="n">CommandLine</span><span class="w"> </span><span class="n">cmd</span><span class="p">;</span>
+<span class="n">cmd</span><span class="p">.</span><span class="n">AddValue</span><span class="p">(</span><span class="s">&quot;nCsma&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Number of </span><span class="se">\&quot;</span><span class="s">extra</span><span class="se">\&quot;</span><span class="s"> CSMA nodes/devices&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">nCsma</span><span class="p">);</span>
+<span class="n">cmd</span><span class="p">.</span><span class="n">AddValue</span><span class="p">(</span><span class="s">&quot;nWifi&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Number of wifi STA devices&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">nWifi</span><span class="p">);</span>
+<span class="n">cmd</span><span class="p">.</span><span class="n">AddValue</span><span class="p">(</span><span class="s">&quot;verbose&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Tell echo applications to log if true&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">verbose</span><span class="p">);</span>
+
+<span class="n">cmd</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span><span class="n">argv</span><span class="p">);</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">verbose</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">LogComponentEnable</span><span class="p">(</span><span class="s">&quot;UdpEchoClientApplication&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">LOG_LEVEL_INFO</span><span class="p">);</span>
+<span class="w">    </span><span class="n">LogComponentEnable</span><span class="p">(</span><span class="s">&quot;UdpEchoServerApplication&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">LOG_LEVEL_INFO</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Just as in all of the previous examples, the next step is to create two nodes
+that we will connect via the point-to-point link.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">NodeContainer</span><span class="w"> </span><span class="n">p2pNodes</span><span class="p">;</span>
+<span class="n">p2pNodes</span><span class="p">.</span><span class="n">Create</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Next, we see an old friend.  We instantiate a <code class="docutils literal notranslate"><span class="pre">PointToPointHelper</span></code> and
+set the associated default <code class="docutils literal notranslate"><span class="pre">Attributes</span></code> so that we create a five megabit
+per second transmitter on devices created using the helper and a two millisecond
+delay on channels created by the helper.  We then <code class="docutils literal notranslate"><span class="pre">Install</span></code> the devices
+on the nodes and the channel between them.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">PointToPointHelper</span><span class="w"> </span><span class="n">pointToPoint</span><span class="p">;</span>
+<span class="n">pointToPoint</span><span class="p">.</span><span class="n">SetDeviceAttribute</span><span class="p">(</span><span class="s">&quot;DataRate&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;5Mbps&quot;</span><span class="p">));</span>
+<span class="n">pointToPoint</span><span class="p">.</span><span class="n">SetChannelAttribute</span><span class="p">(</span><span class="s">&quot;Delay&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;2ms&quot;</span><span class="p">));</span>
+
+<span class="n">NetDeviceContainer</span><span class="w"> </span><span class="n">p2pDevices</span><span class="p">;</span>
+<span class="n">p2pDevices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pointToPoint</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">p2pNodes</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Next, we declare another <code class="docutils literal notranslate"><span class="pre">NodeContainer</span></code> to hold the nodes that will be
+part of the bus (CSMA) network.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">NodeContainer</span><span class="w"> </span><span class="n">csmaNodes</span><span class="p">;</span>
+<span class="n">csmaNodes</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">p2pNodes</span><span class="p">.</span><span class="n">Get</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+<span class="n">csmaNodes</span><span class="p">.</span><span class="n">Create</span><span class="p">(</span><span class="n">nCsma</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The next line of code <code class="docutils literal notranslate"><span class="pre">Gets</span></code> the first node (as in having an index of one)
+from the point-to-point node container and adds it to the container of nodes
+that will get CSMA devices.  The node in question is going to end up with a
+point-to-point device and a CSMA device.  We then create a number of “extra”
+nodes that compose the remainder of the CSMA network.</p>
+<p>We then instantiate a <code class="docutils literal notranslate"><span class="pre">CsmaHelper</span></code> and set its <code class="docutils literal notranslate"><span class="pre">Attributes</span></code> as we did
+in the previous example.  We create a <code class="docutils literal notranslate"><span class="pre">NetDeviceContainer</span></code> to keep track of
+the created CSMA net devices and then we <code class="docutils literal notranslate"><span class="pre">Install</span></code> CSMA devices on the
+selected nodes.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">CsmaHelper</span><span class="w"> </span><span class="n">csma</span><span class="p">;</span>
+<span class="n">csma</span><span class="p">.</span><span class="n">SetChannelAttribute</span><span class="p">(</span><span class="s">&quot;DataRate&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;100Mbps&quot;</span><span class="p">));</span>
+<span class="n">csma</span><span class="p">.</span><span class="n">SetChannelAttribute</span><span class="p">(</span><span class="s">&quot;Delay&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">TimeValue</span><span class="p">(</span><span class="n">NanoSeconds</span><span class="p">(</span><span class="mi">6560</span><span class="p">)));</span>
+
+<span class="n">NetDeviceContainer</span><span class="w"> </span><span class="n">csmaDevices</span><span class="p">;</span>
+<span class="n">csmaDevices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">csma</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">csmaNodes</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Next, we are going to create the nodes that will be part of the Wi-Fi network.
+We are going to create a number of “station” nodes as specified by the
+command line argument, and we are going to use the “leftmost” node of the
+point-to-point link as the node for the access point.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">NodeContainer</span><span class="w"> </span><span class="n">wifiStaNodes</span><span class="p">;</span>
+<span class="n">wifiStaNodes</span><span class="p">.</span><span class="n">Create</span><span class="p">(</span><span class="n">nWifi</span><span class="p">);</span>
+<span class="n">NodeContainer</span><span class="w"> </span><span class="n">wifiApNode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p2pNodes</span><span class="p">.</span><span class="n">Get</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The next bit of code constructs the wifi devices and the interconnection
+channel between these wifi nodes. First, we configure the PHY and channel
+helpers:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">YansWifiChannelHelper</span><span class="w"> </span><span class="n">channel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">YansWifiChannelHelper</span><span class="o">::</span><span class="n">Default</span><span class="p">();</span>
+<span class="n">YansWifiPhyHelper</span><span class="w"> </span><span class="n">phy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">YansWifiPhyHelper</span><span class="o">::</span><span class="n">Default</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>For simplicity, this code uses the default PHY layer configuration and
+channel models which are documented in the API Doxygen documentation for
+the <code class="docutils literal notranslate"><span class="pre">YansWifiChannelHelper::Default</span></code> and <code class="docutils literal notranslate"><span class="pre">YansWifiPhyHelper::Default</span></code>
+methods. Once these objects are created, we create a channel object
+and associate it to our PHY layer object manager to make sure
+that all the PHY layer objects created by the <code class="docutils literal notranslate"><span class="pre">YansWifiPhyHelper</span></code>
+share the same underlying channel, that is, they share the same
+wireless medium and can communicate and interfere:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">phy</span><span class="p">.</span><span class="n">SetChannel</span><span class="p">(</span><span class="n">channel</span><span class="p">.</span><span class="n">Create</span><span class="p">());</span>
+</pre></div>
+</div>
+<p>Once the PHY helper is configured, we can focus on the MAC layer. The
+WifiMacHelper object is used to set MAC parameters.
+The second statement below creates an 802.11 service set identifier (SSID)
+object that will be used to set the value of the “Ssid” <code class="docutils literal notranslate"><span class="pre">Attribute</span></code> of
+the MAC layer implementation.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">WifiMacHelper</span><span class="w"> </span><span class="n">mac</span><span class="p">;</span>
+<span class="n">Ssid</span><span class="w"> </span><span class="n">ssid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Ssid</span><span class="p">(</span><span class="s">&quot;ns-3-ssid&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>WifiHelper will, by default, configure
+the standard in use to be 802.11ax (known commercially as Wi-Fi 6) and configure
+a compatible rate control algorithm (IdealWifiManager).</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">WifiHelper</span><span class="w"> </span><span class="n">wifi</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>We are now ready to install Wi-Fi models on the nodes, using these four
+helper objects (YansWifiChannelHelper, YansWifiPhyHelper, WifiMacHelper,
+WifiHelper) and the Ssid object created above.  These helpers have
+encapsulated a lot of default configuration,
+and can be further tailored using additional attribute configuration if
+desired.  We also will create NetDevice containers to store pointers to
+the WifiNetDevice objects that the helper create.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">NetDeviceContainer</span><span class="w"> </span><span class="n">staDevices</span>
+<span class="n">mac</span><span class="p">.</span><span class="n">SetType</span><span class="p">(</span><span class="s">&quot;ns3::StaWifiMac&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;Ssid&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">SsidValue</span><span class="p">(</span><span class="n">ssid</span><span class="p">),</span>
+<span class="w">            </span><span class="s">&quot;ActiveProbing&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">BooleanValue</span><span class="p">(</span><span class="nb">false</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>In the above code, the specific kind of MAC layer that
+will be created by the helper is specified by the TypeId value
+of <cite>ns3::StaWifiMac</cite> type.  The “QosSupported” attribute is
+set to true by default for <code class="docutils literal notranslate"><span class="pre">WifiMacHelper</span></code> objects when the standard
+is at least 802.11n or newer. The combination
+of these two configurations means that the MAC instance next created
+will be a QoS-aware, non-AP station (STA) in an infrastructure BSS (i.e.,
+a BSS with an AP).  Finally, the “ActiveProbing” <code class="docutils literal notranslate"><span class="pre">Attribute</span></code> is
+set to false.  This means that probe requests will not be sent by MACs
+created by this helper, and stations will listen for AP beacons.</p>
+<p>Once all the station-specific parameters are fully configured, both at the
+MAC and PHY layers, we can invoke our now-familiar <code class="docutils literal notranslate"><span class="pre">Install</span></code> method to
+create the Wi-Fi devices of these stations:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">NetDeviceContainer</span><span class="w"> </span><span class="n">staDevices</span><span class="p">;</span>
+<span class="n">staDevices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">wifi</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">phy</span><span class="p">,</span><span class="w"> </span><span class="n">mac</span><span class="p">,</span><span class="w"> </span><span class="n">wifiStaNodes</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>We have configured Wi-Fi for all of our STA nodes, and now we need to
+configure the AP (access point) node.  We begin this process by changing
+the default <code class="docutils literal notranslate"><span class="pre">Attributes</span></code> of the <code class="docutils literal notranslate"><span class="pre">WifiMacHelper</span></code> to reflect the
+requirements of the AP.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">mac</span><span class="p">.</span><span class="n">SetType</span><span class="p">(</span><span class="s">&quot;ns3::ApWifiMac&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;Ssid&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">SsidValue</span><span class="p">(</span><span class="n">ssid</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>In this case, the <code class="docutils literal notranslate"><span class="pre">WifiMacHelper</span></code> is going to create MAC
+layers of the “ns3::ApWifiMac”, the latter specifying that a MAC
+instance configured as an AP should be created.</p>
+<p>The next lines create the single AP which shares the same set of PHY-level
+<code class="docutils literal notranslate"><span class="pre">Attributes</span></code> (and channel) as the stations:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">NetDeviceContainer</span><span class="w"> </span><span class="n">apDevices</span><span class="p">;</span>
+<span class="n">apDevices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">wifi</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">phy</span><span class="p">,</span><span class="w"> </span><span class="n">mac</span><span class="p">,</span><span class="w"> </span><span class="n">wifiApNode</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Now, we are going to add mobility models.  We want the STA nodes to be mobile,
+wandering around inside a bounding box, and we want to make the AP node
+stationary.  We use the <code class="docutils literal notranslate"><span class="pre">MobilityHelper</span></code> to make this easy for us.
+First, we instantiate a <code class="docutils literal notranslate"><span class="pre">MobilityHelper</span></code> object and set some
+<code class="docutils literal notranslate"><span class="pre">Attributes</span></code> controlling the “position allocator” functionality.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">MobilityHelper</span><span class="w"> </span><span class="n">mobility</span><span class="p">;</span>
+
+<span class="n">mobility</span><span class="p">.</span><span class="n">SetPositionAllocator</span><span class="p">(</span><span class="s">&quot;ns3::GridPositionAllocator&quot;</span><span class="p">,</span>
+<span class="w">                              </span><span class="s">&quot;MinX&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">DoubleValue</span><span class="p">(</span><span class="mf">0.0</span><span class="p">),</span>
+<span class="w">                              </span><span class="s">&quot;MinY&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">DoubleValue</span><span class="p">(</span><span class="mf">0.0</span><span class="p">),</span>
+<span class="w">                              </span><span class="s">&quot;DeltaX&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">DoubleValue</span><span class="p">(</span><span class="mf">5.0</span><span class="p">),</span>
+<span class="w">                              </span><span class="s">&quot;DeltaY&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">DoubleValue</span><span class="p">(</span><span class="mf">10.0</span><span class="p">),</span>
+<span class="w">                              </span><span class="s">&quot;GridWidth&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">UintegerValue</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+<span class="w">                              </span><span class="s">&quot;LayoutType&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;RowFirst&quot;</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>This code tells the mobility helper to use a two-dimensional grid to initially
+place the STA nodes.  Feel free to explore the Doxygen for class
+<code class="docutils literal notranslate"><span class="pre">ns3::GridPositionAllocator</span></code> to see exactly what is being done.</p>
+<p>We have arranged our nodes on an initial grid, but now we need to tell them
+how to move.  We choose the <code class="docutils literal notranslate"><span class="pre">RandomWalk2dMobilityModel</span></code> which has the
+nodes move in a random direction at a random speed around inside a bounding
+box.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">mobility</span><span class="p">.</span><span class="n">SetMobilityModel</span><span class="p">(</span><span class="s">&quot;ns3::RandomWalk2dMobilityModel&quot;</span><span class="p">,</span>
+<span class="w">                          </span><span class="s">&quot;Bounds&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">RectangleValue</span><span class="p">(</span><span class="n">Rectangle</span><span class="p">(</span><span class="mi">-50</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">-50</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">)));</span>
+</pre></div>
+</div>
+<p>We now tell the <code class="docutils literal notranslate"><span class="pre">MobilityHelper</span></code> to install the mobility models on the
+STA nodes.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">mobility</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">wifiStaNodes</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>We want the access point to remain in a fixed position during the simulation.
+We accomplish this by setting the mobility model for this node to be the
+<code class="docutils literal notranslate"><span class="pre">ns3::ConstantPositionMobilityModel</span></code>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">mobility</span><span class="p">.</span><span class="n">SetMobilityModel</span><span class="p">(</span><span class="s">&quot;ns3::ConstantPositionMobilityModel&quot;</span><span class="p">);</span>
+<span class="n">mobility</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">wifiApNode</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>We now have our nodes, devices and channels created, and mobility models
+chosen for the Wi-Fi nodes, but we have no protocol stacks present.  Just as
+we have done previously many times, we will use the <code class="docutils literal notranslate"><span class="pre">InternetStackHelper</span></code>
+to install these stacks.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">InternetStackHelper</span><span class="w"> </span><span class="n">stack</span><span class="p">;</span>
+<span class="n">stack</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">csmaNodes</span><span class="p">);</span>
+<span class="n">stack</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">wifiApNode</span><span class="p">);</span>
+<span class="n">stack</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">wifiStaNodes</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Just as in the <code class="docutils literal notranslate"><span class="pre">second.cc</span></code> example script, we are going to use the
+<code class="docutils literal notranslate"><span class="pre">Ipv4AddressHelper</span></code> to assign IP addresses to our device interfaces.
+First we use the network 10.1.1.0 to create the two addresses needed for our
+two point-to-point devices.  Then we use network 10.1.2.0 to assign addresses
+to the CSMA network and then we assign addresses from network 10.1.3.0 to
+both the STA devices and the AP on the wireless network.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">Ipv4AddressHelper</span><span class="w"> </span><span class="n">address</span><span class="p">;</span>
+
+<span class="n">address</span><span class="p">.</span><span class="n">SetBase</span><span class="p">(</span><span class="s">&quot;10.1.1.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;255.255.255.0&quot;</span><span class="p">);</span>
+<span class="n">Ipv4InterfaceContainer</span><span class="w"> </span><span class="n">p2pInterfaces</span><span class="p">;</span>
+<span class="n">p2pInterfaces</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">address</span><span class="p">.</span><span class="n">Assign</span><span class="p">(</span><span class="n">p2pDevices</span><span class="p">);</span>
+
+<span class="n">address</span><span class="p">.</span><span class="n">SetBase</span><span class="p">(</span><span class="s">&quot;10.1.2.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;255.255.255.0&quot;</span><span class="p">);</span>
+<span class="n">Ipv4InterfaceContainer</span><span class="w"> </span><span class="n">csmaInterfaces</span><span class="p">;</span>
+<span class="n">csmaInterfaces</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">address</span><span class="p">.</span><span class="n">Assign</span><span class="p">(</span><span class="n">csmaDevices</span><span class="p">);</span>
+
+<span class="n">address</span><span class="p">.</span><span class="n">SetBase</span><span class="p">(</span><span class="s">&quot;10.1.3.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;255.255.255.0&quot;</span><span class="p">);</span>
+<span class="n">address</span><span class="p">.</span><span class="n">Assign</span><span class="p">(</span><span class="n">staDevices</span><span class="p">);</span>
+<span class="n">address</span><span class="p">.</span><span class="n">Assign</span><span class="p">(</span><span class="n">apDevices</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>We put the echo server on the “rightmost” node in the illustration at the
+start of the file.  We have done this before.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">UdpEchoServerHelper</span><span class="w"> </span><span class="nf">echoServer</span><span class="p">(</span><span class="mi">9</span><span class="p">);</span>
+
+<span class="n">ApplicationContainer</span><span class="w"> </span><span class="n">serverApps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">echoServer</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">csmaNodes</span><span class="p">.</span><span class="n">Get</span><span class="p">(</span><span class="n">nCsma</span><span class="p">));</span>
+<span class="n">serverApps</span><span class="p">.</span><span class="n">Start</span><span class="p">(</span><span class="n">Seconds</span><span class="p">(</span><span class="mf">1.0</span><span class="p">));</span>
+<span class="n">serverApps</span><span class="p">.</span><span class="n">Stop</span><span class="p">(</span><span class="n">Seconds</span><span class="p">(</span><span class="mf">10.0</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>And we put the echo client on the last STA node we created, pointing it to
+the server on the CSMA network.  We have also seen similar operations before.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">UdpEchoClientHelper</span><span class="w"> </span><span class="nf">echoClient</span><span class="p">(</span><span class="n">csmaInterfaces</span><span class="p">.</span><span class="n">GetAddress</span><span class="p">(</span><span class="n">nCsma</span><span class="p">),</span><span class="w"> </span><span class="mi">9</span><span class="p">);</span>
+<span class="n">echoClient</span><span class="p">.</span><span class="n">SetAttribute</span><span class="p">(</span><span class="s">&quot;MaxPackets&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">UintegerValue</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+<span class="n">echoClient</span><span class="p">.</span><span class="n">SetAttribute</span><span class="p">(</span><span class="s">&quot;Interval&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">TimeValue</span><span class="p">(</span><span class="n">Seconds</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)));</span>
+<span class="n">echoClient</span><span class="p">.</span><span class="n">SetAttribute</span><span class="p">(</span><span class="s">&quot;PacketSize&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">UintegerValue</span><span class="p">(</span><span class="mi">1024</span><span class="p">));</span>
+
+<span class="n">ApplicationContainer</span><span class="w"> </span><span class="n">clientApps</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="n">echoClient</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">wifiStaNodes</span><span class="p">.</span><span class="n">Get</span><span class="p">(</span><span class="n">nWifi</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">));</span>
+<span class="n">clientApps</span><span class="p">.</span><span class="n">Start</span><span class="p">(</span><span class="n">Seconds</span><span class="p">(</span><span class="mf">2.0</span><span class="p">));</span>
+<span class="n">clientApps</span><span class="p">.</span><span class="n">Stop</span><span class="p">(</span><span class="n">Seconds</span><span class="p">(</span><span class="mf">10.0</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>Since we have built an internetwork here, we need to enable internetwork routing
+just as we did in the <code class="docutils literal notranslate"><span class="pre">second.cc</span></code> example script.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">Ipv4GlobalRoutingHelper</span><span class="o">::</span><span class="n">PopulateRoutingTables</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>One thing that can surprise some users is the fact that the simulation we just
+created will never “naturally” stop.  This is because we asked the wireless
+access point to generate beacons.  It will generate beacons forever, and this
+will result in simulator events being scheduled into the future indefinitely,
+so we must tell the simulator to stop even though it may have beacon generation
+events scheduled.  The following line of code tells the simulator to stop so that
+we don’t simulate beacons forever and enter what is essentially an endless
+loop.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">Simulator</span><span class="o">::</span><span class="n">Stop</span><span class="p">(</span><span class="n">Seconds</span><span class="p">(</span><span class="mf">10.0</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>We create just enough tracing to cover all three networks:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">pointToPoint</span><span class="p">.</span><span class="n">EnablePcapAll</span><span class="p">(</span><span class="s">&quot;third&quot;</span><span class="p">);</span>
+<span class="n">phy</span><span class="p">.</span><span class="n">EnablePcap</span><span class="p">(</span><span class="s">&quot;third&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">apDevices</span><span class="p">.</span><span class="n">Get</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
+<span class="n">csma</span><span class="p">.</span><span class="n">EnablePcap</span><span class="p">(</span><span class="s">&quot;third&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">csmaDevices</span><span class="p">.</span><span class="n">Get</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>These three lines of code will start pcap tracing on both of the point-to-point
+nodes that serves as our backbone, will start a promiscuous (monitor) mode
+trace on the Wi-Fi network, and will start a promiscuous trace on the CSMA
+network.  This will let us see all of the traffic with a minimum number of
+trace files.</p>
+<p>Finally, we actually run the simulation, clean up and then exit the program.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="n">Simulator</span><span class="o">::</span><span class="n">Run</span><span class="p">();</span>
+<span class="w">  </span><span class="n">Simulator</span><span class="o">::</span><span class="n">Destroy</span><span class="p">();</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In order to run this example, you have to copy the <code class="docutils literal notranslate"><span class="pre">third.cc</span></code> example
+script into the scratch directory and use CMake to build just as you did with
+the <code class="docutils literal notranslate"><span class="pre">second.cc</span></code> example.  If you are in the top-level directory of the
+repository, type the following:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>cp<span class="w"> </span>examples/tutorial/third.cc<span class="w"> </span>scratch/mythird.cc
+$<span class="w"> </span>./ns3<span class="w"> </span>run<span class="w"> </span><span class="s1">&#39;scratch/mythird --tracing=1&#39;</span>
+</pre></div>
+</div>
+<p>Again, since we have set up the UDP echo applications just as we did in the
+<code class="docutils literal notranslate"><span class="pre">second.cc</span></code> script, you will see similar output.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>At time +2s client sent 1024 bytes to 10.1.2.4 port 9
+At time +2.01624s server received 1024 bytes from 10.1.3.3 port 49153
+At time +2.01624s server sent 1024 bytes to 10.1.3.3 port 49153
+At time +2.02849s client received 1024 bytes from 10.1.2.4 port 9
+</pre></div>
+</div>
+<p>Recall that the first message, <code class="docutils literal notranslate"><span class="pre">Sent</span> <span class="pre">1024</span> <span class="pre">bytes</span> <span class="pre">to</span> <span class="pre">10.1.2.4</span></code>,” is the
+UDP echo client sending a packet to the server.  In this case, the client
+is on the wireless network (10.1.3.0).  The second message,
+“<code class="docutils literal notranslate"><span class="pre">Received</span> <span class="pre">1024</span> <span class="pre">bytes</span> <span class="pre">from</span> <span class="pre">10.1.3.3</span></code>,” is from the UDP echo server,
+generated when it receives the echo packet.  The final message,
+“<code class="docutils literal notranslate"><span class="pre">Received</span> <span class="pre">1024</span> <span class="pre">bytes</span> <span class="pre">from</span> <span class="pre">10.1.2.4</span></code>,” is from the echo client, indicating
+that it has received its echo back from the server.</p>
+<p>If you now look in the top level directory, and you enabled tracing at
+the command-line as suggested above, you will find four trace
+files from this simulation, two from node zero and two from node one:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>third-0-0.pcap  third-0-1.pcap  third-1-0.pcap  third-1-1.pcap
+</pre></div>
+</div>
+<p>The file “third-0-0.pcap” corresponds to the point-to-point device on node
+zero – the left side of the “backbone”.  The file “third-1-0.pcap”
+corresponds to the point-to-point device on node one – the right side of the
+“backbone”.  The file “third-0-1.pcap” will be the promiscuous (monitor
+mode) trace from the Wi-Fi network and the file “third-1-1.pcap” will be the
+promiscuous trace from the CSMA network.  Can you verify this by inspecting
+the code?</p>
+<p>Since the echo client is on the Wi-Fi network, let’s start there.  Let’s take
+a look at the promiscuous (monitor mode) trace we captured on that network.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>tcpdump<span class="w"> </span>-nn<span class="w"> </span>-tt<span class="w"> </span>-r<span class="w"> </span>third-0-1.pcap
+</pre></div>
+</div>
+<p>You should see some wifi-looking contents you haven’t seen here before:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>reading from file third-0-1.pcap, link-type IEEE802_11_RADIO (802.11 plus radiotap header)
+
+0.033119 33119us tsft 6.0 Mb/s 5210 MHz 11a Beacon (ns-3-ssid) [6.0* 9.0 12.0* 18.0 24.0* 36.0 48.0 54.0 Mbit] ESS
+0.120504 120504us tsft 6.0 Mb/s 5210 MHz 11a -62dBm signal -94dBm noise Assoc Request (ns-3-ssid) [6.0 9.0 12.0 18.0 24.0 36.0 48.0 54.0 Mbit]
+0.120520 120520us tsft 6.0 Mb/s 5210 MHz 11a Acknowledgment RA:00:00:00:00:00:08
+0.120632 120632us tsft 6.0 Mb/s 5210 MHz 11a -62dBm signal -94dBm noise CF-End RA:ff:ff:ff:ff:ff:ff
+0.120666 120666us tsft 6.0 Mb/s 5210 MHz 11a Assoc Response AID(1) :: Successful
+...
+</pre></div>
+</div>
+<p>You can see that the link type is now 802.11 as you would expect.  You can
+probably understand what is going on and find the IP echo request and response
+packets in this trace.  We leave it as an exercise to completely parse the
+trace dump.</p>
+<p>Now, look at the pcap file of the left side of the point-to-point link,</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>tcpdump<span class="w"> </span>-nn<span class="w"> </span>-tt<span class="w"> </span>-r<span class="w"> </span>third-0-0.pcap
+</pre></div>
+</div>
+<p>Again, you should see some familiar looking contents:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>reading from file third-0-0.pcap, link-type PPP (PPP)
+2.006440 IP 10.1.3.3.49153 &gt; 10.1.2.4.9: UDP, length 1024
+2.025048 IP 10.1.2.4.9 &gt; 10.1.3.3.49153: UDP, length 1024
+</pre></div>
+</div>
+<p>This is the echo packet going from left to right (from Wi-Fi to CSMA) and back
+again across the point-to-point link.</p>
+<p>Now, look at the pcap file of the right side of the point-to-point link,</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>tcpdump<span class="w"> </span>-nn<span class="w"> </span>-tt<span class="w"> </span>-r<span class="w"> </span>third-1-0.pcap
+</pre></div>
+</div>
+<p>Again, you should see some familiar looking contents:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>reading from file third-1-0.pcap, link-type PPP (PPP)
+2.010126 IP 10.1.3.3.49153 &gt; 10.1.2.4.9: UDP, length 1024
+2.021361 IP 10.1.2.4.9 &gt; 10.1.3.3.49153: UDP, length 1024
+</pre></div>
+</div>
+<p>This is also the echo packet going from left to right (from Wi-Fi to CSMA) and
+back again across the point-to-point link with slightly different timings
+as you might expect.</p>
+<p>The echo server is on the CSMA network, let’s look at the promiscuous trace
+there:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>tcpdump<span class="w"> </span>-nn<span class="w"> </span>-tt<span class="w"> </span>-r<span class="w"> </span>third-1-1.pcap
+</pre></div>
+</div>
+<p>You should see some familiar looking contents:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>reading from file third-1-1.pcap, link-type EN10MB (Ethernet)
+2.016126 ARP, Request who-has 10.1.2.4 (ff:ff:ff:ff:ff:ff) tell 10.1.2.1, length 50
+2.016151 ARP, Reply 10.1.2.4 is-at 00:00:00:00:00:06, length 50
+2.016151 IP 10.1.3.3.49153 &gt; 10.1.2.4.9: UDP, length 1024
+2.021255 ARP, Request who-has 10.1.2.1 (ff:ff:ff:ff:ff:ff) tell 10.1.2.4, length 50
+2.021255 ARP, Reply 10.1.2.1 is-at 00:00:00:00:00:03, length 50
+2.021361 IP 10.1.2.4.9 &gt; 10.1.3.3.49153: UDP, length 1024
+</pre></div>
+</div>
+<p>This should be easily understood.  If you’ve forgotten, go back and look at
+the discussion in <code class="docutils literal notranslate"><span class="pre">second.cc</span></code>.  This is the same sequence.</p>
+<p>Now, we spent a lot of time setting up mobility models for the wireless network
+and so it would be a shame to finish up without even showing that the STA
+nodes are actually moving around during the simulation.  Let’s do this by hooking
+into the <code class="docutils literal notranslate"><span class="pre">MobilityModel</span></code> course change trace source.  This is just a sneak
+peek into the detailed tracing section which is coming up, but this seems a very
+nice place to get an example in.</p>
+<p>As mentioned in the “Tweaking ns-3” section, the <em>ns-3</em> tracing system
+is divided into trace sources and trace sinks, and we provide functions to
+connect the two.  We will use the mobility model predefined course change
+trace source to originate the trace events.  We will need to write a trace
+sink to connect to that source that will display some pretty information for
+us.  Despite its reputation as being difficult, it’s really quite simple.
+Just before the main program of the <code class="docutils literal notranslate"><span class="pre">scratch/mythird.cc</span></code> script (i.e.,
+just after the <code class="docutils literal notranslate"><span class="pre">NS_LOG_COMPONENT_DEFINE</span></code> statement), add the
+following function:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span>
+<span class="nf">CourseChange</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">Ptr</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="n">MobilityModel</span><span class="o">&gt;</span><span class="w"> </span><span class="n">model</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">Vector</span><span class="w"> </span><span class="n">position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">model</span><span class="o">-&gt;</span><span class="n">GetPosition</span><span class="p">();</span>
+<span class="w">  </span><span class="n">NS_LOG_UNCOND</span><span class="p">(</span><span class="n">context</span><span class="w"> </span><span class="o">&lt;&lt;</span>
+<span class="w">              </span><span class="s">&quot; x = &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">position</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;, y = &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">position</span><span class="p">.</span><span class="n">y</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This code just pulls the position information from the mobility model and
+unconditionally logs the x and y position of the node.  We are
+going to arrange for this function to be called every time the wireless
+node with the echo client changes its position.  We do this using the
+<code class="docutils literal notranslate"><span class="pre">Config::Connect</span></code> function.  Add the following lines of code to the
+script just before the <code class="docutils literal notranslate"><span class="pre">Simulator::Run</span></code> call.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">ostringstream</span><span class="w"> </span><span class="n">oss</span><span class="p">;</span>
+<span class="n">oss</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;/NodeList/&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">wifiStaNodes</span><span class="p">.</span><span class="n">Get</span><span class="p">(</span><span class="n">nWifi</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetId</span><span class="p">()</span>
+<span class="w">    </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;/$ns3::MobilityModel/CourseChange&quot;</span><span class="p">;</span>
+
+<span class="n">Config</span><span class="o">::</span><span class="n">Connect</span><span class="p">(</span><span class="n">oss</span><span class="p">.</span><span class="n">str</span><span class="p">(),</span><span class="w"> </span><span class="n">MakeCallback</span><span class="p">(</span><span class="o">&amp;</span><span class="n">CourseChange</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>What we do here is to create a string containing the tracing namespace path
+of the event to which we want to connect.  First, we have to figure out which
+node it is we want using the <code class="docutils literal notranslate"><span class="pre">GetId</span></code> method as described earlier.  In the
+case of the default number of CSMA and wireless nodes, this turns out to be
+node seven and the tracing namespace path to the mobility model would look
+like,</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>/NodeList/7/$ns3::MobilityModel/CourseChange
+</pre></div>
+</div>
+<p>Based on the discussion in the tracing section, you may infer that this trace
+path references the seventh node in the global NodeList.  It specifies
+what is called an aggregated object of type <code class="docutils literal notranslate"><span class="pre">ns3::MobilityModel</span></code>.  The
+dollar sign prefix implies that the MobilityModel is aggregated to node seven.
+The last component of the path means that we are hooking into the
+“CourseChange” event of that model.</p>
+<p>We make a connection between the trace source in node seven with our trace
+sink by calling <code class="docutils literal notranslate"><span class="pre">Config::Connect</span></code> and passing this namespace path.  Once
+this is done, every course change event on node seven will be hooked into our
+trace sink, which will in turn print out the new position.</p>
+<p>If you now run the simulation, you will see the course changes displayed as
+they happen.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ ./ns3 build
+$ ./ns3 run scratch/mythird
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 10, y = 0
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 9.36083, y = -0.769065
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 9.62346, y = 0.195831
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 9.42533, y = 1.17601
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 8.4854, y = 0.834616
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 7.79244, y = 1.55559
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 7.85546, y = 2.55361
+At time +2s client sent 1024 bytes to 10.1.2.4 port 9
+At time +2.01624s server received 1024 bytes from 10.1.3.3 port 49153
+At time +2.01624s server sent 1024 bytes to 10.1.3.3 port 49153
+At time +2.02849s client received 1024 bytes from 10.1.2.4 port 9
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 8.72774, y = 2.06461
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 9.52954, y = 2.6622
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 10.523, y = 2.77665
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 10.7054, y = 3.75987
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 10.143, y = 2.93301
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 10.2355, y = 1.9373
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 11.2152, y = 1.73647
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 10.2379, y = 1.94864
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 10.4491, y = 0.971199
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 9.56013, y = 1.42913
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 9.11607, y = 2.32513
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 8.22047, y = 1.88027
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 8.79149, y = 1.05934
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 9.41195, y = 0.275103
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 9.83369, y = -0.631617
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 9.15219, y = 0.100206
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 8.32714, y = 0.665266
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 7.46368, y = 0.160847
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 7.40394, y = -0.837367
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 6.96716, y = -1.73693
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 7.62062, y = -2.49388
+/NodeList/7/$ns3::MobilityModel/CourseChange x = 7.99793, y = -1.56779
+</pre></div>
+</div>
+</section>
+<section id="queues-in-ns-3">
+<h2><span class="section-number">7.4. </span>Queues in ns-3<a class="headerlink" href="#queues-in-ns-3" title="Link to this heading">¶</a></h2>
+<p>The selection of queueing disciplines in <em>ns-3</em> can have a large impact
+on performance, and it is important for users to understand what is installed
+by default and how to change the defaults and observe the performance.</p>
+<p>Architecturally, <em>ns-3</em> separates the device layer from the IP layers
+or traffic control layers of an Internet host.  Since recent releases
+of <em>ns-3</em>, outgoing packets traverse two queueing layers before reaching
+the channel object.  The first queueing layer encountered is what is
+called the ‘traffic control layer’ in <em>ns-3</em>; here, active queue management
+(RFC7567) and prioritization due to quality-of-service (QoS) takes place
+in a device-independent manner through the use of queueing disciplines.
+The second queueing layer is typically found in the NetDevice objects.
+Different devices (e.g. LTE, Wi-Fi) have different implementations of these queues.
+This two-layer approach mirrors what is found in practice, (software queues
+providing prioritization, and hardware queues specific to a link type).
+In practice, it may be even more complex than this.  For instance, address
+resolution protocols have a small queue.  Wi-Fi in Linux has four layers
+of queueing (<a class="reference external" href="https://lwn.net/Articles/705884/">https://lwn.net/Articles/705884/</a>).</p>
+<p>The traffic control layer is effective only if it is notified by the
+NetDevice when the device queue is full, so that the traffic control layer
+can stop sending packets to the NetDevice. Otherwise, the backlog of the
+queueing disciplines is always null and they are ineffective. Currently,
+flow control, i.e., the ability of notifying the traffic control layer,
+is supported by the following NetDevices, which use Queue objects (or objects
+of Queue subclasses) to store their packets:</p>
+<ul class="simple">
+<li><p>Point-To-Point</p></li>
+<li><p>Csma</p></li>
+<li><p>Wi-Fi</p></li>
+<li><p>SimpleNetDevice</p></li>
+</ul>
+<p>The performance of queueing disciplines is highly impacted by the size
+of the queues used by the NetDevices. Currently, queues by default in <em>ns-3</em>
+are not autotuned for the configured link properties (bandwidth, delay), and
+are typically the simplest variants (e.g. FIFO scheduling with drop-tail behavior).
+However, the size of the queues can be dynamically adjusted by enabling BQL
+(Byte Queue Limits), the algorithm implemented in the Linux kernel to adjust
+the size of the device queues to fight bufferbloat while avoiding starvation.
+Currently, BQL is supported by the NetDevices that support flow control.
+An analysis of the impact of the size of the device queues on the effectiveness
+of the queueing disciplines conducted by means of <em>ns-3</em> simulations and real
+experiments is reported in:</p>
+<p>P. Imputato and S. Avallone. An analysis of the impact of network device buffers
+on packet schedulers through experiments and simulations. Simulation Modelling
+Practice and Theory, 80(Supplement C):1–18, January 2018.
+DOI: 10.1016/j.simpat.2017.09.008</p>
+<section id="available-queueing-models-in-ns3">
+<h3><span class="section-number">7.4.1. </span>Available queueing models in <em>ns-3</em><a class="headerlink" href="#available-queueing-models-in-ns3" title="Link to this heading">¶</a></h3>
+<p>At the traffic-control layer, these are the options:</p>
+<ul class="simple">
+<li><p>PFifoFastQueueDisc: The default maximum size is 1000 packets</p></li>
+<li><p>FifoQueueDisc: The default maximum size is 1000 packets</p></li>
+<li><p>RedQueueDisc: The default maximum size is 25 packets</p></li>
+<li><p>CoDelQueueDisc: The default maximum size is 1500 kilobytes</p></li>
+<li><p>FqCoDelQueueDisc: The default maximum size is 10240 packets</p></li>
+<li><p>PieQueueDisc: The default maximum size is 25 packets</p></li>
+<li><p>MqQueueDisc: This queue disc has no limits on its capacity</p></li>
+<li><p>TbfQueueDisc: The default maximum size is 1000 packets</p></li>
+</ul>
+<p>By default, a pfifo_fast queueing discipline is installed on a NetDevice when
+an IPv4 or IPv6 address is assigned to an interface associated with the NetDevice,
+unless a queueing discipline has been already installed on the NetDevice.</p>
+<p>At the device layer, there are device specific queues:</p>
+<ul class="simple">
+<li><p>PointToPointNetDevice: The default configuration (as set by the helper) is to install
+a DropTail queue of default size (100 packets)</p></li>
+<li><p>CsmaNetDevice: The default configuration (as set by the helper) is to install
+a DropTail queue of default size (100 packets)</p></li>
+<li><p>WiFiNetDevice: The default configuration is to install a DropTail queue of default size
+(100 packets) for non-QoS stations and four DropTail queues of default size (100
+packets) for QoS stations</p></li>
+<li><p>SimpleNetDevice: The default configuration is to install a DropTail queue of default
+size (100 packets)</p></li>
+<li><p>LteNetDevice: Queueing occurs at the RLC layer (RLC UM default buffer is 10 * 1024 bytes, RLC AM does not have a buffer limit).</p></li>
+<li><p>UanNetDevice: There is a default 10 packet queue at the MAC layer</p></li>
+</ul>
+</section>
+<section id="changing-from-the-defaults">
+<h3><span class="section-number">7.4.2. </span>Changing from the defaults<a class="headerlink" href="#changing-from-the-defaults" title="Link to this heading">¶</a></h3>
+<ul>
+<li><p>The type of queue used by a NetDevice can be usually modified through the device helper:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">NodeContainer</span><span class="w"> </span><span class="n">nodes</span><span class="p">;</span>
+<span class="n">nodes</span><span class="p">.</span><span class="n">Create</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+
+<span class="n">PointToPointHelper</span><span class="w"> </span><span class="n">p2p</span><span class="p">;</span>
+<span class="n">p2p</span><span class="p">.</span><span class="n">SetQueue</span><span class="p">(</span><span class="s">&quot;ns3::DropTailQueue&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MaxSize&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;50p&quot;</span><span class="p">));</span>
+
+<span class="n">NetDeviceContainer</span><span class="w"> </span><span class="n">devices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p2p</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">nodes</span><span class="p">);</span>
+</pre></div>
+</div>
+</li>
+<li><p>The type of queue disc installed on a NetDevice can be modified through the
+traffic control helper:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">InternetStackHelper</span><span class="w"> </span><span class="n">stack</span><span class="p">;</span>
+<span class="n">stack</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">nodes</span><span class="p">);</span>
+
+<span class="n">TrafficControlHelper</span><span class="w"> </span><span class="n">tch</span><span class="p">;</span>
+<span class="n">tch</span><span class="p">.</span><span class="n">SetRootQueueDisc</span><span class="p">(</span><span class="s">&quot;ns3::CoDelQueueDisc&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MaxSize&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;1000p&quot;</span><span class="p">));</span>
+<span class="n">tch</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">devices</span><span class="p">);</span>
+</pre></div>
+</div>
+</li>
+<li><p>BQL can be enabled on a device that supports it through the traffic control helper:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">InternetStackHelper</span><span class="w"> </span><span class="n">stack</span><span class="p">;</span>
+<span class="n">stack</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">nodes</span><span class="p">);</span>
+
+<span class="n">TrafficControlHelper</span><span class="w"> </span><span class="n">tch</span><span class="p">;</span>
+<span class="n">tch</span><span class="p">.</span><span class="n">SetRootQueueDisc</span><span class="p">(</span><span class="s">&quot;ns3::CoDelQueueDisc&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MaxSize&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;1000p&quot;</span><span class="p">));</span>
+<span class="n">tch</span><span class="p">.</span><span class="n">SetQueueLimits</span><span class="p">(</span><span class="s">&quot;ns3::DynamicQueueLimits&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;HoldTime&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;4ms&quot;</span><span class="p">));</span>
+<span class="n">tch</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">devices</span><span class="p">);</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/doc/tutorial/source/building-topologies.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

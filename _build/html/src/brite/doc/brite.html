@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>BRITE Integration &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="brite-integration">
+<h1>BRITE Integration<a class="headerlink" href="#brite-integration" title="Link to this heading">¶</a></h1>
+<p>This model implements an interface to BRITE, the Boston university
+Representative Internet Topology gEnerator <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>. BRITE is a standard tool for
+generating realistic internet topologies. The ns-3 model, described herein,
+provides a helper class to facilitate generating ns-3 specific topologies
+using BRITE configuration files. BRITE builds the original graph which is
+stored as nodes and edges in the ns-3 BriteTopolgyHelper class. In the ns-3
+integration of BRITE, the generator generates a topology and then provides
+access to leaf nodes for each AS generated.  ns-3 users can than attach
+custom topologies to these leaf nodes either by creating them manually or
+using topology generators provided in ns-3.</p>
+<p>There are three major types of topologies available in BRITE:  Router,
+AS, and Hierarchical which is a combination of AS and Router.   For the
+purposes of ns-3 simulation, the most useful are likely to be Router and
+Hierarchical.  Router level topologies be generated using either the Waxman
+model or the Barabasi-Albert model.  Each model has different parameters that
+effect topology creation.  For flat router topologies, all nodes are considered
+to be in the same AS.</p>
+<p>BRITE Hierarchical topologies contain two levels.  The first is the AS level.
+This level can be also be created by using either the Waxman model or the
+Barabasi-Albert model.  Then for each node in the AS topology, a router level
+topology is constructed.  These router level topologies can again either use
+the Waxman model or the Barbasi-Albert model.  BRITE interconnects these separate
+router topologies as specified by the AS level topology.  Once the hierarchical
+topology is constructed, it is flattened into a large router level topology.</p>
+<p>Further information can be found in the BRITE user manual: <a class="reference external" href="http://www.cs.bu.edu/brite/publications/usermanual.pdf">http://www.cs.bu.edu/brite/publications/usermanual.pdf</a></p>
+<section id="model-description">
+<h2>Model Description<a class="headerlink" href="#model-description" title="Link to this heading">¶</a></h2>
+<p>The model relies on building an external BRITE library,
+and then building some ns-3 helpers that call out to the library.
+The source code for the ns-3 helpers lives in the directory
+<code class="docutils literal notranslate"><span class="pre">src/brite/helper</span></code>.</p>
+<section id="design">
+<h3>Design<a class="headerlink" href="#design" title="Link to this heading">¶</a></h3>
+<p>To generate the BRITE topology, ns-3 helpers call out to the external BRITE library,
+and using a standard BRITE configuration file, the BRITE code builds a graph with nodes
+and edges according to this configuration file. Please see the BRITE documentation
+or the example configuration files in src/brite/examples/conf_files to get a better
+grasp of BRITE configuration options. The graph built by BRITE is returned to ns-3,
+and a ns-3 implementation of the graph is built.  Leaf nodes for each AS are available
+for the user to either attach custom topologies or install ns-3 applications directly.</p>
+</section>
+<section id="references">
+<h3>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h3>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Alberto Medina, Anukool Lakhina, Ibrahim Matta, and John Byers. BRITE: An Approach to Universal Topology Generation. In Proceedings of the International Workshop on Modeling, Analysis and Simulation of Computer and Telecommunications Systems- MASCOTS ‘01, Cincinnati, Ohio, August 2001.</p>
+</aside>
+</aside>
+</section>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<p>The brite-generic-example can be referenced to see basic usage of the BRITE
+interface. In summary, the BriteTopologyHelper is used as the interface point
+by passing in a BRITE configuration file. Along with the configuration file a
+BRITE formatted random seed file can also be passed in.  If a seed file is not
+passed in, the helper will create a seed file using ns-3’s UniformRandomVariable.
+Once the topology has been generated by BRITE, BuildBriteTopology() is called to
+create the ns-3 representation.  Next IP Address can be assigned to the topology
+using either AssignIpv4Addresses() or AssignIpv6Addresses().  It should be noted
+that each point-to-point link in the topology will be treated as a new network
+therefore for IPV4 a /30 subnet should be used to avoid wasting a large amount of
+the available address space.</p>
+<p>Example BRITE configuration files can be found in /src/brite/examples/conf_files/.
+ASBarbasi and ASWaxman are examples of AS only topologies.  The RTBarabasi and
+RTWaxman files are examples of router only topologies.  Finally the
+TD_ASBarabasi_RTWaxman configuration file is an example of a Hierarchical topology
+that uses the Barabasi-Albert model for the AS level and the Waxman model for each
+of the router level topologies.   Information on the BRITE parameters used in these files
+can be found in the BRITE user manual.</p>
+<section id="building-brite-integration">
+<h3>Building BRITE Integration<a class="headerlink" href="#building-brite-integration" title="Link to this heading">¶</a></h3>
+<p>The first step is to download and build the ns-3 specific BRITE repository:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>hg<span class="w"> </span>clone<span class="w"> </span>http://code.nsnam.org/BRITE
+$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>BRITE
+$<span class="w"> </span>make
+</pre></div>
+</div>
+<p>This will build BRITE and create a library, libbrite.so, within the BRITE
+directory.</p>
+<p>Once BRITE has been built successfully, we proceed to configure ns-3 with
+BRITE support. Change to your ns-3 directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./ns3<span class="w"> </span>configure<span class="w"> </span>--with-brite<span class="o">=</span>/your/path/to/brite/source<span class="w"> </span>--enable-examples
+</pre></div>
+</div>
+<p>Make sure it says ‘enabled’ beside ‘BRITE Integration’. If it does not, then
+something has gone wrong. Either you have forgotten to build BRITE first
+following the steps above, or ns-3 could not find your BRITE directory.</p>
+<p>Next, build ns-3:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./ns3
+</pre></div>
+</div>
+</section>
+<section id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h3>
+<p>For an example demonstrating BRITE integration
+run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./ns3<span class="w"> </span>run<span class="w"> </span><span class="s1">&#39;brite-generic-example&#39;</span>
+</pre></div>
+</div>
+<p>By enabling the verbose parameter, the example will print out the node and
+edge information in a similar format to standard BRITE output. There are
+many other command-line parameters including confFile, tracing, and nix, described below:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>confFile</dt><dd><p>A BRITE configuration file. Many different BRITE configuration
+file examples exist in the src/brite/examples/conf_files directory, for
+example, RTBarabasi20.conf and RTWaxman.conf. Please refer to
+the conf_files directory for more examples.</p>
+</dd>
+<dt>tracing</dt><dd><p>Enables ascii tracing.</p>
+</dd>
+<dt>nix</dt><dd><p>Enables nix-vector routing. Global routing is used by default.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>The generic BRITE example also support visualization using pyviz, assuming
+python bindings in ns-3 are enabled:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./ns3<span class="w"> </span>run<span class="w"> </span>brite-generic-example<span class="w"> </span>--vis
+</pre></div>
+</div>
+<p>Simulations involving BRITE can also be used with MPI.  The total number of MPI instances is
+passed to the BRITE topology helper where a modulo divide is used to assign the nodes for each
+AS to a MPI instance.  An example can be found in src/brite/examples:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>mpirun<span class="w"> </span>-np<span class="w"> </span><span class="m">2</span><span class="w"> </span>./ns3<span class="w"> </span>run<span class="w"> </span>brite-MPI-example
+</pre></div>
+</div>
+<p>Please see the ns-3 MPI documentation for information on setting up MPI with ns-3.</p>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/src/brite/doc/brite.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

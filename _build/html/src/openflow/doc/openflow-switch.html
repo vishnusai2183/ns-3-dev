@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>OpenFlow switch support &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="openflow-switch-support">
+<h1>OpenFlow switch support<a class="headerlink" href="#openflow-switch-support" title="Link to this heading">¶</a></h1>
+<p>ns-3 simulations can use OpenFlow switches (McKeown et al. <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>),
+widely used in research.  OpenFlow switches are configurable via the
+OpenFlow API, and also have an MPLS extension for quality-of-service and
+service-level-agreement support. By extending these capabilities to ns-3
+for a simulated OpenFlow switch that is both configurable and can use
+the MPLS extension, ns-3 simulations can accurately simulate many different
+switches.</p>
+<p>The OpenFlow software implementation distribution is hereby referred to as
+the OFSID. This is a demonstration of running OpenFlow in software that
+the OpenFlow research group has made available. There is also an OFSID
+that Ericsson researchers created to add MPLS capabilities; this is the
+OFSID currently used with ns-3. The design will allow the users to,
+with minimal effort, switch in a different OFSID that may include more
+efficient code than a previous OFSID.</p>
+<section id="model-description">
+<h2>Model Description<a class="headerlink" href="#model-description" title="Link to this heading">¶</a></h2>
+<p>The model relies on building an external OpenFlow switch library (OFSID),
+and then building some ns-3 wrappers that call out to the library.
+The source code for the ns-3 wrappers lives in the directory
+<code class="docutils literal notranslate"><span class="pre">src/openflow/model</span></code>.</p>
+<section id="design">
+<h3>Design<a class="headerlink" href="#design" title="Link to this heading">¶</a></h3>
+<p>The OpenFlow module presents a OpenFlowSwitchNetDevice and a OpenFlowSwitchHelper for
+installing it on nodes. Like the Bridge module, it takes a collection of
+NetDevices to set up as ports, and it acts as the intermediary between
+them, receiving a packet on one port and forwarding it on another, or all
+but the received port when flooding. Like an OpenFlow switch, it maintains
+a configurable flow table that can match packets by their headers and do
+different actions with the packet based on how it matches. The module’s
+understanding of OpenFlow configuration messages are kept the same format
+as a real OpenFlow-compatible switch, so users testing Controllers via
+ns-3 won’t have to rewrite their Controller to work on real
+OpenFlow-compatible switches.</p>
+<p>The ns-3 OpenFlow switch device models an OpenFlow-enabled switch. It is designed to
+express basic use of the OpenFlow protocol, with the maintaining of a virtual
+Flow Table and TCAM to provide OpenFlow-like results.</p>
+<p>The functionality comes down to the Controllers, which send messages to the
+switch that configure its flows, producing different effects. Controllers can
+be added by the user, under the ofi namespace extending ofi::Controller. To
+demonstrate this, a DropController, which creates flows for ignoring every single
+packet, and LearningController, which effectively makes the switch a more complicated
+BridgeNetDevice. A user versed in a standard OFSID, and/or OF protocol, can write
+virtual controllers to create switches of all kinds of types.</p>
+<section id="openflow-switch-model">
+<h4>OpenFlow switch Model<a class="headerlink" href="#openflow-switch-model" title="Link to this heading">¶</a></h4>
+<p>The OpenFlow switch device behaves somewhat according to the diagram setup as a classical OFSID
+switch, with a few modifications made for a proper simulation environment.</p>
+<p>Normal OF-enabled Switch:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>| Secure Channel                  | &lt;--OF Protocol--&gt; | Controller is external |
+| Hardware or Software Flow Table |
+</pre></div>
+</div>
+<p>ns-3 OF-enabled Switch (module):</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>| m_controller-&gt;ReceiveFromSwitch() | &lt;--OF Protocol--&gt; | Controller is internal |
+| Software Flow Table, virtual TCAM |
+</pre></div>
+</div>
+<p>In essence, there are two differences:</p>
+<p>1) No SSL, Embedded Controller: Instead of a secure channel and connecting to an
+outside location for the Controller program/machine, we currently only allow a
+Controller extended from ofi::Controller, an extension of an ns3::Object. This
+means ns-3 programmers cannot model the SSL part of the interface or possibility
+of network failure. The connection to the OpenFlowSwitch is local and there aren’t any
+reasons for the channel/connection to break down. &lt;&lt;This difference may be an
+option in the future. Using EmuNetDevices, it should be possible to engage an
+external Controller program/machine, and thus work with controllers designed
+outside of the ns-3 environment, that simply use the proper OF protocol when
+communicating messages to the switch through a tap device.&gt;&gt;</p>
+<p>2) Virtual Flow Table, TCAM: Typical OF-enabled switches are implemented on a hardware
+TCAM. The OFSID we turn into a library includes a modelled software TCAM, that produces
+the same results as a hardware TCAM. We include an attribute FlowTableLookupDelay, which
+allows a simple delay of using the TCAM to be modelled. We don’t endeavor to make this
+delay more complicated, based on the tasks we are running on the TCAM, that is a possible
+future improvement.</p>
+<p>The OpenFlowSwitch network device is aimed to model an OpenFlow switch, with a TCAM and a connection
+to a controller program. With some tweaking, it can model every switch type, per OpenFlow’s
+extensibility. It outsources the complexity of the switch ports to NetDevices of the user’s choosing.
+It should be noted that these NetDevices must behave like practical switch ports, i.e. a Mac Address
+is assigned, and nothing more. It also must support a SendFrom function so that
+the OpenFlowSwitch can forward across that port.</p>
+</section>
+</section>
+<section id="scope-and-limitations">
+<h3>Scope and Limitations<a class="headerlink" href="#scope-and-limitations" title="Link to this heading">¶</a></h3>
+<p>All MPLS capabilities are implemented on the OFSID side in the OpenFlowSwitchNetDevice,
+but ns-3-mpls hasn’t been integrated, so ns-3 has no way to pass in
+proper MPLS packets to the OpenFlowSwitch. If it did, one would only need to make
+BufferFromPacket pick up the MplsLabelStack or whatever the MPLS header
+is called on the Packet, and build the MPLS header into the ofpbuf.</p>
+</section>
+<section id="future-work">
+<h3>Future Work<a class="headerlink" href="#future-work" title="Link to this heading">¶</a></h3>
+</section>
+<section id="references">
+<h3>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h3>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>McKeown, N.; Anderson, T.; Balakrishan, H.; Parulkar, G.; Peterson, L.; Rexford, J.; Shenker, S.; Turner, J.; OpenFlow: enabling innovation in campus networks, ACM SIGCOMM Computer Communication Review, Vol. 38, Issue 2, April 2008.</p>
+</aside>
+</aside>
+</section>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<p>The OFSID requires libxml2 (for MPLS FIB xml file parsing), and libdl (for address fault checking).</p>
+<section id="building-ofsid">
+<h3>Building OFSID<a class="headerlink" href="#building-ofsid" title="Link to this heading">¶</a></h3>
+<p>In order to use the OpenFlowSwitch module, you must create and link the
+OFSID (OpenFlow Software Implementation Distribution) to ns-3.
+To do this:</p>
+<ol class="arabic">
+<li><p>Obtain the OFSID code.
+An ns-3 specific OFSID branch is provided to ensure
+operation with ns-3. Use mercurial to download this branch and ns3 to build
+the library:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>hg<span class="w"> </span>clone<span class="w"> </span>http://code.nsnam.org/openflow
+$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>openflow
+</pre></div>
+</div>
+<p>From the “openflow” directory, run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./waf<span class="w"> </span>configure
+$<span class="w"> </span>./waf<span class="w"> </span>build
+</pre></div>
+</div>
+</li>
+<li><p>Your OFSID is now built into a libopenflow.a library!
+To link to an ns-3 build with this OpenFlow switch module, run from the ns-3-dev
+(or whatever you have named your distribution):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./ns3<span class="w"> </span>configure<span class="w"> </span>--enable-examples<span class="w"> </span>--enable-tests<span class="w"> </span>--with-openflow<span class="o">=</span>path/to/openflow
+</pre></div>
+</div>
+</li>
+<li><p>Under <code class="docutils literal notranslate"><span class="pre">----</span> <span class="pre">Summary</span> <span class="pre">of</span> <span class="pre">optional</span> <span class="pre">NS-3</span> <span class="pre">features:</span></code> you should see:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&quot;NS-3 OpenFlow Integration     : enabled&quot;
+</pre></div>
+</div>
+<p>indicating the library has been linked to ns-3. Run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./ns3<span class="w"> </span>build
+</pre></div>
+</div>
+</li>
+</ol>
+<p>to build ns-3 and activate the OpenFlowSwitch module in ns-3.</p>
+</section>
+<section id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h3>
+<p>For an example demonstrating its use in a simple learning controller/switch,
+run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./ns3<span class="w"> </span>run<span class="w"> </span>openflow-switch
+</pre></div>
+</div>
+<p>To see it in detailed logging, run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./ns3<span class="w"> </span>run<span class="w"> </span><span class="s2">&quot;openflow-switch -v&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="helpers">
+<h3>Helpers<a class="headerlink" href="#helpers" title="Link to this heading">¶</a></h3>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h3>
+<p>The SwitchNetDevice provides following Attributes:</p>
+<ul class="simple">
+<li><p>FlowTableLookUpDelay:      This time gets run off the clock when making a lookup in our Flow Table.</p></li>
+<li><dl class="simple">
+<dt>Flags:                     OpenFlow specific configuration flags. They are defined in the ofp_config_flags enum. Choices include:</dt><dd><p>OFPC_SEND_FLOW_EXP (Switch notifies controller when a flow has expired),
+OFPC_FRAG_NORMAL (Match fragment against Flow table),
+OFPC_FRAG_DROP (Drop fragments),
+OFPC_FRAG_REASM (Reassemble only if OFPC_IP_REASM set, which is currently impossible,
+because switch implementation does not support IP reassembly)
+OFPC_FRAG_MASK (Mask Fragments)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>FlowTableMissSendLength:   When the packet doesn’t match in our Flow Table, and we forward to the controller,</dt><dd><p>this sets # of bytes forwarded (packet is not forwarded in its entirety, unless specified).</p>
+</dd>
+</dl>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>TODO</p>
+</div>
+</section>
+<section id="tracing">
+<h3>Tracing<a class="headerlink" href="#tracing" title="Link to this heading">¶</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>TODO</p>
+</div>
+</section>
+<section id="logging">
+<h3>Logging<a class="headerlink" href="#logging" title="Link to this heading">¶</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>TODO</p>
+</div>
+</section>
+<section id="caveats">
+<h3>Caveats<a class="headerlink" href="#caveats" title="Link to this heading">¶</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>TODO</p>
+</div>
+</section>
+</section>
+<section id="validation">
+<h2>Validation<a class="headerlink" href="#validation" title="Link to this heading">¶</a></h2>
+<p>This model has one test suite which can be run as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./test.py<span class="w"> </span>--suite<span class="o">=</span>openflow
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/src/openflow/doc/openflow-switch.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

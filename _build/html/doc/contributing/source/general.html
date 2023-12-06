@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>2. General &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="general">
+<span id="id1"></span><h1><span class="section-number">2. </span>General<a class="headerlink" href="#general" title="Link to this heading">¶</a></h1>
+<p>This section pertains to general topics about licensing, coding style,
+and working with Git features, including patch submission.</p>
+<section id="licensing">
+<h2><span class="section-number">2.1. </span>Licensing<a class="headerlink" href="#licensing" title="Link to this heading">¶</a></h2>
+<p>All code submitted must conform to the project licensing framework, which
+is <a class="reference external" href="https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html">GNU GPLv2</a>
+compatibility. All new source files should contain a license
+statement.  In general, we ask that new source files be provided with a
+GNU GPLv2 license, but the author may select another GNU GPLv2-compatible
+license if necessary.  GNU GPLv3 is not accepted in the <em>ns-3</em> mainline.
+Note that the Free Software Foundation maintains
+<a class="reference external" href="https://www.gnu.org/licenses/license-list.en.html#GPLCompatibleLicenses">a list</a> of GPLv2-compatible licenses.</p>
+<p>If a contribution is based upon or contains copied code that itself
+uses GNU GPLv2, then the author should in most cases retain the GPLv2 and
+optionally extend the copyright and/or the author (or ‘Modified by’)
+statements.</p>
+<p>If a contribution is borrowed from another project under different licensing,
+the borrowed code must have a compatible license, and the license must
+be copied over as well as the code.  The author may add the GNU GPLv2 if
+desired, but in such a case, should clarify which aspects of the code
+(i.e., the modifications) are covered by the GPLv2 and not found in the
+original.  The Software Freedom Law Center has published
+<a class="reference external" href="http://www.softwarefreedom.org/resources/2007/gpl-non-gpl-collaboration.html">guidance</a> on handling this case.</p>
+<p>Note that it is incumbent upon the submitter to make sure that the
+licensing attribution is correct and that the code is suitable for <em>ns-3</em>
+inclusion. Do not include code (even snippets) from sources that have
+incompatible licenses.  Even if the code licenses are compatible, do not
+copy someone else’s code without attribution.</p>
+<section id="documentation-licensing">
+<h3><span class="section-number">2.1.1. </span>Documentation Licensing<a class="headerlink" href="#documentation-licensing" title="Link to this heading">¶</a></h3>
+<p>Licensing for documentation or for material found on <em>ns-3</em> websites
+is covered by the <a class="reference external" href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons CC-BY-SA 4.0</a> license,
+and documentation submissions should be submitted under that license.
+Please ensure that any documentation submitted does not violate the
+terms of another copyright holder, and has correct attribution.  In
+particular, copying of substantial portions of an academic journal
+paper, or copying or redrawing of figures from such a paper, likely
+requires explicit permission from the copyright holder.</p>
+</section>
+</section>
+<section id="copyright">
+<h2><span class="section-number">2.2. </span>Copyright<a class="headerlink" href="#copyright" title="Link to this heading">¶</a></h2>
+<p>Copyright is a statement of ownership of code, while licensing describes
+the terms by which the owners of the code permit the reuse of the code.</p>
+<p>The <em>ns-3</em> project does not maintain copyright of contributed code.
+Copyright remains with the author(s) or their employer.  Because multiple
+people or organizations work on the <em>ns-3</em> code over time, one can think
+of the project and even individual files as a “mixed copyright” work.</p>
+<p>Copyright can be stated when originating files in <em>ns-3</em> or when making
+“substantial” changes to such files; the definition of substantial is
+open to interpretation.  Copyright need not be claimed explicitly by adding
+a copyright statement; according to copyright laws in many countries,
+copyright rights are automatic upon publishing a work.  Copyright should
+not be explicitly listed for <em>all</em> changes to a file; for instance, patches
+to fix small things or make small adjustments or improvements are not
+considered to be subjected to copyright protection.</p>
+<p>Use of copyright statements in open source projects, as a means of
+author attribution, can be controversial, because having a long list
+of copyright statements on every file impairs readability.  Also,
+since copyright is automatic, there is little formal legal requirement
+to add a copyright statement.  The <em>ns-3</em> project has decided to follow
+the guidance provided by the Software Freedom Law Center in this regard:
+<a class="reference external" href="https://softwarefreedom.org/resources/2012/ManagingCopyrightInformation.html">https://softwarefreedom.org/resources/2012/ManagingCopyrightInformation.html</a></p>
+<section id="copyright-on-new-files">
+<h3><span class="section-number">2.2.1. </span>Copyright on new files<a class="headerlink" href="#copyright-on-new-files" title="Link to this heading">¶</a></h3>
+<p>When originating a new file, the originating author should place his or her
+copyright statement at the top in the header, preceding the copy of the
+license.  An important exception to this is if the new file is copied from
+somewhere else and modified to make the new file; please do not delete
+the previous copyrights from the copyright file!  See below for this case.</p>
+<p>An example placement of a copyright statement can be found in the file
+<code class="docutils literal notranslate"><span class="pre">src/network/model/packet.h</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/*</span>
+ <span class="o">*</span> <span class="n">Copyright</span> <span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="mi">2005</span><span class="p">,</span><span class="mi">2006</span> <span class="n">INRIA</span>
+ <span class="o">*</span>
+ <span class="o">*</span> <span class="n">This</span> <span class="n">program</span> <span class="ow">is</span> <span class="n">free</span> <span class="n">software</span><span class="p">;</span> <span class="n">you</span> <span class="n">can</span> <span class="n">redistribute</span> <span class="n">it</span> <span class="ow">and</span><span class="o">/</span><span class="ow">or</span> <span class="n">modify</span>
+ <span class="o">*</span> <span class="n">it</span> <span class="n">under</span> <span class="n">the</span> <span class="n">terms</span> <span class="n">of</span> <span class="n">the</span> <span class="n">GNU</span> <span class="n">General</span> <span class="n">Public</span> <span class="n">License</span> <span class="n">version</span> <span class="mi">2</span> <span class="k">as</span>
+ <span class="o">*</span> <span class="n">published</span> <span class="n">by</span> <span class="n">the</span> <span class="n">Free</span> <span class="n">Software</span> <span class="n">Foundation</span><span class="p">;</span>
+</pre></div>
+</div>
+</section>
+<section id="copyright-on-existing-files">
+<h3><span class="section-number">2.2.2. </span>Copyright on existing files<a class="headerlink" href="#copyright-on-existing-files" title="Link to this heading">¶</a></h3>
+<p>When providing a substantial feature (maintainers and contributors should
+mutually agree on this point) as a patch to an existing file, the
+contributor may add a copyright statement that clarifies the new portion
+of code that is covered by the new copyright.  An example is the program
+<code class="docutils literal notranslate"><span class="pre">src/lte/model/lte-ue-phy.h</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/*</span>
+ <span class="o">*</span> <span class="n">Copyright</span> <span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="mi">2010</span> <span class="n">TELEMATICS</span> <span class="n">LAB</span><span class="p">,</span> <span class="n">DEE</span> <span class="o">-</span> <span class="n">Politecnico</span> <span class="n">di</span> <span class="n">Bari</span>
+ <span class="o">*</span> <span class="n">Copyright</span> <span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="mi">2018</span> <span class="n">Fraunhofer</span> <span class="n">ESK</span> <span class="p">:</span> <span class="n">RLF</span> <span class="n">extensions</span>
+ <span class="o">*</span>
+ <span class="o">*</span> <span class="n">This</span> <span class="n">program</span> <span class="ow">is</span> <span class="n">free</span> <span class="n">software</span><span class="p">;</span> <span class="n">you</span> <span class="n">can</span> <span class="n">redistribute</span> <span class="n">it</span> <span class="ow">and</span><span class="o">/</span><span class="ow">or</span> <span class="n">modify</span>
+ <span class="o">*</span> <span class="n">it</span> <span class="n">under</span> <span class="n">the</span> <span class="n">terms</span> <span class="n">of</span> <span class="n">the</span> <span class="n">GNU</span> <span class="n">General</span> <span class="n">Public</span> <span class="n">License</span> <span class="n">version</span> <span class="mi">2</span> <span class="k">as</span>
+ <span class="o">*</span> <span class="n">published</span> <span class="n">by</span> <span class="n">the</span> <span class="n">Free</span> <span class="n">Software</span> <span class="n">Foundation</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Here, Fraunhofer ESK added extensions to support radio link failure (RLF),
+and the copyright statement clarifies the extension (separated from the
+organization by a colon).</p>
+</section>
+<section id="copyright-on-external-code-copied-from-elsewhere">
+<h3><span class="section-number">2.2.3. </span>Copyright on external code copied from elsewhere<a class="headerlink" href="#copyright-on-external-code-copied-from-elsewhere" title="Link to this heading">¶</a></h3>
+<p>If a contributor borrows code from somewhere else (such as a snippet of
+code to implement an algorithm, or whole files altogether), it is important
+to keep the original copyright (and license statement) in the new file.
+Contributors who fail to do this may be accused of plagiarism.</p>
+<p>Some existing examples of code copied from elsewhere are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">src/network/utils/error-model.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/core/model/valgrind.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/core/model/math.h</span></code></p></li>
+</ul>
+<p>If in doubt about how to handle a specific case, ask a maintainer.</p>
+</section>
+</section>
+<section id="attribution">
+<h2><span class="section-number">2.3. </span>Attribution<a class="headerlink" href="#attribution" title="Link to this heading">¶</a></h2>
+<p>Besides copyright, authors also often seek to list attribution, or
+even credit for funding, in the headers.  We request that contributors
+refrain from aggressively inserting statements of attribution into the
+code such as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//</span> <span class="n">New</span> <span class="n">Hello</span> <span class="n">Timer</span> <span class="n">implementation</span> <span class="n">contributed</span> <span class="n">by</span> <span class="n">John</span> <span class="n">Doe</span><span class="p">,</span> <span class="mi">2014</span>
+</pre></div>
+</div>
+<p>especially for small touches to files, because, over time, it clutters
+the code.  Git logs are used to track who contributed what over time.</p>
+<p>Likewise, if someone contributes a minor enhancement or a bug fix to
+an existing file, this is not typically justification to insert an
+<code class="docutils literal notranslate"><span class="pre">Authored</span> <span class="pre">by</span></code> or <code class="docutils literal notranslate"><span class="pre">Copyright</span></code> statement at the top of the file.  If
+everyone who touched a file did this, we would end up with unwieldy
+lists of authors on many files.  In general, we recommend to follow
+these guidelines:</p>
+<ul class="simple">
+<li><p>if you are authoring a new file or contributing a substantial portion
+of code (such as 30% or more new or changed statements), you can
+list yourself as co-author or add a new copyright to the file header</p></li>
+<li><p>if you are modifying less than the above, please refrain from adding
+copyright or author statements as part of your patch</p></li>
+<li><p>do not put your name or your organization’s name anywhere in the
+main body of the code, for attribution purposes</p></li>
+</ul>
+<p>An example of a substantial modification that led to extension of
+the authors section of the header can be found in
+<code class="docutils literal notranslate"><span class="pre">src/lte/model/lte-ue-phy.h</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">*</span> <span class="n">Author</span><span class="p">:</span> <span class="n">Giuseppe</span> <span class="n">Piro</span>  <span class="o">&lt;</span><span class="n">g</span><span class="o">.</span><span class="n">piro</span><span class="nd">@poliba</span><span class="o">.</span><span class="n">it</span><span class="o">&gt;</span>
+<span class="o">*</span> <span class="n">Author</span><span class="p">:</span> <span class="n">Marco</span> <span class="n">Miozzo</span> <span class="o">&lt;</span><span class="n">mmiozzo</span><span class="nd">@cttc</span><span class="o">.</span><span class="n">es</span><span class="o">&gt;</span>
+<span class="o">*</span> <span class="n">Modified</span> <span class="n">by</span><span class="p">:</span>
+<span class="o">*</span>          <span class="n">Vignesh</span> <span class="n">Babu</span> <span class="o">&lt;</span><span class="n">ns3</span><span class="o">-</span><span class="n">dev</span><span class="nd">@esk</span><span class="o">.</span><span class="n">fraunhofer</span><span class="o">.</span><span class="n">de</span><span class="o">&gt;</span> <span class="p">(</span><span class="n">RLF</span> <span class="n">extensions</span><span class="p">)</span>
+<span class="o">*/</span>
+</pre></div>
+</div>
+<p>Here, there were two original authors, and then a third added a substantial
+new feature (RLF extensions).</p>
+<p>Please work with maintainers to balance the competing concerns of
+obtaining proper attribution and avoiding long headers.</p>
+</section>
+<section id="coding-style">
+<h2><span class="section-number">2.4. </span>Coding style<a class="headerlink" href="#coding-style" title="Link to this heading">¶</a></h2>
+<p>We ask that all contributors make their code conform to the
+coding standard which is outlined in <a class="reference internal" href="coding-style.html#coding-style"><span class="std std-ref">Coding style</span></a>.</p>
+<p>The project maintains a Python program called <code class="docutils literal notranslate"><span class="pre">check-style-clang-format.py</span></code> found in
+the <code class="docutils literal notranslate"><span class="pre">utils/</span></code> directory.  This is a wrapper around the <code class="docutils literal notranslate"><span class="pre">clang-format</span></code>
+utility and can be used to quickly format new source code files proposed for the
+mainline. The <em>ns-3</em> coding style conventions are defined in the corresponding
+<code class="docutils literal notranslate"><span class="pre">.clang-format</span></code> file.</p>
+<p>In addition to formatting source code files with <code class="docutils literal notranslate"><span class="pre">clang-format</span></code>, the Python program
+also checks trailing whitespace in text files and converts tabs to spaces, in order to
+comply with the <em>ns-3</em> coding style.</p>
+</section>
+<section id="creating-a-patch">
+<h2><span class="section-number">2.5. </span>Creating a patch<a class="headerlink" href="#creating-a-patch" title="Link to this heading">¶</a></h2>
+<p>Patches are preferably submitted as a GitLab.com
+<a class="reference external" href="https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html">Merge Request</a>.
+Short patches can be attached to an issue report or sent to the mailing-lists,
+but a Merge Request is the best way to submit.</p>
+<p>The UNIX diff tool is the most common way of producing a patch: a patch is
+a text-based representation of the difference between two text files or two
+directories with text files in them. If you have two files,
+<code class="docutils literal notranslate"><span class="pre">original.cc</span></code>, and, <code class="docutils literal notranslate"><span class="pre">modified.cc</span></code>, you can generate a patch with the
+command <code class="docutils literal notranslate"><span class="pre">diff</span> <span class="pre">-u</span> <span class="pre">original.cc</span> <span class="pre">modified.cc</span></code>. If you wish to produce a patch
+between two directories, use the command <code class="docutils literal notranslate"><span class="pre">diff</span> <span class="pre">-uprN</span> <span class="pre">original</span> <span class="pre">modified</span></code>.</p>
+<p>Make sure you specify to the reviewer where the original files came from
+and make sure that the resulting patch file does not contain unexpected
+content by performing a final inspection of the patch file yourself.</p>
+<p>Patches such as this are sufficient for simple bug fixes or very simple
+small features.</p>
+<p>Git can be used to create a patch of what parts differ from the last
+committed code; try:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git diff
+</pre></div>
+</div>
+<p>The output of <cite>git diff</cite> can be redirected into a patch file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git diff &gt; proposal.patch
+</pre></div>
+</div>
+<p>Keep in mind that <cite>git diff</cite> could include unrelated changes made locally to
+files in the repository (a common example is <cite>.vscode/launch.json</cite>). In order
+to avoid cluttering, please amend your diff file using a normal text editor
+before submitting it.</p>
+<p>Likewise, if you submit a merge request using GitLab, please add only the
+changes to the relevant files to the branch you’re using for the merge request.</p>
+</section>
+<section id="maintainers">
+<h2><span class="section-number">2.6. </span>Maintainers<a class="headerlink" href="#maintainers" title="Link to this heading">¶</a></h2>
+<p>Maintainers are the set of people who make decisions on code and documentation
+changes.  Maintainers are contributors who have demonstrated, over time,
+knowledge and good judgment as pertains to contributions to <em>ns-3</em>, and who
+have expressed willingness to maintain some code.  <em>ns-3</em> is like other
+open source projects in terms of how people gradually become maintainers
+as their involvement with the project deepens; maintainers are not newcomers
+to the project.</p>
+<p>The list of maintainers for each module is found here:
+<a class="reference external" href="https://www.nsnam.org/developers/maintainers/">https://www.nsnam.org/developers/maintainers/</a></p>
+<p>Maintainers review code (bug fixes, new models) within scope of their
+maintenance responsibility.  A maintainer of a module should “sign off”
+(or approve of) changes to an <em>ns-3</em> module before it is committed to
+the main codebase.  Note that we typically do not formalize the signing
+off using Git’s sign off feature, but instead, maintainers will indicate
+their approval of the merge request using GitLab.com.</p>
+<p>Note that some modules do not have active maintainers; these types of
+modules typically receive less maintenance attention than those with
+active maintainers (and bugs may linger unattended).</p>
+<p>The best way to become a maintainer is to start by submitting patches
+that fix open bugs or otherwise improve some part of the simulator, and
+to join in on the technical discussions.
+People who submit quality patches will catch the attention of the maintainers
+and may be asked to become one at some future date.</p>
+<p>People who ask to upstream a new module or model so that it is part of the
+main <em>ns-3</em> distribution will typically be asked to maintain it going forward
+(or to find new maintainers for it).</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/doc/contributing/source/general.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

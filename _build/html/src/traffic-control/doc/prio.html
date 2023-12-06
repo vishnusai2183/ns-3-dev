@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Prio queue disc &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="prio-queue-disc">
+<h1>Prio queue disc<a class="headerlink" href="#prio-queue-disc" title="Link to this heading">¶</a></h1>
+<section id="model-description">
+<h2>Model Description<a class="headerlink" href="#model-description" title="Link to this heading">¶</a></h2>
+<p>PrioQueueDisc implements a strict priority policy, where packets are dequeued from
+a band only if higher priority bands are all empty. PrioQueueDisc is a classful
+queue disc and can have an arbitrary number of bands, each of which is handled by a
+queue disc of any kind. The capacity of PrioQueueDisc is not limited; packets can
+only be dropped by child queue discs (which may have a limited capacity).
+If no packet filter is installed or able to classify a packet, then the
+packet is enqueued into a priority band based on its priority (modulo 16), which
+is used as an index into an array called priomap. Users can read <a class="reference internal" href="../../network/doc/sockets-api.html#socket-options"><span class="std std-ref">Use of Send() vs. SendTo()</span></a>
+for details on how to set the packet priority. If a packet is classified
+by an installed packet filter and the returned value <code class="docutils literal notranslate"><span class="pre">i</span></code> is non-negative and less than the
+number of priority bands, then the packet is enqueued into the <code class="docutils literal notranslate"><span class="pre">i</span></code>-th priority band.
+Otherwise, the packet is enqueued into the priority band specified by the first element
+of the priomap array.</p>
+<p>If no queue disc class is added by the user before the queue disc is initialized,
+three child queue discs of type FifoQueueDisc are automatically added. It has to
+be noted that PrioQueueDisc needs at least two child queue discs.</p>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h3>
+<p>The PrioQueueDisc class holds the following attribute:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Priomap:</span></code> The priority to band mapping. The default value is the same mapping as the (fixed) one used by PfifoFastQueueDisc.</p></li>
+</ul>
+</section>
+<section id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h3>
+<p>An example of how to configure PrioQueueDisc with custom child queue discs and priomap
+is provided by <cite>queue-discs-benchmark.cc</cite> located in <code class="docutils literal notranslate"><span class="pre">examples/traffic-control</span></code>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">TrafficControlHelper</span><span class="w"> </span><span class="n">tch</span><span class="p">;</span>
+<span class="kt">uint16_t</span><span class="w"> </span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tch</span><span class="p">.</span><span class="n">SetRootQueueDisc</span><span class="p">(</span><span class="s">&quot;ns3::PrioQueueDisc&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Priomap&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1&quot;</span><span class="p">));</span>
+<span class="n">TrafficControlHelper</span><span class="o">::</span><span class="n">ClassIdList</span><span class="w"> </span><span class="n">cid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tch</span><span class="p">.</span><span class="n">AddQueueDiscClasses</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ns3::QueueDiscClass&quot;</span><span class="p">);</span>
+<span class="n">tch</span><span class="p">.</span><span class="n">AddChildQueueDisc</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="n">cid</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">&quot;ns3::FifoQueueDisc&quot;</span><span class="p">);</span>
+<span class="n">tch</span><span class="p">.</span><span class="n">AddChildQueueDisc</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="n">cid</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="s">&quot;ns3::RedQueueDisc&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The code above adds two classes (bands) to a PrioQueueDisc. The highest priority one
+is a FifoQueueDisc, the other one is a RedQueueDisc. The attribute Priomap is set to
+an array containing only 0 and 1 (since PrioQueueDisc only has two bands).</p>
+</section>
+</section>
+<section id="validation">
+<h2>Validation<a class="headerlink" href="#validation" title="Link to this heading">¶</a></h2>
+<p>PrioQueueDisc is tested using <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">PrioQueueDiscTestSuite</span></code> class defined
+in <code class="docutils literal notranslate"><span class="pre">src/traffic-control/test/prio-queue-disc-test-suite.cc</span></code>. The test aims to
+check that: i) packets are enqueued in the correct band based on their priority and
+the priomap or according to the value returned by the installed packet filter;
+ii) packets are dequeued in the correct order.</p>
+<p>The test suite can be run using the following commands:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./ns3<span class="w"> </span>configure<span class="w"> </span>--enable-examples<span class="w"> </span>--enable-tests
+$<span class="w"> </span>./ns3<span class="w"> </span>build
+$<span class="w"> </span>./test.py<span class="w"> </span>-s<span class="w"> </span>prio-queue-disc
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nv">NS_LOG</span><span class="o">=</span><span class="s2">&quot;PrioQueueDisc&quot;</span><span class="w"> </span>./ns3<span class="w"> </span>run<span class="w"> </span><span class="s2">&quot;test-runner --suite=prio-queue-disc&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/src/traffic-control/doc/prio.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

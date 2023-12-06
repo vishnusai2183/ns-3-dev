@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>4.5. Tests &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="tests">
+<h1><span class="section-number">4.5. </span>Tests<a class="headerlink" href="#tests" title="Link to this heading">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="test-overview.html">4.5.1. Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test-background.html">4.5.2. Background</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="test-background.html#correctness">4.5.2.1. Correctness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test-background.html#validation-and-verification">4.5.2.2. Validation and Verification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test-background.html#robustness">4.5.2.3. Robustness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test-background.html#performant">4.5.2.4. Performant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test-background.html#maintainability">4.5.2.5. Maintainability</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="test-framework.html">4.5.3. Testing framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="test-framework.html#buildslaves">4.5.3.1. Buildslaves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test-framework.html#test-py">4.5.3.2. Test.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test-framework.html#testtaxonomy">4.5.3.3. TestTaxonomy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="test-framework.html#unit-tests">4.5.3.3.1. Unit Tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="test-framework.html#system-tests">4.5.3.3.2. System Tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="test-framework.html#examples">4.5.3.3.3. Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="test-framework.html#performance-tests">4.5.3.3.4. Performance Tests</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="test-framework.html#running-tests">4.5.3.4. Running Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test-framework.html#debugging-tests">4.5.3.5. Debugging Tests</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="test-framework.html#test-output">4.5.3.5.1. Test output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="test-framework.html#reporting-of-test-failures">4.5.3.5.2. Reporting of test failures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="test-framework.html#debugging-test-suite-failures">4.5.3.5.3. Debugging test suite failures</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="test-framework.html#class-testrunner">4.5.3.6. Class TestRunner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test-framework.html#test-suite">4.5.3.7. Test Suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test-framework.html#test-case">4.5.3.8. Test Case</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test-framework.html#utilities">4.5.3.9. Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="how-to-write-tests.html">4.5.4. How to write tests</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="how-to-write-tests.html#sample-testsuite-skeleton">4.5.4.1. Sample TestSuite skeleton</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to-write-tests.html#test-macros">4.5.4.2. Test macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to-write-tests.html#how-to-add-an-example-program-to-the-test-suite">4.5.4.3. How to add an example program to the test suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to-write-tests.html#testing-de-serialization-of-headers">4.5.4.4. Testing (de)serialization of Headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to-write-tests.html#testing-for-boolean-outcomes">4.5.4.5. Testing for boolean outcomes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to-write-tests.html#testing-outcomes-when-randomness-is-involved">4.5.4.6. Testing outcomes when randomness is involved</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to-write-tests.html#testing-output-data-against-a-known-distribution">4.5.4.7. Testing output data against a known distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to-write-tests.html#providing-non-trivial-input-vectors-of-data">4.5.4.8. Providing non-trivial input vectors of data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to-write-tests.html#storing-and-referencing-non-trivial-output-data">4.5.4.9. Storing and referencing non-trivial output data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to-write-tests.html#presenting-your-output-test-data">4.5.4.10. Presenting your output test data</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/doc/manual/source/tests.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
