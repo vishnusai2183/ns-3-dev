@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Queue limits &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="queue-limits">
+<h1>Queue limits<a class="headerlink" href="#queue-limits" title="Link to this heading">¶</a></h1>
+<p>This section documents the queue limits model, which is used by the traffic control
+to limit the NetDevices queueing delay. It operates on the transmission path of
+the network node.</p>
+<p>The reduction of the NetDevices queueing delay is essential to improve the effectiveness of
+Active Queue Management (AQM) algorithms.
+Careful assessment of the queueing delay includes a byte-based measure of the NetDevices
+queue length. In this design, traffic control can use different byte-based schemes to
+limit the queueing delay. Currently the only available scheme is DynamicQueueLimits, which is
+modelled after the dynamic queue limit library of Linux.</p>
+<section id="model-description">
+<h2>Model Description<a class="headerlink" href="#model-description" title="Link to this heading">¶</a></h2>
+<p>The source code for the model lives in the directory <code class="docutils literal notranslate"><span class="pre">src/network/utils</span></code>.</p>
+<p>The model allows a byte-based measure of the netdevice queue. The byte-based measure
+more accurately approximates the time required to empty the queue than a packet-based measure.</p>
+<p>To inform the upper layers about the transmission of packets, NetDevices can call a couple
+of functions:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">NotifyQueuedBytes</span> <span class="pre">(uint32_t</span> <span class="pre">bytes)</span></code>: Report the number of bytes queued to the device queue</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">NotifyTransmittedBytes</span> <span class="pre">(uint32_t</span> <span class="pre">bytes)</span></code>: Report the number of bytes transmitted by device</p></li>
+</ul>
+<p>Based on this information, the QueueLimits object can stop the transmission queue.</p>
+<p>In case of multiqueue NetDevices this mechanism is available for each queue.</p>
+<p>The QueueLimits model can be used on any NetDevice modelled in ns-3.</p>
+<section id="design">
+<h3>Design<a class="headerlink" href="#design" title="Link to this heading">¶</a></h3>
+<p>An abstract base class, class QueueLimits, is subclassed for specific
+byte-based limiting strategies.</p>
+<p>Common operations provided by the base class QueueLimits include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">Reset</span> <span class="pre">()</span></code>:  Reset queue limits state</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">Completed</span> <span class="pre">(uint32_t</span> <span class="pre">count)</span></code>:  Record the number of completed bytes and recalculate the limit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">int32_t</span> <span class="pre">Available</span> <span class="pre">()</span> <span class="pre">const</span></code>:  Return how many bytes can be queued</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">Queued</span> <span class="pre">(uint32_t</span> <span class="pre">count)</span></code>:  Record number of bytes queued</p></li>
+</ul>
+<section id="dynamicqueuelimits">
+<h4>DynamicQueueLimits<a class="headerlink" href="#dynamicqueuelimits" title="Link to this heading">¶</a></h4>
+<p>Dynamic queue limits (DQL) is a basic library implemented in the Linux kernel to limit the Ethernet
+queueing delay. DQL is a general purpose queue length controller. The goal of DQL is to calculate
+the limit as the minimum number of bytes needed to prevent starvation.</p>
+<p>Three attributes are defined in the DynamicQueueLimits class:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">HoldTime</span></code>: The DQL algorithm hold time</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MaxLimit</span></code>: Maximum limit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MinLimit</span></code>: Minimum limit</p></li>
+</ul>
+<p>The DQL algorithm hold time is 1 s. Reducing the HoldTime increases the responsiveness of
+DQL with consequent greater number of limit variation events. Conversely, increasing the HoldTime
+decreases the responsiveness of DQL with a minor number of limit variation events.
+The limit calculated by DQL is in the range from MinLimit to MaxLimit.
+The default values are respectively 0 and DQL_MAX_LIMIT.
+Increasing the MinLimit is recommended in case of higher NetDevice transmission rate (e.g. 1 Gbps)
+while reducing the MaxLimit is recommended in case of lower NetDevice transmission rate (e.g. 500 Kbps).</p>
+<p>There is one trace source in DynamicQueueLimits class that may be hooked:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Limit</span></code>: Limit value calculated by DQL</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<section id="helpers">
+<h3>Helpers<a class="headerlink" href="#helpers" title="Link to this heading">¶</a></h3>
+<p>A typical usage pattern is to create a traffic control helper and configure
+the queue limits type and attributes from the helper, such as this example:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">TrafficControlHelper</span><span class="w"> </span><span class="n">tch</span><span class="p">;</span>
+<span class="kt">uint32_t</span><span class="w"> </span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tch</span><span class="p">.</span><span class="n">SetRootQueueDisc</span><span class="p">(</span><span class="s">&quot;ns3::PfifoFastQueueDisc&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Limit&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">UintegerValue</span><span class="p">(</span><span class="mi">1000</span><span class="p">));</span>
+
+<span class="n">tch</span><span class="p">.</span><span class="n">SetQueueLimits</span><span class="p">(</span><span class="s">&quot;ns3::DynamicQueueLimits&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;HoldTime&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;4ms&quot;</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>then install the configuration on a NetDevices container</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">tch</span><span class="p">.</span><span class="n">Install</span><span class="w"> </span><span class="p">(</span><span class="n">devices</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/src/network/doc/queue-limits.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

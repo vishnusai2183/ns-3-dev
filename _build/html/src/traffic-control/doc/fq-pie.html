@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>FQ-PIE queue disc &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="fq-pie-queue-disc">
+<h1>FQ-PIE queue disc<a class="headerlink" href="#fq-pie-queue-disc" title="Link to this heading">¶</a></h1>
+<p>This chapter describes the FQ-PIE (<a class="reference internal" href="#ram19" id="id1"><span>[Ram19]</span></a>) queue disc implementation in <a href="#id3"><span class="problematic" id="id4">|ns3|</span></a>.</p>
+<p>The FQ-PIE queue disc combines the Proportional Integral Controller Enhanced
+(PIE) AQM algorithm with the FlowQueue scheduler that is part of FQ-CoDel
+(also available in <a href="#id5"><span class="problematic" id="id6">|ns3|</span></a>). FQ-PIE was introduced to Linux kernel version 5.6.</p>
+<section id="model-description">
+<h2>Model Description<a class="headerlink" href="#model-description" title="Link to this heading">¶</a></h2>
+<p>The source code for the <code class="docutils literal notranslate"><span class="pre">FqPieQueueDisc</span></code> is located in the directory
+<code class="docutils literal notranslate"><span class="pre">src/traffic-control/model</span></code> and consists of 2 files <cite>fq-pie-queue-disc.h</cite>
+and <cite>fq-pie-queue-disc.cc</cite> defining a FqPieQueueDisc class and a helper
+FqPieFlow class. The code was ported to <a href="#id7"><span class="problematic" id="id8">|ns3|</span></a> based on Linux kernel code
+implemented by Mohit P. Tahiliani.</p>
+<p>This model calculates drop probability independently in each flow queue.
+One difficulty, as pointed out by <a class="reference internal" href="#cablelabs14" id="id2"><span>[CableLabs14]</span></a>, is that PIE calculates
+drop probability based on the departure rate of a (flow) queue, which may
+be more highly variable than the aggregate queue.  An alternative, which
+CableLabs has called SFQ-PIE, is to calculate an overall drop probability
+for the entire queue structure, and then scale this drop probability based
+on the ratio of the queue depth of each flow queue compared with the depth
+of the current largest queue.  This ns-3 model does not implement the
+SFQ-PIE variant described by CableLabs.</p>
+<section id="references">
+<h3>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h3>
+<div role="list" class="citation-list">
+<div class="citation" id="ram19" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">Ram19</a><span class="fn-bracket">]</span></span>
+<ol class="upperalpha simple" start="7">
+<li><p>Ramakrishnan, M. Bhasi, V. Saicharan, L. Monis, S. D. Patil and M. P. Tahiliani, “FQ-PIE Queue Discipline in the Linux Kernel: Design, Implementation and Challenges,” 2019 IEEE 44th LCN Symposium on Emerging Topics in Networking (LCN Symposium), Osnabrueck, Germany, 2019, pp. 117-124,</p></li>
+</ol>
+</div>
+<div class="citation" id="cablelabs14" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">CableLabs14</a><span class="fn-bracket">]</span></span>
+<ol class="upperalpha simple" start="7">
+<li><p>White, Active Queue Management in DOCSIS 3.X Cable Modems, CableLabs white paper, May 2014.</p></li>
+</ol>
+</div>
+</div>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h3>
+<p>The key attributes that the FqPieQueue class holds include the following.
+First, there are PIE-specific attributes that are copied into the individual
+PIE flow queues:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">UseEcn:</span></code> Whether to use ECN marking</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MarkEcnThreshold:</span></code> ECN marking threshold (RFC 8033 suggests 0.1 (i.e., 10%) default).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">UseL4s:</span></code> Whether to use L4S (only mark ECT1 packets at CE threshold)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MeanPktSize:</span></code> Constant used to roughly convert bytes to packets</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">A:</span></code> Alpha value in PIE algorithm drop probability calculation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">B:</span></code> Beta value in PIE algorithm drop probability calculation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Tupdate:</span></code> Time period to calculate drop probability</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Supdate:</span></code> Start time of the update timer</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DequeueThreshold:</span></code> Minimum queue size in bytes before dequeue rate is measured</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">QueueDelayReference:</span></code> AQM latency target</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MaxBurstAllowance:</span></code> AQM max burst allowance before random drop</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">UseDequeueRateEstimator:</span></code> Enable/Disable usage of Dequeue Rate Estimator</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">UseCapDropAdjustment:</span></code> Enable/Disable Cap Drop Adjustment feature mentioned in RFC 8033</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">UseDerandomization:</span></code> Enable/Disable Derandomization feature mentioned in RFC 8033</p></li>
+</ul>
+<p>Second, there are QueueDisc level, or FQ-specific attributes::
+* <code class="docutils literal notranslate"><span class="pre">MaxSize:</span></code> Maximum number of packets in the queue disc
+* <code class="docutils literal notranslate"><span class="pre">Flows:</span></code> Maximum number of flow queues
+* <code class="docutils literal notranslate"><span class="pre">DropBatchSize:</span></code> Maximum number of packets dropped from the fat flow
+* <code class="docutils literal notranslate"><span class="pre">Perturbation:</span></code> Salt value used as hash input when classifying flows
+* <code class="docutils literal notranslate"><span class="pre">EnableSetAssociativeHash:</span></code> Enable or disable set associative hash
+* <code class="docutils literal notranslate"><span class="pre">SetWays:</span></code> Size of a set of queues in set associative hash</p>
+</section>
+<section id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h3>
+<p>A typical usage pattern is to create a traffic control helper and to configure
+the type and attributes of queue disc and filters from the helper. For example, FqPIE
+can be configured as follows:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">TrafficControlHelper</span><span class="w"> </span><span class="n">tch</span><span class="p">;</span>
+<span class="n">tch</span><span class="p">.</span><span class="n">SetRootQueueDisc</span><span class="p">(</span><span class="s">&quot;ns3::FqPieQueueDisc&quot;</span><span class="p">,</span>
+<span class="w">                     </span><span class="s">&quot;DropBatchSize&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">UintegerValue</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">                     </span><span class="s">&quot;Perturbation&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">UintegerValue</span><span class="p">(</span><span class="mi">256</span><span class="p">));</span>
+<span class="n">QueueDiscContainer</span><span class="w"> </span><span class="n">qdiscs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tch</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">devices</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="validation">
+<h2>Validation<a class="headerlink" href="#validation" title="Link to this heading">¶</a></h2>
+<p>The FqPie model is tested using <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">FqPieQueueDiscTestSuite</span></code> class defined in <cite>src/test/ns3tc/fq-pie-queue-test-suite.cc</cite>.</p>
+<p>The tests are similar to the ones for FqCoDel queue disc mentioned in first section of this document.
+The test suite can be run using the following commands:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./ns3<span class="w"> </span>configure<span class="w"> </span>--enable-examples<span class="w"> </span>--enable-tests
+$<span class="w"> </span>./ns3<span class="w"> </span>build
+$<span class="w"> </span>./test.py<span class="w"> </span>-s<span class="w"> </span>fq-pie-queue-disc
+</pre></div>
+</div>
+<p>or:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nv">NS_LOG</span><span class="o">=</span><span class="s2">&quot;FqPieQueueDisc&quot;</span><span class="w"> </span>./ns3<span class="w"> </span>run<span class="w"> </span><span class="s2">&quot;test-runner --suite=fq-pie-queue-disc&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/src/traffic-control/doc/fq-pie.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

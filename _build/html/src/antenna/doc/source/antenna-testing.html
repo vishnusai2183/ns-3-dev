@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Testing Documentation &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="testing-documentation">
+<h1>Testing Documentation<a class="headerlink" href="#testing-documentation" title="Link to this heading">¶</a></h1>
+<p>In this section we describe the test suites included with the antenna
+module that verify its correct functionality.</p>
+<section id="angles">
+<h2>Angles<a class="headerlink" href="#angles" title="Link to this heading">¶</a></h2>
+<p>The unit test suite <code class="docutils literal notranslate"><span class="pre">angles</span></code> verifies that the Angles class is
+constructed properly by correct conversion from 3D Cartesian
+coordinates according to the available methods (construction from a
+single vector and from a pair of vectors). For each method, several
+test cases are provided that compare the values <span class="math notranslate nohighlight">\((\phi, \theta)\)</span>
+determined by the constructor to known reference values. The test
+passes if for each case the values are equal to the reference up to a
+tolerance of <span class="math notranslate nohighlight">\(10^{-10}\)</span> which accounts for numerical errors.</p>
+</section>
+<section id="degreestoradians">
+<h2>DegreesToRadians<a class="headerlink" href="#degreestoradians" title="Link to this heading">¶</a></h2>
+<p>The unit test suite <code class="docutils literal notranslate"><span class="pre">degrees-radians</span></code> verifies that the methods
+<code class="docutils literal notranslate"><span class="pre">DegreesToRadians</span></code> and <code class="docutils literal notranslate"><span class="pre">RadiansToDegrees</span></code> work properly by
+comparing with known reference values in a number of test
+cases. Each test case passes if the comparison is equal up to a
+tolerance of <span class="math notranslate nohighlight">\(10^{-10}\)</span> which accounts for numerical errors.</p>
+</section>
+<section id="isotropicantennamodel">
+<h2>IsotropicAntennaModel<a class="headerlink" href="#isotropicantennamodel" title="Link to this heading">¶</a></h2>
+<p>The unit test suite <code class="docutils literal notranslate"><span class="pre">isotropic-antenna-model</span></code> checks that the
+<code class="docutils literal notranslate"><span class="pre">IsotropicAntennaModel</span></code> class works properly, i.e., returns always a
+0dB gain regardless of the direction.</p>
+</section>
+<section id="cosineantennamodel">
+<h2>CosineAntennaModel<a class="headerlink" href="#cosineantennamodel" title="Link to this heading">¶</a></h2>
+<p>The unit test suite <code class="docutils literal notranslate"><span class="pre">cosine-antenna-model</span></code> checks that the
+<code class="docutils literal notranslate"><span class="pre">CosineAntennaModel</span></code> class works properly. Several test cases are
+provided that check for the antenna gain value calculated at different
+directions and for different values of the orientation, the reference
+gain and the beamwidth. The reference gain is calculated by hand. Each
+test case passes if the reference gain in dB is equal to the value returned
+by <code class="docutils literal notranslate"><span class="pre">CosineAntennaModel</span></code> within a tolerance of 0.001, which accounts
+for the approximation done for the calculation of the reference
+values.</p>
+</section>
+<section id="parabolicantennamodel">
+<h2>ParabolicAntennaModel<a class="headerlink" href="#parabolicantennamodel" title="Link to this heading">¶</a></h2>
+<p>The unit test suite <code class="docutils literal notranslate"><span class="pre">parabolic-antenna-model</span></code> checks that the
+<code class="docutils literal notranslate"><span class="pre">ParabolicAntennaModel</span></code> class works properly. Several test cases are
+provided that check for the antenna gain value calculated at different
+directions and for different values of the orientation, the maximum attenuation
+and the beamwidth. The reference gain is calculated by hand. Each
+test case passes if the reference gain in dB is equal to the value returned
+by <code class="docutils literal notranslate"><span class="pre">ParabolicAntennaModel</span></code> within a tolerance of 0.001, which accounts
+for the approximation done for the calculation of the reference
+values.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../../_sources/src/antenna/doc/source/antenna-testing.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

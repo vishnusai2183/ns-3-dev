@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Netmap NetDevice &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="netmap-netdevice">
+<h1>Netmap NetDevice<a class="headerlink" href="#netmap-netdevice" title="Link to this heading">¶</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">fd-net-device</span></code> module provides the <code class="docutils literal notranslate"><span class="pre">NetmapNetDevice</span></code> class, a class derived
+from the <code class="docutils literal notranslate"><span class="pre">FdNetDevice</span></code> which is able to read and write traffic using a netmap file descriptor.
+This netmap file descriptor must be associated to a real ethernet device in the host machine.
+The <code class="docutils literal notranslate"><span class="pre">NetmapNetDeviceHelper</span></code> class supports the configuration of a <code class="docutils literal notranslate"><span class="pre">NetmapNetDevice</span></code>.</p>
+<p>netmap is a fast packet processing capability that bypasses the
+host networking stack and gains direct access to network device.
+netmap was developed by Luigi Rizzo <a class="reference internal" href="#rizzo2012" id="id1"><span>[Rizzo2012]</span></a> and is maintained as
+an open source project on GitHub at <a class="reference external" href="https://github.com/luigirizzo/netmap">https://github.com/luigirizzo/netmap</a>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">NetmapNetDevice</span></code> for <a href="#id3"><span class="problematic" id="id4">|ns3|</span></a> <a class="reference internal" href="#imputato2019" id="id2"><span>[Imputato2019]</span></a> was developed by Pasquale Imputato in the 2017-19 timeframe.  The use of NetmapNetDevice requires that the
+host system has netmap support (and for best performance, the drivers
+must support netmap and must be using a netmap-enabled device driver).  Users
+can expect that emulation support using Netmap will support higher packets
+per second than emulation using FdNetDevice with raw sockets (which pass
+through the Linux networking kernel).</p>
+<div role="list" class="citation-list">
+<div class="citation" id="rizzo2012" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">Rizzo2012</a><span class="fn-bracket">]</span></span>
+<p>Luigi Rizzo, “netmap: A Novel Framework for Fast Packet I/O”, Proceedings of 2012 USENIX Annual Technical Conference, June 2012.</p>
+</div>
+<div class="citation" id="imputato2019" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">Imputato2019</a><span class="fn-bracket">]</span></span>
+<p>Pasquale Imputato, Stefano Avallone, Enhancing the fidelity of network emulation through direct access to device buffers, Journal of Network and Computer Applications, Volume 130, 2019, Pages 63-75, (<a class="reference external" href="http://www.sciencedirect.com/science/article/pii/S1084804519300220">http://www.sciencedirect.com/science/article/pii/S1084804519300220</a>)</p>
+</div>
+</div>
+<section id="model-description">
+<h2>Model Description<a class="headerlink" href="#model-description" title="Link to this heading">¶</a></h2>
+<section id="design">
+<h3>Design<a class="headerlink" href="#design" title="Link to this heading">¶</a></h3>
+<p>Because netmap uses file descriptor based communication to interact with the
+real device, the straightforward approach to design a new <code class="docutils literal notranslate"><span class="pre">NetDevice</span></code> around
+netmap is to have it inherit from the existing <code class="docutils literal notranslate"><span class="pre">FdNetDevice</span></code> and implement
+a specialized version of the operations specific to netmap.
+The operations that require a specialized implementation are the
+initialization, because the NIC has to be put in netmap mode, and the
+read/write methods, which have to make use of the netmap API to coordinate
+the exchange of packets with the netmap rings.</p>
+<p>In the initialization stage, the network device is switched to netmap mode,
+so that <a href="#id5"><span class="problematic" id="id6">|ns3|</span></a> is able to send/receive packets to/from the
+real network device by writing/reading them to/from the netmap rings.
+Following the design of the <code class="docutils literal notranslate"><span class="pre">FdNetDevice</span></code>, a separate reading thread is
+started during the initialization. The task of the reading thread is
+to wait for new incoming packets in the netmap receiver rings, in order
+to schedule the events of packet reception. In
+the initialization of the <code class="docutils literal notranslate"><span class="pre">NetmapNetDevice</span></code>, an additional thread,
+the sync thread, is started. The sync thread is required because, in order
+to reduce the cost of the system calls, netmap does not automatically
+transfer a packet written to a slot of the netmap ring to the transmission
+ring or to the installed qdisc. It is up to the user process to
+periodically request a synchronization of the netmap ring. Therefore,
+the purpose of the sync thread is to periodically make a TXSYNC ioctl
+request, so that pending packets in the netmap ring are transferred to
+the transmission ring, if in native mode, or to the installed qdisc, if in
+generic mode. Also, as described further below, the
+sync thread is exploited to perform flow control and notify the BQL library
+about the
+amount of bytes that have been transferred to the network device.</p>
+<p>The read method is called by the reading thread to retrieve new incoming
+packets stored in the netmap receiver ring and pass them to the appropriate
+<a href="#id7"><span class="problematic" id="id8">|ns3|</span></a> protocol handler for further processing within the simulator’s network
+stack. After retrieving packets, the reading thread also synchronizes
+the netmap receiver ring, so that the retrieved packets can be removed
+from the netmap receiver ring.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">NetmapNetDevice</span></code> also specializes the write method, i.e., the method
+used to transmit a packet received from the upper layer (the <a href="#id9"><span class="problematic" id="id10">|ns3|</span></a> traffic
+control layer).  The write method uses the netmap API to write the packet to a
+free slot in the netmap
+transmission ring. After writing a packet, the write method checks whether
+there is enough room in the netmap transmission ring for another packet.
+If not, the <code class="docutils literal notranslate"><span class="pre">NetmapNetDevice</span></code> stops its queue so that the <a href="#id11"><span class="problematic" id="id12">|ns3|</span></a> traffic
+control layer does not attempt to send a packet that could not be stored in
+the netmap transmission ring.</p>
+<p>A stopped <code class="docutils literal notranslate"><span class="pre">NetmapNetDevice</span></code> queue needs to be restarted as soon as some
+room is made in the netmap transmission ring. The sync thread can be exploited
+for this purpose, given that it periodically synchronizes the netmap
+transmission ring. In particular, the sync thread also checks the number of
+free slots in the netmap transmission ring in case the <code class="docutils literal notranslate"><span class="pre">NetmapNetDevice</span></code>
+queue is stopped.  If the number of free slots exceeds a configurable value,
+the sync thread restarts the <code class="docutils literal notranslate"><span class="pre">NetmapNetDevice</span></code>
+queue and wakes the associated <a href="#id13"><span class="problematic" id="id14">|ns3|</span></a> qdisc. The NetmapNetDevice also supports
+BQL: the write method notifies the BQL library of the amount of bytes that
+have been written to the netmap transmission ring, while the sync thread
+notifies the BQL library of the amount of bytes that have been removed from
+the netmap transmission ring and transferred to the NIC since the previous
+notification.</p>
+</section>
+<section id="scope-and-limitations">
+<h3>Scope and Limitations<a class="headerlink" href="#scope-and-limitations" title="Link to this heading">¶</a></h3>
+<p>The main scope of <code class="docutils literal notranslate"><span class="pre">NetmapNetDevice</span></code> is to support the flow-control between
+the physical device and the upper layer and using at best the computational
+resources to process packets.  However, the (Linux) system and network
+device must support netmap to make use of this feature.</p>
+</section>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<p>The installation of netmap itself on a host machine is out of scope for
+this document.  Refer to the <a class="reference external" href="https://github.com/luigirizzo/netmap">netmap GitHub README</a> for instructions.</p>
+<p>The <a href="#id15"><span class="problematic" id="id16">|ns3|</span></a> netmap code has only been tested on Linux; it is not clear whether
+other operating systems can be supported.</p>
+<p>If <a href="#id17"><span class="problematic" id="id18">|ns3|</span></a> is able to detect the presence of netmap on the system, it will
+report that:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Netmap emulation FdNetDevice  : not enabled
+</pre></div>
+</div>
+<p>If not, it will report:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Netmap emulation FdNetDevice  : not enabled (needs net/netmap_user.h)
+</pre></div>
+</div>
+<p>To run FdNetDevice-enabled simulations, one must pass the <code class="docutils literal notranslate"><span class="pre">--enable-sudo</span></code>
+option to <code class="docutils literal notranslate"><span class="pre">./ns3</span> <span class="pre">configure</span></code>, or else run the simulations with root
+privileges.</p>
+<section id="helpers">
+<h3>Helpers<a class="headerlink" href="#helpers" title="Link to this heading">¶</a></h3>
+<p><a href="#id19"><span class="problematic" id="id20">|ns3|</span></a> netmap support uses a <code class="docutils literal notranslate"><span class="pre">NetMapNetDeviceHelper</span></code> helper object to
+install the <code class="docutils literal notranslate"><span class="pre">NetmapNetDevice</span></code>.  In other respects, the API and use is similar
+to that of the <code class="docutils literal notranslate"><span class="pre">EmuFdNetDeviceHelper</span></code>.</p>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h3>
+<p>There is one attribute specialized to <code class="docutils literal notranslate"><span class="pre">NetmapNetDevice</span></code>, named
+<code class="docutils literal notranslate"><span class="pre">SyncAndNotifyQueuePeriod</span></code>.  This value takes an integer number of
+microseconds, and is used as the period of time after which the device
+syncs the netmap ring and notifies queue status.  The value should be
+close to the interrupt coalescence period of the real device.  Users
+may want to tune this parameter for their own system; it should be
+a compromise between CPU usage and accuracy in the ring sync (if it is
+too high, the device goes into starvation and lower throughput occurs).</p>
+</section>
+<section id="output">
+<h3>Output<a class="headerlink" href="#output" title="Link to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">NetmapNetDevice</span></code> does not provide any specialized output, but
+supports the <code class="docutils literal notranslate"><span class="pre">FdNetDevice</span></code> output and traces (such as a promiscuous sniffer
+trace).</p>
+</section>
+<section id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h3>
+<p>Several examples are provided:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">fd-emu-onoff.cc</span></code>: This example is aimed at measuring the throughput of the
+<code class="docutils literal notranslate"><span class="pre">NetmapNetDevice</span></code> when using the <code class="docutils literal notranslate"><span class="pre">NetmapNetDeviceHelper</span></code> to attach the
+simulated device to a real device in the host machine. This is achieved
+by saturating the channel with TCP or UDP traffic.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fd-emu-ping.cc</span></code>: This example uses the <code class="docutils literal notranslate"><span class="pre">NetmapNetDevice</span></code> to send ICMP
+traffic over a real device.</p></li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">fd-emu-tc.cc</span></code>: This example configures a router on a machine with two</dt><dd><p>interfaces in emulated mode through netmap. The aim is to explore different
+qdiscs behaviours on the backlog of a device emulated bottleneck side.</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fd-emu-send.cc</span></code>: This example builds a node with a device in
+emulation mode through netmap.  The aim is to measure the maximum transmit
+rate in packets per second (pps) achievable with <code class="docutils literal notranslate"><span class="pre">NetmapNetDevice</span></code> on
+a specific machine.</p></li>
+</ul>
+<p>Note that all the examples run in emulation mode through netmap (with
+<code class="docutils literal notranslate"><span class="pre">NetmapNetDevice</span></code>) and raw socket (with <code class="docutils literal notranslate"><span class="pre">FdNetDevice</span></code>).</p>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/src/fd-net-device/doc/netmap-net-device.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

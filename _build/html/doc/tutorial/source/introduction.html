@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>2. Introduction &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="introduction">
+<span id="id1"></span><h1><span class="section-number">2. </span>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">¶</a></h1>
+<p>The <em>ns-3</em> simulator is a discrete-event network simulator targeted
+primarily for research and educational use.  The
+<a class="reference external" href="http://www.nsnam.org">ns-3 project</a>,
+started in 2006, is an open-source project developing <em>ns-3</em>.</p>
+<p>The purpose of this tutorial is to introduce new <em>ns-3</em> users to the
+system in a structured way.  It is sometimes difficult for new users to
+glean essential information from detailed manuals and to convert this
+information into working simulations.  In this tutorial, we will build
+several example simulations, introducing and explaining key concepts and
+features as we go.</p>
+<p>As the tutorial unfolds, we will introduce the full <em>ns-3</em> documentation
+and provide pointers to source code for those interested in delving deeper
+into the workings of the system.</p>
+<p>We also provide a quick start guide for those who are comfortable
+diving right in without too much documentation.</p>
+<p>A few key points are worth noting at the onset:</p>
+<ul class="simple">
+<li><p><em>ns-3</em> is open-source, and the project strives to maintain an
+open environment for researchers to contribute and share their software.</p></li>
+<li><p><em>ns-3</em> is not a backwards-compatible extension of <a class="reference external" href="http://www.isi.edu/nsnam/ns">ns-2</a>;
+it is a new simulator.  The two simulators are both written in C++ but
+<em>ns-3</em> is a new simulator that does not support the <em>ns-2</em> APIs.</p></li>
+</ul>
+<section id="about-ns-3">
+<h2><span class="section-number">2.1. </span>About ns-3<a class="headerlink" href="#about-ns-3" title="Link to this heading">¶</a></h2>
+<p><em>ns-3</em> has been developed to provide an open, extensible network simulation
+platform, for networking research and education.  In brief, <em>ns-3</em> provides
+models of how packet data networks work and perform, and provides a
+simulation engine for users to conduct simulation experiments.  Some of the
+reasons to use <em>ns-3</em> include to perform studies that are more difficult
+or not possible to perform with real systems, to study system behavior in
+a highly controlled, reproducible environment, and to learn about how
+networks work.  Users will note that the available model set in <em>ns-3</em>
+focuses on modeling how Internet protocols and networks work, but
+<em>ns-3</em> is not limited to Internet systems; several users are using
+<em>ns-3</em> to model non-Internet-based systems.</p>
+<p>Many simulation tools exist for network simulation studies.  Below are
+a few distinguishing features of <em>ns-3</em> in contrast to other tools.</p>
+<ul class="simple">
+<li><p><em>ns-3</em> is designed as a set of libraries that can be combined together
+and also with other external software libraries.  While some simulation
+platforms provide users with a single, integrated graphical user
+interface environment in which all tasks are carried out, <em>ns-3</em> is
+more modular in this regard.  Several external animators and
+data analysis and visualization tools can be used with <em>ns-3</em>.  However,
+users should expect to work at the command line and with C++ and/or
+Python software development tools.</p></li>
+<li><p><em>ns-3</em> is primarily used on Linux or macOS systems, although support exists
+for BSD systems and also for Windows frameworks that can build Linux code,
+such as Windows Subsystem for Linux, or Cygwin.  Native Windows
+Visual Studio is not presently supported although a developer is working
+on future support.  Windows users may also use a Linux virtual machine.</p></li>
+<li><p><em>ns-3</em> is not an officially supported software product of any company.
+Support for <em>ns-3</em> is done on a best-effort basis on the
+ns-3-users forum (<a class="reference external" href="mailto:ns-3-users&#37;&#52;&#48;googlegroups&#46;com">ns-3-users<span>&#64;</span>googlegroups<span>&#46;</span>com</a>).</p></li>
+</ul>
+</section>
+<section id="for-ns-2-users">
+<h2><span class="section-number">2.2. </span>For ns-2 Users<a class="headerlink" href="#for-ns-2-users" title="Link to this heading">¶</a></h2>
+<p>For those familiar with <em>ns-2</em> (a popular tool that preceded <em>ns-3</em>),
+the most visible outward change when moving to
+<em>ns-3</em> is the choice of scripting language.  Programs in <em>ns-2</em> are
+scripted in OTcl and results of simulations can be visualized using the
+Network Animator nam.  It is not possible to run a simulation
+in <em>ns-2</em> purely from C++ (i.e., as a main() program without any OTcl).
+Moreover, some components of <em>ns-2</em> are written in C++ and others in OTcl.
+In <em>ns-3</em>, the simulator is written entirely in C++, with optional
+Python bindings.  Simulation scripts can therefore be written in C++
+or in Python.  New animators and visualizers are available and under
+current development.  Since <em>ns-3</em>
+generates pcap packet trace files, other utilities can be used to
+analyze traces as well.
+In this tutorial, we will first concentrate on scripting
+directly in C++ and interpreting results via trace files.</p>
+<p>But there are similarities as well (both, for example, are based on C++
+objects, and some code from <em>ns-2</em> has already been ported to <em>ns-3</em>).
+We will try to highlight differences between <em>ns-2</em> and <em>ns-3</em>
+as we proceed in this tutorial.</p>
+<p>A question that we often hear is “Should I still use <em>ns-2</em> or move to
+<em>ns-3</em>?”  In this author’s opinion, unless the user is somehow vested
+in <em>ns-2</em> (either based on existing personal comfort with and knowledge
+of <em>ns-2</em>, or based on a specific simulation model that is only available
+in <em>ns-2</em>), a user will be more productive with <em>ns-3</em> for the following
+reasons:</p>
+<ul class="simple">
+<li><p><em>ns-3</em> is actively maintained with an active, responsive users mailing
+list, while <em>ns-2</em> is only lightly maintained and has not seen
+significant development in its main code tree for over a decade.</p></li>
+<li><p><em>ns-3</em> provides features not available in <em>ns-2</em>, such as a implementation
+code execution environment (allowing users to run real implementation
+code in the simulator)</p></li>
+<li><p><em>ns-3</em> provides a lower base level of abstraction compared with <em>ns-2</em>,
+allowing it to align better with how real systems are put together.
+Some limitations found in <em>ns-2</em> (such as supporting multiple types of
+interfaces on nodes correctly) have been remedied in <em>ns-3</em>.</p></li>
+</ul>
+<p>If in doubt, a good guideline would be to look at both simulators (as
+well as other simulators), and in particular the models available
+for your research, but keep in mind that your experience may be better
+in using the tool that is being actively developed and
+maintained (<em>ns-3</em>).</p>
+</section>
+<section id="contributing">
+<h2><span class="section-number">2.3. </span>Contributing<a class="headerlink" href="#contributing" title="Link to this heading">¶</a></h2>
+<p><em>ns-3</em> is a research and educational simulator, by and for the
+research community.  It will rely on the ongoing contributions of the
+community to develop new models, debug or maintain existing ones, and share
+results.  There are a few policies that we hope will encourage people to
+contribute to <em>ns-3</em> like they have for <em>ns-2</em>:</p>
+<ul class="simple">
+<li><p>Open source licensing based on GNU GPLv2 compatibility</p></li>
+<li><p>An <a class="reference external" href="https://apps.nsnam.org">app store</a></p></li>
+<li><p><a class="reference external" href="https://www.nsnam.org/wiki/Contributed_Code">Contributed Code</a> page, similar to <em>ns-2</em>’s popular Contributed Code
+<a class="reference external" href="http://nsnam.isi.edu/nsnam/index.php/Contributed_Code">page</a></p></li>
+<li><p>Documentation on <a class="reference external" href="https://www.nsnam.org/docs/contributing/html/index.html">how to contribute</a></p></li>
+<li><p>Use of Git hosting at GitLab.com including <a class="reference external" href="https://www.gitlab.com/nsnam">issue tracker</a></p></li>
+</ul>
+<p>We realize that if you are reading this document, contributing back to
+the project is probably not your foremost concern at this point, but
+we want you to be aware that contributing is in the spirit of the project and
+that even the act of dropping us a note about your early experience
+with <em>ns-3</em> (e.g. “this tutorial section was not clear…”),
+reports of stale documentation or comments in the code, etc. are much
+appreciated.  The preferred way to submit patches is either to fork
+our project on GitLab.com and generate a Merge Request, or to open
+an issue on our issue tracker and append a patch.</p>
+</section>
+<section id="tutorial-organization">
+<h2><span class="section-number">2.4. </span>Tutorial Organization<a class="headerlink" href="#tutorial-organization" title="Link to this heading">¶</a></h2>
+<p>The tutorial assumes that new users might initially follow a path such as the
+following:</p>
+<ul class="simple">
+<li><p>Try to download and build a copy;</p></li>
+<li><p>Try to run a few sample programs;</p></li>
+<li><p>Look at simulation output, and try to adjust it.</p></li>
+</ul>
+<p>As a result, we have tried to organize the tutorial along the above
+broad sequences of events.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/doc/tutorial/source/introduction.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

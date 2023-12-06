@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ns-3 Installation Guide &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="ns-3-installation-guide">
+<h1>ns-3 Installation Guide<a class="headerlink" href="#ns-3-installation-guide" title="Link to this heading">¶</a></h1>
+<p>This is the <em>ns-3 Installation Guide</em>. Primary documentation for the ns-3 project is organized as
+follows:</p>
+<ul class="simple">
+<li><p>Several guides that are version controlled for each release (the
+<a class="reference external" href="https://www.nsnam.org/documentation/latest/">latest release</a>) and
+<a class="reference external" href="https://www.nsnam.org/documentation/development-tree/">development tree</a>:</p>
+<ul>
+<li><p>Tutorial</p></li>
+<li><p>Installation Guide <em>(this document)</em></p></li>
+<li><p>Manual</p></li>
+<li><p>Model Library</p></li>
+<li><p>Contributing Guide</p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="https://www.nsnam.org/docs/doxygen/index.html">ns-3 Doxygen</a>: Documentation of the public APIs of
+the simulator</p></li>
+<li><p><a class="reference external" href="https://www.nsnam.org/wiki/Main_Page">ns-3 wiki</a></p></li>
+</ul>
+<p>This document is written in <a class="reference external" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a>
+for <a class="reference external" href="https://www.sphinx-doc.org/">Sphinx</a> and is maintained in the <code class="docutils literal notranslate"><span class="pre">doc/installation</span></code> directory of ns-3’s source code.  Source file column width is 100 columns.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">1. Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#software-organization">1.1. Software organization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#document-organization">1.2. Document organization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quick-start.html">2. Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quick-start.html#prerequisites">2.1. Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick-start.html#download">2.2. Download</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick-start.html#building-and-testing-ns-3">2.3. Building and testing ns-3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick-start.html#installing-ns-3">2.4. Installing ns-3</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="system.html">3. System Prerequisites</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="system.html#requirements">3.1. Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="system.html#recommended">3.2. Recommended</a></li>
+<li class="toctree-l2"><a class="reference internal" href="system.html#optional">3.3. Optional</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="linux.html">4. Linux</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="linux.html#requirements">4.1. Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="linux.html#recommended">4.2. Recommended</a></li>
+<li class="toctree-l2"><a class="reference internal" href="linux.html#optional">4.3. Optional</a></li>
+<li class="toctree-l2"><a class="reference internal" href="linux.html#caveats-and-troubleshooting">4.4. Caveats and troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="macos.html">5. macOS</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="macos.html#requirements">5.1. Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="macos.html#recommended">5.2. Recommended</a></li>
+<li class="toctree-l2"><a class="reference internal" href="macos.html#optional">5.3. Optional</a></li>
+<li class="toctree-l2"><a class="reference internal" href="macos.html#caveats-and-troubleshooting">5.4. Caveats and troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="windows.html">6. Windows</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="windows.html#windows-subsystem-for-linux">6.1. Windows Subsystem for Linux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="windows.html#windows-10-package-prerequisites">6.2. Windows 10 package prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="windows.html#windows-10-docker-container">6.3. Windows 10 Docker container</a></li>
+<li class="toctree-l2"><a class="reference internal" href="windows.html#windows-10-vagrant">6.4. Windows 10 Vagrant</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bake.html">7. Installing Bake</a></li>
+</ul>
+</div>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/doc/installation/source/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

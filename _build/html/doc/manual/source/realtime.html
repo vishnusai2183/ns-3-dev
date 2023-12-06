@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>2.6. RealTime &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="realtime">
+<h1><span class="section-number">2.6. </span>RealTime<a class="headerlink" href="#realtime" title="Link to this heading">¶</a></h1>
+<p><em>ns-3</em> has been designed for integration into testbed and virtual machine
+environments. To integrate with real network stacks and emit/consume packets, a
+real-time scheduler is needed to try to lock the simulation clock with the
+hardware clock. We describe here a component of this: the RealTime scheduler.</p>
+<p>The purpose of the realtime scheduler is to cause the progression of the
+simulation clock to occur synchronously with respect to some external time base.
+Without the presence of an external time base (wall clock), simulation time
+jumps instantly from one simulated time to the next.</p>
+<section id="behavior">
+<h2><span class="section-number">2.6.1. </span>Behavior<a class="headerlink" href="#behavior" title="Link to this heading">¶</a></h2>
+<p>When using a non-realtime scheduler (the default in <em>ns-3</em>), the simulator
+advances the simulation time to the next scheduled event. During event
+execution, simulation time is frozen. With the realtime scheduler, the behavior
+is similar from the perspective of simulation models (i.e., simulation time is
+frozen during event execution), but between events, the simulator will attempt
+to keep the simulation clock aligned with the machine clock.</p>
+<p>When an event is finished executing, and the scheduler moves to the next event,
+the scheduler compares the next event execution time with the machine clock.  If
+the next event is scheduled for a future time, the simulator sleeps until that
+realtime is reached and then executes the next event.</p>
+<p>It may happen that, due to the processing inherent in the execution of
+simulation events, that the simulator cannot keep up with realtime.  In such a
+case, it is up to the user configuration what to do. There are two <em>ns-3</em>
+attributes that govern the behavior. The first is
+<code class="docutils literal notranslate"><span class="pre">ns3::RealTimeSimulatorImpl::SynchronizationMode</span></code>. The two entries possible
+for this attribute are <code class="docutils literal notranslate"><span class="pre">BestEffort</span></code> (the default) or <code class="docutils literal notranslate"><span class="pre">HardLimit</span></code>. In
+“BestEffort” mode, the simulator will just try to catch up to realtime by
+executing events until it reaches a point where the next event is in the
+(realtime) future, or else the simulation ends. In BestEffort mode, then, it is
+possible for the simulation to consume more time than the wall clock time. The
+other option “HardLimit” will cause the simulation to abort if the tolerance
+threshold is exceeded.  This attribute is
+<code class="docutils literal notranslate"><span class="pre">ns3::RealTimeSimulatorImpl::HardLimit</span></code> and the default is 0.1 seconds.</p>
+<p>A different mode of operation is one in which simulated time is <strong>not</strong> frozen
+during an event execution. This mode of realtime simulation was implemented but
+removed from the <em>ns-3</em> tree because of questions of whether it would be useful.
+If users are interested in a realtime simulator for which simulation time does
+not freeze during event execution (i.e., every call to <code class="docutils literal notranslate"><span class="pre">Simulator::Now()</span></code>
+returns the current wall clock time, not the time at which the event started
+executing), please contact the ns-developers mailing list.</p>
+</section>
+<section id="usage">
+<h2><span class="section-number">2.6.2. </span>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<p>The usage of the realtime simulator is straightforward, from a scripting
+perspective.  Users just need to set the attribute
+<code class="docutils literal notranslate"><span class="pre">SimulatorImplementationType</span></code> to the Realtime simulator, such as follows:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">GlobalValue</span><span class="o">::</span><span class="n">Bind</span><span class="p">(</span><span class="s">&quot;SimulatorImplementationType&quot;</span><span class="p">,</span>
+<span class="w">                  </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;ns3::RealtimeSimulatorImpl&quot;</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>There is a script in <code class="docutils literal notranslate"><span class="pre">examples/realtime/realtime-udp-echo.cc</span></code> that
+has an example of how to configure the realtime behavior.  Try:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./ns3<span class="w"> </span>run<span class="w"> </span>realtime-udp-echo
+</pre></div>
+</div>
+<p>Whether the simulator will work in a best effort or hard limit policy fashion is
+governed by the attributes explained in the previous section.</p>
+</section>
+<section id="implementation">
+<h2><span class="section-number">2.6.3. </span>Implementation<a class="headerlink" href="#implementation" title="Link to this heading">¶</a></h2>
+<p>The implementation is contained in the following files:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">src/core/model/realtime-simulator-impl.{cc,h}</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/core/model/wall-clock-synchronizer.{cc,h}</span></code></p></li>
+</ul>
+<p>In order to create a realtime scheduler, to a first approximation you just want
+to cause simulation time jumps to consume real time. We propose doing this using
+a combination of sleep- and busy- waits. Sleep-waits cause the calling process
+(thread) to yield the processor for some amount of time. Even though this
+specified amount of time can be passed to nanosecond resolution, it is actually
+converted to an OS-specific granularity. In Linux, the granularity is called a
+Jiffy. Typically this resolution is insufficient for our needs (on the order of
+a ten milliseconds), so we round down and sleep for some smaller number of
+Jiffies. The process is then awakened after the specified number of Jiffies has
+passed. At this time, we have some residual time to wait. This time is generally
+smaller than the minimum sleep time, so we busy-wait for the remainder of the
+time. This means that the thread just sits in a for loop consuming cycles until
+the desired time arrives. After the combination of sleep- and busy-waits, the
+elapsed realtime (wall) clock should agree with the simulation time of the next
+event and the simulation proceeds.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/doc/manual/source/realtime.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

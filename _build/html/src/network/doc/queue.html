@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Queues &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="queues">
+<h1>Queues<a class="headerlink" href="#queues" title="Link to this heading">¶</a></h1>
+<p>This section documents the queue object, which is typically used by NetDevices
+and QueueDiscs to store packets.</p>
+<p>Packets stored in a queue can be managed according to different policies.
+Currently, only the DropTail policy is available.</p>
+<section id="model-description">
+<h2>Model Description<a class="headerlink" href="#model-description" title="Link to this heading">¶</a></h2>
+<p>The source code for the new module lives in the directory <code class="docutils literal notranslate"><span class="pre">src/network/utils</span></code>.</p>
+<p>ns3::Queue has been redesigned as a template class object to allow us to
+instantiate queues storing different types of items. The unique template
+type parameter specifies the type of items stored in the queue.
+The only requirement on the item type is that it must provide a GetSize ()
+method which returns the size of the packet included in the item.
+Currently, queue items can be objects of the following classes:</p>
+<ul class="simple">
+<li><p>Packet</p></li>
+<li><p>QueueItem and subclasses (e.g., QueueDiscItem)</p></li>
+<li><p>WifiMacQueueItem</p></li>
+</ul>
+<p>The internal queues of the queue discs are of type Queue&lt;QueueDiscItem&gt;
+(an alias of which being InternalQueue). A number of network devices
+(SimpleNetDevice, PointToPointNetDevice, CsmaNetDevice) use a Queue&lt;Packet&gt;
+to store packets to be transmitted. WifiNetDevices use instead queues of
+type WifiMacQueue, which is a subclass of Queue storing objects of
+type WifiMacQueueItem. Other devices, such as WiMax and LTE, use specialized
+queues.</p>
+<section id="design">
+<h3>Design<a class="headerlink" href="#design" title="Link to this heading">¶</a></h3>
+<p>The Queue class derives from the QueueBase class, which is a non-template
+class providing all the methods that are independent of the type of the items
+stored in the queue. The Queue class provides instead all the operations that
+depend on the item type, such as enqueue, dequeue, peek and remove. The Queue
+class also provides the ability to trace certain queue operations such as
+enqueuing, dequeuing, and dropping.</p>
+<p>Queue is an abstract base class and is subclassed for specific scheduling and
+drop policies. Subclasses need to define the following public methods:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bool</span> <span class="pre">Enqueue</span> <span class="pre">(Ptr&lt;Item&gt;</span> <span class="pre">item)</span></code>:  Enqueue a packet</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Ptr&lt;Item&gt;</span> <span class="pre">Dequeue</span> <span class="pre">()</span></code>:  Dequeue a packet</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Ptr&lt;Item&gt;</span> <span class="pre">Remove</span> <span class="pre">()</span></code>:  Remove a packet</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Ptr&lt;const</span> <span class="pre">Item&gt;</span> <span class="pre">Peek</span> <span class="pre">()</span></code>:  Peek a packet</p></li>
+</ul>
+<p>The Enqueue method does not allow to store a packet if the queue capacity is exceeded.
+Subclasses may also define specialized public methods. For instance, the
+WifiMacQueue class provides a method to dequeue a packet based on its tid
+and MAC address.</p>
+<p>There are five trace sources that may be hooked:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Enqueue</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Dequeue</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Drop</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DropBeforeEnqueue</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DropAfterDequeue</span></code></p></li>
+</ul>
+<p>Also, the QueueBase class defines two additional trace sources:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">PacketsInQueue</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BytesInQueue</span></code></p></li>
+</ul>
+<section id="droptail">
+<h4>DropTail<a class="headerlink" href="#droptail" title="Link to this heading">¶</a></h4>
+<p>This is a basic first-in-first-out (FIFO) queue that performs a tail drop
+when the queue is full.</p>
+<p>The DropTailQueue class defines one attribute:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MaxSize</span></code>: the maximum queue size</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<section id="helpers">
+<h3>Helpers<a class="headerlink" href="#helpers" title="Link to this heading">¶</a></h3>
+<p>A typical usage pattern is to create a device helper and to configure
+the queue type and attributes from the helper, such as this example:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">PointToPointHelper</span><span class="w"> </span><span class="n">p2p</span><span class="p">;</span>
+
+<span class="n">p2p</span><span class="p">.</span><span class="n">SetQueue</span><span class="p">(</span><span class="s">&quot;ns3::DropTailQueue&quot;</span><span class="p">);</span>
+<span class="n">p2p</span><span class="p">.</span><span class="n">SetDeviceAttribute</span><span class="p">(</span><span class="s">&quot;DataRate&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;10Mbps&quot;</span><span class="p">));</span>
+<span class="n">p2p</span><span class="p">.</span><span class="n">SetChannelAttribute</span><span class="p">(</span><span class="s">&quot;Delay&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;2ms&quot;</span><span class="p">));</span>
+<span class="n">NetDeviceContainer</span><span class="w"> </span><span class="n">devn0n2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p2p</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">n0n2</span><span class="p">);</span>
+
+<span class="n">p2p</span><span class="p">.</span><span class="n">SetQueue</span><span class="p">(</span><span class="s">&quot;ns3::DropTailQueue&quot;</span><span class="p">);</span>
+<span class="n">p2p</span><span class="p">.</span><span class="n">SetDeviceAttribute</span><span class="p">(</span><span class="s">&quot;DataRate&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;10Mbps&quot;</span><span class="p">));</span>
+<span class="n">p2p</span><span class="p">.</span><span class="n">SetChannelAttribute</span><span class="p">(</span><span class="s">&quot;Delay&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;3ms&quot;</span><span class="p">));</span>
+<span class="n">NetDeviceContainer</span><span class="w"> </span><span class="n">devn1n2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p2p</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">n1n2</span><span class="p">);</span>
+
+<span class="n">p2p</span><span class="p">.</span><span class="n">SetQueue</span><span class="p">(</span><span class="s">&quot;ns3::DropTailQueue&quot;</span><span class="p">,</span>
+<span class="w">             </span><span class="s">&quot;MaxSize&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;50p&quot;</span><span class="p">));</span>
+<span class="n">p2p</span><span class="p">.</span><span class="n">SetDeviceAttribute</span><span class="p">(</span><span class="s">&quot;DataRate&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="n">linkDataRate</span><span class="p">));</span>
+<span class="n">p2p</span><span class="p">.</span><span class="n">SetChannelAttribute</span><span class="p">(</span><span class="s">&quot;Delay&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="n">linkDelay</span><span class="p">));</span>
+<span class="n">NetDeviceContainer</span><span class="w"> </span><span class="n">devn2n3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p2p</span><span class="p">.</span><span class="n">Install</span><span class="p">(</span><span class="n">n2n3</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Please note that the SetQueue method of the PointToPointHelper class allows
+to specify “ns3::DropTailQueue” instead of “ns3::DropTailQueue&lt;Packet&gt;”. The
+same holds for CsmaHelper, SimpleNetDeviceHelper and TrafficControlHelper.</p>
+</section>
+<section id="output">
+<h3>Output<a class="headerlink" href="#output" title="Link to this heading">¶</a></h3>
+<p>The ns-3 ascii trace helpers used by many of the NetDevices will hook
+the Enqueue, Dequeue, and Drop traces of these queues and print out
+trace statements, such as the following from <code class="docutils literal notranslate"><span class="pre">examples/udp/udp-echo.cc</span></code>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>+ 2 /NodeList/0/DeviceList/1/$ns3::CsmaNetDevice/TxQueue/Enqueue ns3::EthernetHeader
+( length/type=0x806, source=00:00:00:00:00:01, destination=ff:ff:ff:ff:ff:ff)
+ns3::ArpHeader (request source mac: 00-06-00:00:00:00:00:01 source ipv4: 10.1.1.1
+dest ipv4: 10.1.1.2) Payload (size=18) ns3::EthernetTrailer (fcs=0)
+- 2 /NodeList/0/DeviceList/1/$ns3::CsmaNetDevice/TxQueue/Dequeue ns3::EthernetHeader
+( length/type=0x806, source=00:00:00:00:00:01, destination=ff:ff:ff:ff:ff:ff)
+ns3::ArpHeader (request source mac: 00-06-00:00:00:00:00:01 source ipv4: 10.1.1.1
+dest ipv4: 10.1.1.2) Payload (size=18) ns3::EthernetTrailer (fcs=0)
+</pre></div>
+</div>
+<p>which shows an enqueue “+” and dequeue “-” event at time 2 seconds.</p>
+<p>Users are, of course, free to define and hook their own trace sinks to
+these trace sources.</p>
+</section>
+<section id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h3>
+<p>The drop-tail queue is used in several examples, such as
+<code class="docutils literal notranslate"><span class="pre">examples/udp/udp-echo.cc</span></code>.</p>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/src/network/doc/queue.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Error Model &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="error-model">
+<h1>Error Model<a class="headerlink" href="#error-model" title="Link to this heading">¶</a></h1>
+<p>This section documents a few error model objects, typically associated with
+NetDevice models, that are maintained as part of the <code class="docutils literal notranslate"><span class="pre">network</span></code> module:</p>
+<ul class="simple">
+<li><p>RateErrorModel</p></li>
+<li><p>ListErrorModel</p></li>
+<li><p>ReceiveListErrorModel</p></li>
+<li><p>BurstErrorModel</p></li>
+</ul>
+<p>Error models are used to indicate that a packet should be considered to
+be errored, according to the underlying (possibly stochastic or
+empirical) error model.</p>
+<section id="model-description">
+<h2>Model Description<a class="headerlink" href="#model-description" title="Link to this heading">¶</a></h2>
+<p>The source code for error models live in the directory <code class="docutils literal notranslate"><span class="pre">src/packet/utils</span></code>.</p>
+<p>Two types of error models are generally provided.  The first are stochastic
+models.  In this case, packets are errored according to underlying
+random variable distributions.  An example of this is the <code class="docutils literal notranslate"><span class="pre">RateErrorModel</span></code>.
+The other type of model is a deterministic or empirical model, in which
+packets are errored according to a particular prescribed pattern.
+An example is the <code class="docutils literal notranslate"><span class="pre">ListErrorModel</span></code> that allows users to specify
+the list of packets to be errored, by listing the specific packet UIDs.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">ns3::RateErrorModel</span></code> errors packets according to an underlying
+random variable distribution, which is by default a UniformRandomVariable
+distributed between 0.0 and 1.0.  The error rate and error units (bit,
+byte, or packet) are set by the user.  For instance, by setting ErrorRate
+to 0.1 and ErrorUnit to “Packet”, in the long run, around 10% of the
+packets will be lost.</p>
+<section id="design">
+<h3>Design<a class="headerlink" href="#design" title="Link to this heading">¶</a></h3>
+<p>Error models are <a href="#id1"><span class="problematic" id="id2">|ns3|</span></a> objects and can be created using the typical
+pattern of <code class="docutils literal notranslate"><span class="pre">CreateObject&lt;&gt;()</span></code>.  They have configuration attributes.</p>
+<p>An ErrorModel can be applied anywhere, but are commonly deployed on
+NetDevice models so that artificial losses (mimicking channel losses)
+can be induced.</p>
+</section>
+<section id="scope-and-limitations">
+<h3>Scope and Limitations<a class="headerlink" href="#scope-and-limitations" title="Link to this heading">¶</a></h3>
+<p>No known limitations.  There are no existing models that try to modify
+the packet contents (e.g. apply bit or byte errors to the byte buffers).
+This type of operation will likely be performance-expensive, and existing
+Packet APIs may not easily support it.</p>
+<p>The <a href="#id3"><span class="problematic" id="id4">|ns3|</span></a> spectrum model and devices that derive from it (e.g. LTE) have
+their own error model base class, found in</p>
+</section>
+<section id="references">
+<h3>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h3>
+<p>The initial <a href="#id5"><span class="problematic" id="id6">|ns3|</span></a> error models were ported from ns-2 (queue/errmodel.{cc,h})</p>
+</section>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<p>The base class API is as follows:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bool</span> <span class="pre">ErrorModel::IsCorrupt</span> <span class="pre">(Ptr&lt;Packet&gt;</span> <span class="pre">pkt)</span></code>:  Evaluate the packet and
+return true or false whether the packet should be considered errored or not.
+Some models could potentially alter the contents of the packet bit buffer.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">ErrorModel::Reset</span> <span class="pre">()</span></code>:  Reset any state.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">ErrorModel::Enable</span> <span class="pre">()</span></code>:  Enable the model</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">ErrorModel::Disable</span> <span class="pre">()</span></code>:  Disable the model; IsCorrupt() will
+always return false.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bool</span> <span class="pre">ErrorModel::IsEnabled</span> <span class="pre">()</span> <span class="pre">const</span></code>:  Return the enabled state</p></li>
+</ul>
+<p>Many <a href="#id7"><span class="problematic" id="id8">|ns3|</span></a> NetDevices contain attributes holding pointers to error
+models.  The error model is applied in the notional physical layer
+processing chain of the device, and drops should show up on the <code class="docutils literal notranslate"><span class="pre">PhyRxDrop</span></code>
+trace source of the device.  The following are known to include an attribute
+with a pointer available to hold this type of error model:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">SimpleNetDevice</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PointToPointNetDevice</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CsmaNetDevice</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">VirtualNetDevice</span></code></p></li>
+</ul>
+<p>However, the ErrorModel could be used anywhere where packets are used</p>
+<section id="helpers">
+<h3>Helpers<a class="headerlink" href="#helpers" title="Link to this heading">¶</a></h3>
+<p>This model is typically not used with helpers.</p>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">RateErrorModel</span></code> contains the following attributes:</p>
+</section>
+<section id="output">
+<h3>Output<a class="headerlink" href="#output" title="Link to this heading">¶</a></h3>
+<p>What kind of data does the model generate?  What are the key trace
+sources?   What kind of logging output can be enabled?</p>
+</section>
+<section id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h3>
+<p>Error models are used in the tutorial <code class="docutils literal notranslate"><span class="pre">fifth</span></code> and <code class="docutils literal notranslate"><span class="pre">sixth</span></code> programs.</p>
+<p>The directory <code class="docutils literal notranslate"><span class="pre">examples/error-model/</span></code> contains an example
+<code class="docutils literal notranslate"><span class="pre">simple-error-model.cc</span></code> that exercises the Rate and List error models.</p>
+<p>The TCP example <code class="docutils literal notranslate"><span class="pre">examples/tcp/tcp-nsc-lfn.cc</span></code> uses the Rate error model.</p>
+</section>
+<section id="troubleshooting">
+<h3>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">¶</a></h3>
+<p>No known issues.</p>
+</section>
+</section>
+<section id="validation">
+<h2>Validation<a class="headerlink" href="#validation" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">error-model</span></code> unit test suite provides a single test case of
+of a particular combination of ErrorRate and ErrorUnit for the
+<code class="docutils literal notranslate"><span class="pre">RateErrorModel</span></code> applied to a <code class="docutils literal notranslate"><span class="pre">SimpleNetDevice</span></code>.</p>
+</section>
+<section id="acknowledgements">
+<h2>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Link to this heading">¶</a></h2>
+<p>The basic ErrorModel, RateErrorModel, and ListErrorModel classes were ported
+from <a href="#id9"><span class="problematic" id="id10">|ns2|</span></a> to <a href="#id11"><span class="problematic" id="id12">|ns3|</span></a> in 2007.  The ReceiveListErrorModel was added at that
+time.</p>
+<p>The burst error model is due to Truc Anh N. Nguyen at the University of
+Kansas (James P.G. Sterbenz &lt;<a class="reference external" href="mailto:jpgs&#37;&#52;&#48;ittc&#46;ku&#46;edu">jpgs<span>&#64;</span>ittc<span>&#46;</span>ku<span>&#46;</span>edu</a>&gt;, director, ResiliNets
+Research Group (<a class="reference external" href="https://resilinets.org/">https://resilinets.org/</a>), Information and
+Telecommunication Technology Center (ITTC) and Department of Electrical
+Engineering and Computer Science, The University of Kansas Lawrence, KS USA).
+Work supported in part by NSF FIND (Future Internet Design) Program
+under grant CNS-0626918 (Postmodern Internet Architecture),
+NSF grant CNS-1050226 (Multilayer Network Resilience Analysis and
+Experimentation on GENI), US Department of Defense (DoD), and ITTC at
+The University of Kansas.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/src/network/doc/error-model.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

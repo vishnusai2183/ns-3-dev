@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>1. Organization &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="organization">
+<h1><span class="section-number">1. </span>Organization<a class="headerlink" href="#organization" title="Link to this heading">¶</a></h1>
+<p>This chapter describes the overall <em>ns-3</em> software organization and the
+corresponding organization of this manual.</p>
+<p><em>ns-3</em> is a discrete-event network simulator in which the simulation core
+and models are implemented in C++. <em>ns-3</em> is built as a library which may be
+statically or dynamically linked to a C++ main program that defines the
+simulation topology and starts the simulator. <em>ns-3</em> also exports nearly all
+of its API to Python, allowing Python programs to import an “ns3” module in
+much the same way as the <em>ns-3</em> library is linked by executables in C++.</p>
+<figure class="align-default" id="id1">
+<span id="software-organization"></span><img alt="doc/manual/source/figures/software-organization.*" src="doc/manual/source/figures/software-organization.*" />
+<figcaption>
+<p><span class="caption-text">Software organization of <em>ns-3</em></span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>The source code for <em>ns-3</em> is mostly organized in the <code class="docutils literal notranslate"><span class="pre">src</span></code> directory and
+can be described by the diagram in <a class="reference internal" href="#software-organization"><span class="std std-ref">Software organization of ns-3</span></a>. We will
+work our way from the bottom up; in general, modules only have dependencies
+on modules beneath them in the figure.</p>
+<p>We first describe the core of the simulator; those components that are
+common across all protocol, hardware, and environmental models.
+The simulation core is implemented in <code class="docutils literal notranslate"><span class="pre">src/core</span></code>. Packets are
+fundamental objects in a network simulator
+and are implemented in <code class="docutils literal notranslate"><span class="pre">src/network</span></code>. These two simulation modules by
+themselves are intended to comprise a generic simulation core that can be
+used by different kinds of networks, not just Internet-based networks.  The
+above modules of <em>ns-3</em> are independent of specific network and device
+models, which are covered in subsequent parts of this manual.</p>
+<p>In addition to the above <em>ns-3</em> core, we introduce, also in the initial
+portion of the manual, two other modules that supplement the core C++-based
+API.  <em>ns-3</em> programs may access
+all of the API directly or may make use of a so-called <em>helper API</em> that
+provides convenient wrappers or encapsulation of low-level API calls. The
+fact that <em>ns-3</em> programs can be written to two APIs (or a combination
+thereof) is a fundamental aspect of the simulator.
+We also describe how Python is supported in <em>ns-3</em> before moving onto
+specific models of relevance to network simulation.</p>
+<p>The remainder of the manual is focused on documenting the models and
+supporting capabilities.  The next part focuses on two fundamental objects in
+<em>ns-3</em>:  the <code class="docutils literal notranslate"><span class="pre">Node</span></code> and <code class="docutils literal notranslate"><span class="pre">NetDevice</span></code>. Two special NetDevice types are
+designed to support network emulation use cases, and emulation is described
+next.  The following chapter is devoted to Internet-related models,
+including the
+sockets API used by Internet applications. The next chapter covers
+applications, and the following chapter describes additional support for
+simulation, such as animators and statistics.</p>
+<p>The project maintains a manual section devoted to testing and validation
+of <em>ns-3</em> code (see the <a class="reference external" href="https://www.nsnam.org/docs/manual/html/tests.html">tests section in the ns-3 manual</a>).</p>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/doc/manual/source/organization.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>6. Coding style &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="coding-style">
+<span id="id1"></span><h1><span class="section-number">6. </span>Coding style<a class="headerlink" href="#coding-style" title="Link to this heading">¶</a></h1>
+<p>When writing code to be contributed to the <em>ns-3</em> open source project, we
+ask that you follow the coding standards, guidelines, and recommendations
+found below.</p>
+<section id="clang-format">
+<h2><span class="section-number">6.1. </span>Clang-format<a class="headerlink" href="#clang-format" title="Link to this heading">¶</a></h2>
+<p>The <em>ns-3</em> project uses <a class="reference external" href="https://clang.llvm.org/docs/ClangFormat.html">clang-format</a>
+to define and enforce the C++ coding style. Clang-format can be easily integrated
+with modern IDEs or run manually on the command-line.</p>
+<section id="clang-format-installation">
+<h3><span class="section-number">6.1.1. </span>Clang-format installation<a class="headerlink" href="#clang-format-installation" title="Link to this heading">¶</a></h3>
+<p>Clang-format can be installed using your OS’s package manager. Please note that you
+should install one of the supported versions of clang-format, which are listed in the
+following section.</p>
+</section>
+<section id="supported-versions-of-clang-format">
+<h3><span class="section-number">6.1.2. </span>Supported versions of clang-format<a class="headerlink" href="#supported-versions-of-clang-format" title="Link to this heading">¶</a></h3>
+<p>Since each new major version of clang-format can add or modify properties,
+newer versions of clang-format might produce different outputs compared to
+previous versions.</p>
+<p>The following list contains the set of clang-format versions that are verified
+to produce consistent output among themselves.</p>
+<ul class="simple">
+<li><p>clang-format-17</p></li>
+<li><p>clang-format-16</p></li>
+<li><p>clang-format-15</p></li>
+<li><p>clang-format-14</p></li>
+</ul>
+</section>
+<section id="integration-with-ides">
+<h3><span class="section-number">6.1.3. </span>Integration with IDEs<a class="headerlink" href="#integration-with-ides" title="Link to this heading">¶</a></h3>
+<p>Clang-format can be integrated with modern IDEs (e.g., VS Code) that are able to
+read the <code class="docutils literal notranslate"><span class="pre">.clang-format</span></code> file and automatically format the code on save or on typing.</p>
+<p>Please refer to the documentation of your IDE for more information.
+Some examples of IDE integration are provided in
+<a class="reference external" href="https://clang.llvm.org/docs/ClangFormat.html">clang-format documentation</a></p>
+<p>As an example, VS Code can be configured to automatically format code on save, on paste
+and on type by enabling the following settings:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;editor.formatOnSave&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;editor.formatOnPaste&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;editor.formatOnType&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="clang-format-usage-in-the-terminal">
+<h3><span class="section-number">6.1.4. </span>Clang-format usage in the terminal<a class="headerlink" href="#clang-format-usage-in-the-terminal" title="Link to this heading">¶</a></h3>
+<p>In addition to IDE support, clang-format can be manually run on the terminal.</p>
+<p>To format a file in-place, run the following command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">clang-format -i $FILE</span>
+</pre></div>
+</div>
+<p>To check that a file is well formatted, run the following command on the terminal.
+If the file is not well formatted, clang-format indicates the lines that need to be
+formatted.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">clang-format --dry-run $FILE</span>
+</pre></div>
+</div>
+</section>
+<section id="clang-format-git-integration">
+<h3><span class="section-number">6.1.5. </span>Clang-format Git integration<a class="headerlink" href="#clang-format-git-integration" title="Link to this heading">¶</a></h3>
+<p>Clang-format can be integrated with Git to reformat existing Git patches, such as
+pending merge requests on the GitLab repository. The full documentation is available on
+<a class="reference external" href="https://clang.llvm.org/docs/ClangFormat.html#git-integration">clang-format Git integration</a></p>
+<p>In addition to Git patches,
+<a class="reference external" href="https://clang.llvm.org/docs/ClangFormat.html#script-for-patch-reformatting">clang-format-diff</a>
+can also be used to reformat existing patches produced with the <code class="docutils literal notranslate"><span class="pre">diff</span></code> tool.</p>
+</section>
+<section id="disable-formatting-in-specific-files-or-lines">
+<h3><span class="section-number">6.1.6. </span>Disable formatting in specific files or lines<a class="headerlink" href="#disable-formatting-in-specific-files-or-lines" title="Link to this heading">¶</a></h3>
+<p>To disable formatting in specific lines, surround them with the following
+C++ comments:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// clang-format off</span>
+<span class="p">...</span>
+<span class="c1">// clang-format on</span>
+</pre></div>
+</div>
+<p>To exclude an entire file from being formatted, surround the whole file with the
+special comments.</p>
+</section>
+</section>
+<section id="check-style-clang-format-py">
+<h2><span class="section-number">6.2. </span>check-style-clang-format.py<a class="headerlink" href="#check-style-clang-format-py" title="Link to this heading">¶</a></h2>
+<p>To facilitate checking and fixing source code files according to the <em>ns-3</em> coding style,
+<em>ns-3</em> maintains the <code class="docutils literal notranslate"><span class="pre">check-style-clang-format.py</span></code> Python script (located in <code class="docutils literal notranslate"><span class="pre">utils/</span></code>).
+This script is a wrapper to clang-format and provides useful options to check and fix
+source code files. Additionally, it performs other manual checks and fixes in text files
+(described below).</p>
+<p>We recommend running this script over your newly introduced C++ files prior to submission
+as a Merge Request.</p>
+<p>The script has multiple modes of operation. By default, the script checks if
+source code files are well formatted, if there are no #include headers from the same
+module with the “ns3/” prefix, and text files do not have trailing whitespace
+nor tabs. The process returns a zero exit code if all files adhere to these rules.
+If there are files that do not comply with the rules, the process returns a non-zero
+exit code and lists the respective files. This mode is useful for developers editing
+their code and for the GitLab CI/CD pipeline to check if the codebase is well formatted.
+All checks are enabled by default. Users can disable specific checks using the corresponding
+flags: <code class="docutils literal notranslate"><span class="pre">--no-include-prefixes</span></code>, <code class="docutils literal notranslate"><span class="pre">--no-formatting</span></code>, <code class="docutils literal notranslate"><span class="pre">--no-whitespace</span></code> and <code class="docutils literal notranslate"><span class="pre">--no-tabs</span></code>.</p>
+<p>Additional information about the formatting issues detected by the script can be enabled
+by adding the <code class="docutils literal notranslate"><span class="pre">-v,</span> <span class="pre">--verbose</span></code> flag.</p>
+<p>In addition to checking the files, the script can automatically fix detected issues in-place.
+This mode is enabled by adding the <code class="docutils literal notranslate"><span class="pre">--fix</span></code> flag.</p>
+<p>The formatting and tabs checks respect clang-format guards, which mark code blocks
+that should not be checked. Trailing whitespace is always checked regardless of
+clang-format guards.</p>
+<p>The complete API of the <code class="docutils literal notranslate"><span class="pre">check-style-clang-format.py</span></code> script can be obtained with the
+following command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./utils/check-style-clang-format.py --help</span>
+</pre></div>
+</div>
+<p>For quick-reference, the most used commands are listed below:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>Entire<span class="w"> </span>codebase<span class="w"> </span><span class="o">(</span>using<span class="w"> </span>paths<span class="w"> </span>relative<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>ns-3<span class="w"> </span>main<span class="w"> </span>directory<span class="o">)</span>
+<span class="go">./utils/check-style-clang-format.py --fix .</span>
+
+<span class="gp"># </span>Entire<span class="w"> </span>codebase<span class="w"> </span><span class="o">(</span>using<span class="w"> </span>absolute<span class="w"> </span>paths<span class="o">)</span>
+<span class="go">/path/to/utils/check-style-clang-format.py --fix /path/to/ns3</span>
+
+<span class="gp"># </span>Specific<span class="w"> </span>directory<span class="w"> </span>or<span class="w"> </span>file
+<span class="go">/path/to/utils/check-style-clang-format.py --fix absolute_or_relative/path/to/directory_or_file</span>
+
+<span class="gp"># </span>Modified<span class="w"> </span>files
+<span class="go">git diff --name-only | xargs ./utils/check-style-clang-format.py --fix</span>
+</pre></div>
+</div>
+</section>
+<section id="clang-tidy">
+<h2><span class="section-number">6.3. </span>Clang-tidy<a class="headerlink" href="#clang-tidy" title="Link to this heading">¶</a></h2>
+<p>The <em>ns-3</em> project uses <a class="reference external" href="https://clang.llvm.org/extra/clang-tidy/">clang-tidy</a>
+to statically analyze (lint) C++ code and help developers write better code.
+Clang-tidy can be easily integrated with modern IDEs or run manually on the command-line.</p>
+<p>The list of clang-tidy checks currently enabled in the <em>ns-3</em> project is saved on the
+<code class="docutils literal notranslate"><span class="pre">.clang-tidy</span></code> file. The full list of clang-tidy checks and their detailed explanations
+can be seen in <a class="reference external" href="https://clang.llvm.org/extra/clang-tidy/checks/list.html">Clang-tidy checks</a>.</p>
+<section id="clang-tidy-installation">
+<h3><span class="section-number">6.3.1. </span>Clang-tidy installation<a class="headerlink" href="#clang-tidy-installation" title="Link to this heading">¶</a></h3>
+<p>Clang-format can be installed using your OS’s package manager. Please note that you
+should install one of the supported versions of clang-format, which are listed in the
+following section.</p>
+</section>
+<section id="minimum-clang-tidy-version">
+<h3><span class="section-number">6.3.2. </span>Minimum clang-tidy version<a class="headerlink" href="#minimum-clang-tidy-version" title="Link to this heading">¶</a></h3>
+<p>Since clang-tidy is a linter that analyzes code and outputs errors found during
+the analysis, developers can use different versions of clang-tidy on the workflow.
+Newer versions of clang-tidy might produce better results than older versions.
+Therefore, it is recommended to use the latest version available.</p>
+<p>To ensure consistency among developers, <em>ns-3</em> defines a minimum version of clang-tidy,
+whose warnings must not be ignored. Therefore, developers should, at least, scan their
+code with the minimum version of clang-tidy.</p>
+<p>The minimum version is clang-tidy-14.</p>
+</section>
+<section id="id5">
+<h3><span class="section-number">6.3.3. </span>Integration with IDEs<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
+<p>Clang-tidy automatically integrates with modern IDEs (e.g., VS Code) that read the
+<code class="docutils literal notranslate"><span class="pre">.clang-tidy</span></code> file and automatically checks the code of the currently open file.</p>
+<p>Please refer to the documentation of your IDE for more information.
+Some examples of IDE integration are provided in
+<a class="reference external" href="https://clang.llvm.org/extra/clang-tidy/Integrations.html">clang-tidy documentation</a></p>
+</section>
+<section id="clang-tidy-usage">
+<h3><span class="section-number">6.3.4. </span>Clang-tidy usage<a class="headerlink" href="#clang-tidy-usage" title="Link to this heading">¶</a></h3>
+<p>In order to use clang-tidy, <em>ns-3</em> must first be configured with the flag
+<code class="docutils literal notranslate"><span class="pre">--enable-clang-tidy</span></code>. To configure <em>ns-3</em> with tests, examples and clang-tidy enabled,
+run the following command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./ns3 configure --enable-examples --enable-tests --enable-clang-tidy</span>
+</pre></div>
+</div>
+<p>Due to the integration of clang-tidy with CMake, clang-tidy can be run while building
+<em>ns-3</em>. In this way, clang-tidy errors will be shown alongside build errors on the terminal.
+To build <em>ns-3</em> and run clang-tidy, run the the following command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./ns3 build</span>
+</pre></div>
+</div>
+<p>To run clang-tidy without building <em>ns-3</em>, use the following commands on the ns-3
+main directory:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>Analyze<span class="w"> </span><span class="o">(</span>and<span class="w"> </span>fix<span class="o">)</span><span class="w"> </span>a<span class="w"> </span>single<span class="w"> </span>file<span class="w"> </span>with<span class="w"> </span>clang-tidy
+<span class="go">clang-tidy -p cmake-cache/ [--fix] [--format-style=file] [--quiet] $FILE</span>
+
+<span class="gp"># </span>Analyze<span class="w"> </span><span class="o">(</span>and<span class="w"> </span>fix<span class="o">)</span><span class="w"> </span>multiple<span class="w"> </span>files<span class="w"> </span><span class="k">in</span><span class="w"> </span>parallel
+<span class="go">run-clang-tidy -p cmake-cache/ [-fix] [-format] [-quiet] $FILE1 $FILE2 ...</span>
+
+<span class="gp"># </span>Analyze<span class="w"> </span><span class="o">(</span>and<span class="w"> </span>fix<span class="o">)</span><span class="w"> </span>the<span class="w"> </span>entire<span class="w"> </span>ns-3<span class="w"> </span>codebase<span class="w"> </span><span class="k">in</span><span class="w"> </span>parallel
+<span class="go">run-clang-tidy -p cmake-cache/ [-fix] [-format] [-quiet]</span>
+</pre></div>
+</div>
+<p>When running clang-tidy, please note that:</p>
+<ul class="simple">
+<li><p>Clang-tidy only analyzes implementation files (i.e., <code class="docutils literal notranslate"><span class="pre">*.cc</span></code> files).
+Header files are analyzed when they are included by implementation files, with the
+<code class="docutils literal notranslate"><span class="pre">#include</span> <span class="pre">&quot;...&quot;</span></code> directive.</p></li>
+<li><p>Not all clang-tidy checks provide automatic fixes. For those cases, a manual fix
+must be made by the developer.</p></li>
+<li><p>Enabling clang-tidy will add time to the build process (in the order of minutes).</p></li>
+</ul>
+</section>
+<section id="disable-clang-tidy-analysis-in-specific-lines">
+<h3><span class="section-number">6.3.5. </span>Disable clang-tidy analysis in specific lines<a class="headerlink" href="#disable-clang-tidy-analysis-in-specific-lines" title="Link to this heading">¶</a></h3>
+<p>To disable clang-tidy analysis of a particular rule in a specific function,
+specific clang-tidy comments have to be added to the corresponding function.
+Please refer to the <a class="reference external" href="https://clang.llvm.org/extra/clang-tidy/#suppressing-undesired-diagnostics">official clang-tidy documentation</a>
+for more information.</p>
+<p>To disable <code class="docutils literal notranslate"><span class="pre">modernize-use-override</span></code> checking on <code class="docutils literal notranslate"><span class="pre">func()</span></code> only, use one of the
+following two “special comment” syntaxes:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">//</span>
+<span class="c1">// Syntax 1: Comment above the function</span>
+<span class="c1">//</span>
+
+<span class="c1">// NOLINTNEXTLINE(modernize-use-override)</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">func</span><span class="p">();</span>
+
+<span class="c1">//</span>
+<span class="c1">// Syntax 2: Trailing comment</span>
+<span class="c1">//</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">func</span><span class="p">();</span><span class="w"> </span><span class="c1">// NOLINT(modernize-use-override)</span>
+</pre></div>
+</div>
+<p>To disable a specific clang-tidy check on a block of code, for instance the
+<code class="docutils literal notranslate"><span class="pre">modernize-use-override</span></code> check, surround the code block with the following
+“special comments”:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// NOLINTBEGIN(modernize-use-override)</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">func1</span><span class="p">();</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">func2</span><span class="p">();</span>
+<span class="c1">// NOLINTEND(modernize-use-override)</span>
+</pre></div>
+</div>
+<p>To disable all clang-tidy checks on a block of code, surround it with the
+following “special comments”:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// NOLINTBEGIN</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">func1</span><span class="p">();</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">func2</span><span class="p">();</span>
+<span class="c1">// NOLINTEND</span>
+</pre></div>
+</div>
+<p>To exclude an entire file from being checked, surround the whole file with the
+“special comments”.</p>
+</section>
+</section>
+<section id="source-code-formatting">
+<h2><span class="section-number">6.4. </span>Source code formatting<a class="headerlink" href="#source-code-formatting" title="Link to this heading">¶</a></h2>
+<p>The <em>ns-3</em> coding style was changed between the ns-3.36 and ns-3.37 release.
+Prior to ns-3.37, <em>ns-3</em> used a base GNU coding style. Since ns-3.37, <em>ns-3</em> changed the
+base coding style to what is known in the industry as Allman-style braces,
+with four-space indentation. In clang-format, this is configured by selecting the
+<code class="docutils literal notranslate"><span class="pre">Microsoft</span></code> base style. The following examples illustrate the style.</p>
+<section id="indentation">
+<h3><span class="section-number">6.4.1. </span>Indentation<a class="headerlink" href="#indentation" title="Link to this heading">¶</a></h3>
+<p>Indent code with 4 spaces. When breaking statements into multiple lines, indent the
+following lines with 4 spaces.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span>
+<span class="nf">Func</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Indent constructor’s initialization list with 4 spaces.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">MyClass</span><span class="o">::</span><span class="n">MyClass</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">)</span>
+<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">m_x</span><span class="p">(</span><span class="n">x</span><span class="p">),</span>
+<span class="w">      </span><span class="n">m_y</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Do not use tabs in source code. Always use spaces for indentation and alignment.</p>
+</section>
+<section id="line-endings">
+<h3><span class="section-number">6.4.2. </span>Line endings<a class="headerlink" href="#line-endings" title="Link to this heading">¶</a></h3>
+<p>Files use LF (<code class="docutils literal notranslate"><span class="pre">\n</span></code>) line endings.</p>
+</section>
+<section id="column-limit">
+<h3><span class="section-number">6.4.3. </span>Column limit<a class="headerlink" href="#column-limit" title="Link to this heading">¶</a></h3>
+<p>Code lines should not extend past 100 characters. This allows reading code in wide-screen
+monitors without having to scroll horizontally, while also allowing editing two files
+side-by-side.</p>
+</section>
+<section id="braces-style">
+<h3><span class="section-number">6.4.4. </span>Braces style<a class="headerlink" href="#braces-style" title="Link to this heading">¶</a></h3>
+<p>Braces should be formatted according to the Allman style.
+Braces are always on a new line and aligned with the start of the corresponding block.
+The main body is indented with 4 spaces.</p>
+<p>Always surround conditional or loop blocks (e.g., <code class="docutils literal notranslate"><span class="pre">if</span></code>, <code class="docutils literal notranslate"><span class="pre">for</span></code>, <code class="docutils literal notranslate"><span class="pre">while</span></code>)
+with braces, and always add a space before the condition’s opening parentheses.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">Foo</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">condition</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// do stuff here</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// do other stuff here</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// do loop</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">condition</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// do while</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">do</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// do stuff</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">condition</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="spacing">
+<h3><span class="section-number">6.4.5. </span>Spacing<a class="headerlink" href="#spacing" title="Link to this heading">¶</a></h3>
+<p>To increase readability, functions, classes and namespaces are separated by one
+new line. This spacing is optional when declaring variables or functions.
+Declare one variable per line. Do not mix multiple statements on the same line.</p>
+<p>Do not add a space between the function name and the opening parentheses.
+This rule applies to both function (and method) declarations and invocations.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">Func</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">T</span><span class="o">&amp;</span><span class="p">);</span><span class="w">  </span><span class="c1">// OK</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">Func</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">T</span><span class="o">&amp;</span><span class="p">);</span><span class="w"> </span><span class="c1">// Not OK</span>
+</pre></div>
+</div>
+</section>
+<section id="trailing-whitespace">
+<h3><span class="section-number">6.4.6. </span>Trailing whitespace<a class="headerlink" href="#trailing-whitespace" title="Link to this heading">¶</a></h3>
+<p>Source code and text files must not have trailing whitespace.</p>
+</section>
+<section id="code-alignment">
+<h3><span class="section-number">6.4.7. </span>Code alignment<a class="headerlink" href="#code-alignment" title="Link to this heading">¶</a></h3>
+<p>To improve code readability, trailing comments should be aligned.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">varOne</span><span class="p">;</span><span class="w">    </span><span class="c1">// Variable one</span>
+<span class="kt">double</span><span class="w"> </span><span class="n">varTwo</span><span class="p">;</span><span class="w"> </span><span class="c1">// Variable two</span>
+</pre></div>
+</div>
+<p>The trailing <code class="docutils literal notranslate"><span class="pre">\</span></code> character of macros should be aligned to the far right
+(equal to the column limit). This increases the readability of the macro’s body,
+without forcing unnecessary whitespace diffs on surrounding lines when only one
+line is changed.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#define MY_MACRO(msg)                      \</span>
+<span class="cp">    do                                     \</span>
+<span class="cp">    {                                      \</span>
+<span class="cp">        std::cout &lt;&lt; msg &lt;&lt; std::endl;     \</span>
+<span class="cp">    } while (false);</span>
+</pre></div>
+</div>
+</section>
+<section id="class-members">
+<h3><span class="section-number">6.4.8. </span>Class members<a class="headerlink" href="#class-members" title="Link to this heading">¶</a></h3>
+<p>Definition blocks within a class should be organized in descending order of
+public exposure, that is: <code class="docutils literal notranslate"><span class="pre">static</span></code> &gt; <code class="docutils literal notranslate"><span class="pre">public</span></code> &gt; <code class="docutils literal notranslate"><span class="pre">protected</span></code> &gt; <code class="docutils literal notranslate"><span class="pre">private</span></code>.
+Separate each block with a new line.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MyClass</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">m_counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">MyClass</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">);</span>
+
+<span class="k">private</span><span class="o">:</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</section>
+<section id="function-arguments-bin-packing">
+<h3><span class="section-number">6.4.9. </span>Function arguments bin packing<a class="headerlink" href="#function-arguments-bin-packing" title="Link to this heading">¶</a></h3>
+<p>Function arguments should be declared in the same line as the function declaration.
+If the arguments list does not fit the maximum column width, declare each one on a
+separate line and align them vertically.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">ShortFunction</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">);</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">VeryLongFunctionWithLongArgumentList</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span>
+<span class="w">                                          </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">,</span>
+<span class="w">                                          </span><span class="kt">int</span><span class="w"> </span><span class="n">z</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The constructor initializers are always declared one per line, with a trailing comma:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span>
+<span class="nf">MyClass::MyClass</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">)</span>
+<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">m_x</span><span class="p">(</span><span class="n">x</span><span class="p">),</span>
+<span class="w">      </span><span class="n">m_y</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="function-return-types">
+<h3><span class="section-number">6.4.10. </span>Function return types<a class="headerlink" href="#function-return-types" title="Link to this heading">¶</a></h3>
+<p>In function declarations, return types are declared on the same line.
+In function implementations, return types are declared on a separate line.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Function declaration</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">Func</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">);</span>
+
+<span class="c1">// Function implementation</span>
+<span class="kt">void</span>
+<span class="nf">Func</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// (...)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="templates">
+<h3><span class="section-number">6.4.11. </span>Templates<a class="headerlink" href="#templates" title="Link to this heading">¶</a></h3>
+<p>Template definitions are always declared in a separate line from the main function
+declaration:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">Func</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="n">t</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="naming">
+<h3><span class="section-number">6.4.12. </span>Naming<a class="headerlink" href="#naming" title="Link to this heading">¶</a></h3>
+<section id="name-encoding">
+<h4><span class="section-number">6.4.12.1. </span>Name encoding<a class="headerlink" href="#name-encoding" title="Link to this heading">¶</a></h4>
+<p>Function, method, and type names should follow the
+<a class="reference external" href="https://en.wikipedia.org/wiki/CamelCase">CamelCase</a> convention: words are
+joined without spaces and are capitalized. For example, “my computer” is
+transformed into <code class="docutils literal notranslate"><span class="pre">MyComputer</span></code>.  Do not use all capital letters such as
+<code class="docutils literal notranslate"><span class="pre">MAC</span></code> or <code class="docutils literal notranslate"><span class="pre">PHY</span></code>, but choose instead <code class="docutils literal notranslate"><span class="pre">Mac</span></code> or <code class="docutils literal notranslate"><span class="pre">Phy</span></code>. Do not use all
+capital letters, even for acronyms such as <code class="docutils literal notranslate"><span class="pre">EDCA</span></code>; use <code class="docutils literal notranslate"><span class="pre">Edca</span></code> instead.
+This applies also to two-letter acronyms, such as <code class="docutils literal notranslate"><span class="pre">IP</span></code> (which becomes
+<code class="docutils literal notranslate"><span class="pre">Ip</span></code>). The goal of the CamelCase convention is to ensure that the words
+which make up a name can be separated by the eye: the initial Caps
+fills that role. Use PascalCasing (CamelCase with first letter capitalized)
+for function, property, event, and class names.</p>
+<p>Variable names should follow a slight variation on the base CamelCase
+convention: camelBack. For example, the variable <code class="docutils literal notranslate"><span class="pre">user</span> <span class="pre">name</span></code> would be named
+<code class="docutils literal notranslate"><span class="pre">userName</span></code>. This variation on the basic naming pattern is used to allow a
+reader to distinguish a variable name from its type. For example,
+<code class="docutils literal notranslate"><span class="pre">UserName</span> <span class="pre">userName</span></code> would be used to declare a variable named
+<code class="docutils literal notranslate"><span class="pre">userName</span></code> of type <code class="docutils literal notranslate"><span class="pre">UserName</span></code>.</p>
+<p>Global variables should be prefixed with a <code class="docutils literal notranslate"><span class="pre">g_</span></code> and member variables
+(including static member variables) should be prefixed with a <code class="docutils literal notranslate"><span class="pre">m_</span></code>. The goal
+of that prefix is to give a reader a sense of where a variable of a given
+name is declared to allow the reader to locate the variable declaration and
+infer the variable type from that declaration. Defined types will start
+with an upper case letter, consist of upper and lower case letters, and may
+optionally end with a <code class="docutils literal notranslate"><span class="pre">_t</span></code>. Defined constants (such as static const class
+members, or enum constants) will be all uppercase letters or numeric digits,
+with an underscore character separating words. Otherwise, the underscore
+character should not be used in a variable name. For example, you could
+declare in your class header <code class="docutils literal notranslate"><span class="pre">my-class.h</span></code>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">NewTypeOfInt_t</span><span class="p">;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">PORT_NUMBER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">17</span><span class="p">;</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyClass</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">MyMethod</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">aVar</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">m_aVar</span><span class="p">;</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">m_anotherVar</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>and implement in your class file <code class="docutils literal notranslate"><span class="pre">my-class.cc</span></code>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">MyClass</span><span class="o">::</span><span class="n">m_anotherVar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">g_aStaticVar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">g_aGlobalVar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span>
+
+<span class="kt">void</span>
+<span class="nf">MyClass::MyMethod</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">aVar</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">m_aVar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">aVar</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>As an exception to the above, the members of structures do not need to be
+prefixed with an <code class="docutils literal notranslate"><span class="pre">m_</span></code>.</p>
+<p>Finally, do not use
+<a class="reference external" href="https://en.wikipedia.org/wiki/Hungarian_notation">Hungarian notation</a>, and
+do not prefix enums, classes, or delegates with any letter.</p>
+</section>
+<section id="choosing-names">
+<h4><span class="section-number">6.4.12.2. </span>Choosing names<a class="headerlink" href="#choosing-names" title="Link to this heading">¶</a></h4>
+<p>Variable, function, method, and type names should be based on the English
+language, American spelling. Furthermore, always try to choose descriptive
+names for them. Types are often english names such as: Packet, Buffer, Mac,
+or Phy. Functions and methods are often named based on verbs and adjectives:
+<code class="docutils literal notranslate"><span class="pre">GetX</span></code>, <code class="docutils literal notranslate"><span class="pre">DoDispose</span></code>, <code class="docutils literal notranslate"><span class="pre">ClearArray</span></code>, etc.</p>
+<p>A long descriptive name which requires a lot of typing is always better than
+a short name which is hard to decipher. Do not use abbreviations in names
+unless the abbreviation is really unambiguous and obvious to everyone (e.g.,
+use <code class="docutils literal notranslate"><span class="pre">size</span></code> over <code class="docutils literal notranslate"><span class="pre">sz</span></code>). Do not use short inappropriate names such as foo,
+bar, or baz. The name of an item should always match its purpose. As such,
+names such as <code class="docutils literal notranslate"><span class="pre">tmp</span></code> to identify a temporary variable, or such as <code class="docutils literal notranslate"><span class="pre">i</span></code> to
+identify a loop index are OK.</p>
+<p>If you use predicates (that is, functions, variables or methods which return
+a single boolean value), prefix the name with “is” or “has”.</p>
+</section>
+</section>
+<section id="file-layout-and-code-organization">
+<h3><span class="section-number">6.4.13. </span>File layout and code organization<a class="headerlink" href="#file-layout-and-code-organization" title="Link to this heading">¶</a></h3>
+<p>A class named <code class="docutils literal notranslate"><span class="pre">MyClass</span></code> should be declared in a header named <code class="docutils literal notranslate"><span class="pre">my-class.h</span></code>
+and implemented in a source file named <code class="docutils literal notranslate"><span class="pre">my-class.cc</span></code>. The goal of this
+naming pattern is to allow a reader to quickly navigate through the <em>ns-3</em>
+codebase to locate the source file relevant to a specific type.</p>
+<p>Each <code class="docutils literal notranslate"><span class="pre">my-class.h</span></code> header should start with the following comment to ensure
+that your code is licensed under the GPL, that the copyright holders are properly
+identified (typically, you or your employer), and that the actual author
+of the code is identified. The latter is purely informational and we use it
+to try to track the most appropriate person to review a patch or fix a bug.
+Please do not add the “All Rights Reserved” phrase after the copyright
+statement.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cm">/*</span>
+<span class="cm"> * Copyright (c) YEAR COPYRIGHTHOLDER</span>
+<span class="cm"> *</span>
+<span class="cm"> * This program is free software; you can redistribute it and/or modify</span>
+<span class="cm"> * it under the terms of the GNU General Public License version 2 as</span>
+<span class="cm"> * published by the Free Software Foundation;</span>
+<span class="cm"> *</span>
+<span class="cm"> * This program is distributed in the hope that it will be useful,</span>
+<span class="cm"> * but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="cm"> * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="cm"> * GNU General Public License for more details.</span>
+<span class="cm"> *</span>
+<span class="cm"> * You should have received a copy of the GNU General Public License</span>
+<span class="cm"> * along with this program; if not, write to the Free Software</span>
+<span class="cm"> * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</span>
+<span class="cm"> *</span>
+<span class="cm"> * Author: MyName &lt;myemail@example.com&gt;</span>
+<span class="cm"> */</span>
+</pre></div>
+</div>
+<p>Below these C-style comments, always include the following which defines a
+set of header guards (<code class="docutils literal notranslate"><span class="pre">MY_CLASS_H</span></code>) used to avoid multiple header includes,
+which ensures that your code is included in the <em>ns-3</em> namespace and which
+provides a set of Doxygen comments for the public part of your class API.
+Detailed information on the set of tags available for doxygen documentation
+is described in the <a class="reference external" href="https://www.doxygen.nl/index.html">Doxygen website</a>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#ifndef MY_CLASS_H</span>
+<span class="cp">#define MY_CLASS_H</span>
+
+<span class="k">namespace</span><span class="w"> </span><span class="nn">ns3</span>
+<span class="p">{</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * \brief short one-line description of the purpose of your class</span>
+<span class="cm"> *</span>
+<span class="cm"> * A longer description of the purpose of your class after a blank</span>
+<span class="cm"> * empty line.</span>
+<span class="cm"> */</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyClass</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="n">MyClass</span><span class="p">();</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * A detailed description of the purpose of the method.</span>
+<span class="cm">     *</span>
+<span class="cm">     * \param firstParam a short description of the purpose of this parameter</span>
+<span class="cm">     * \returns a short description of what is returned from this function.</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">DoSomething</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">firstParam</span><span class="p">);</span>
+
+<span class="k">private</span><span class="o">:</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * Private method doxygen is also recommended</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">MyPrivateMethod</span><span class="p">();</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">m_myPrivateMemberVariable</span><span class="p">;</span><span class="w"> </span><span class="c1">///&lt; Brief description of member variable</span>
+<span class="p">};</span>
+
+<span class="p">}</span><span class="w"> </span><span class="c1">// namespace ns3</span>
+
+<span class="cp">#endif </span><span class="c1">// MY_CLASS_H</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">my-class.cc</span></code> file is structured similarly:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cm">/*</span>
+<span class="cm"> * Copyright (c) YEAR COPYRIGHTHOLDER</span>
+<span class="cm"> *</span>
+<span class="cm"> * 3-paragraph GPL blurb</span>
+<span class="cm"> *</span>
+<span class="cm"> * Author: MyName &lt;myemail@foo.com&gt;</span>
+<span class="cm"> */</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;my-class.h&quot;</span>
+
+<span class="k">namespace</span><span class="w"> </span><span class="nn">ns3</span>
+<span class="p">{</span>
+
+<span class="n">MyClass</span><span class="o">::</span><span class="n">MyClass</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="p">}</span>
+
+<span class="p">...</span>
+
+<span class="p">}</span><span class="w"> </span><span class="c1">// namespace ns3</span>
+</pre></div>
+</div>
+</section>
+<section id="header-file-includes">
+<h3><span class="section-number">6.4.14. </span>Header file includes<a class="headerlink" href="#header-file-includes" title="Link to this heading">¶</a></h3>
+<p>Included header files should be organized by source location. The sorting order is
+as follows:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Header class (applicable for *.cc files)</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;my-class.h&quot;</span>
+
+<span class="c1">// Includes from the same module</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;header-from-same-module.h&quot;</span>
+
+<span class="c1">// Includes from other modules</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ns3/header-from-different-module.h&quot;</span>
+
+<span class="c1">// External headers (e.g., STL libraries)</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+</pre></div>
+</div>
+<p>Groups should be separated by a new line. Within each group, headers should be
+sorted alphabetically.</p>
+<p>For standard headers, use the C++ style of inclusion:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstring&gt;</span><span class="c1">  // OK</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string.h&gt;</span><span class="c1"> // Avoid</span>
+</pre></div>
+</div>
+<ul>
+<li><p>inside .h files, always use</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ns3/header.h&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><p>inside .cc files, use</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;header.h&quot;</span>
+</pre></div>
+</div>
+<p>if file is in same directory, otherwise use</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ns3/header.h&gt;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="variables-and-constants">
+<h3><span class="section-number">6.4.15. </span>Variables and constants<a class="headerlink" href="#variables-and-constants" title="Link to this heading">¶</a></h3>
+<p>Each variable declaration is on a separate line.
+Variables should be declared at the point in the code where they are needed,
+and should be assigned an initial value at the time of declaration.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Do not declare multiple variables per line</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+
+<span class="c1">// Declare one variable per line and assign an initial value</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Named constants defined in classes should be declared as <code class="docutils literal notranslate"><span class="pre">static</span> <span class="pre">constexpr</span></code> instead of
+macros, const, or enums. Use of <code class="docutils literal notranslate"><span class="pre">static</span> <span class="pre">constexpr</span></code> allows a single instance to be
+evaluated at compile-time. Declaring the constant in the class enables it to share the scope
+of the class.</p>
+<p>If the constant is only used in one file, consider declaring the constant in the implementation
+file (<code class="docutils literal notranslate"><span class="pre">*.cc</span></code>).</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Avoid declaring constants as enum</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LteRlcAmHeader</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">Header</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">enum</span><span class="w"> </span><span class="nc">ControlPduType_t</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">STATUS_PDU</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mo">000</span><span class="p">,</span>
+<span class="w">    </span><span class="p">};</span>
+<span class="p">};</span>
+
+<span class="c1">// Prefer to declare them as static constexpr (in class)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LteRlcAmHeader</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">Header</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">STATUS_PDU</span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+<span class="p">};</span>
+
+<span class="c1">// Or as constexpr (in implementation files)</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">STATUS_PDU</span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</pre></div>
+</div>
+<p>When declaring variables that are easily deducible from context, prefer to declare them
+with <code class="docutils literal notranslate"><span class="pre">auto</span></code> instead of repeating the type name. Not only does this improve code readability,
+by making lines shorter, but it also facilitates future code refactoring.
+When declaring variables, prefer to use direct-initialization, to avoid repeating the type name.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Avoid repeating the type name when declaring iterators or pointers, and casting variables</span>
+<span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="kt">uint32_t</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;::</span><span class="n">const_iterator</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">myMap</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>
+<span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">int</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">uint8_t</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">97</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">26</span><span class="p">));</span>
+
+<span class="c1">// Prefer to declare them with auto</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">myMap</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>
+<span class="k">auto</span><span class="o">*</span><span class="w"> </span><span class="n">ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">int</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">uint8_t</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">97</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">26</span><span class="p">));</span>
+
+<span class="c1">// Avoid splitting the declaration and initialization of variables</span>
+<span class="n">Ipv4Address</span><span class="w"> </span><span class="n">ipv4Address</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Ipv4Address</span><span class="p">(</span><span class="s">&quot;192.168.0.1&quot;</span><span class="p">)</span>
+
+<span class="c1">// Prefer to use direct-initialization</span>
+<span class="n">Ipv4Address</span><span class="w"> </span><span class="n">ipv4Address</span><span class="p">(</span><span class="s">&quot;192.168.0.1&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="comments">
+<h3><span class="section-number">6.4.16. </span>Comments<a class="headerlink" href="#comments" title="Link to this heading">¶</a></h3>
+<p>The project uses <a class="reference external" href="https://www.doxygen.nl/index.html">Doxygen</a> to document
+the interfaces, and uses comments for improving the clarity of the code
+internally. All classes, methods, and members should have Doxygen comments.
+Doxygen comments should use the C-style comment (also known as Javadoc) style.
+For comments that are intended to not be exposed publicly in the Doxygen output,
+use the <code class="docutils literal notranslate"><span class="pre">&#64;internal</span></code> and <code class="docutils literal notranslate"><span class="pre">&#64;endinternal</span></code> tags.
+Please use the <code class="docutils literal notranslate"><span class="pre">&#64;see</span></code> tag for cross-referencing.
+All parameters and return values should be documented. The <em>ns-3</em> codebase uses
+both the <code class="docutils literal notranslate"><span class="pre">&#64;</span></code> or <code class="docutils literal notranslate"><span class="pre">\</span></code> characters for tag identification; please make sure
+that usage is consistent within a file.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cm">/**</span>
+<span class="cm"> * MyClass description.</span>
+<span class="cm"> */</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyClass</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * Constructor.</span>
+<span class="cm">     *</span>
+<span class="cm">     * \param n Number of elements.</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="n">MyClass</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">);</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>All the functions and variables must be documented, with the exception of
+member functions inherited from parent classes (the documentation is copied
+automatically from the parent class), and default constructor/destructor.</p>
+<p>It is strongly suggested to use grouping to bind together logically related
+classes (e.g., all the classes in a module). E.g.;</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cm">/**</span>
+<span class="cm"> * \defgroup mynewmodule This is a new module</span>
+<span class="cm"> */</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * \ingroup mynewmodule</span>
+<span class="cm"> *</span>
+<span class="cm"> * MyClassOne description.</span>
+<span class="cm"> */</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyClassOne</span>
+<span class="p">{</span>
+<span class="p">};</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * \ingroup mynewmodule</span>
+<span class="cm"> *</span>
+<span class="cm"> * MyClassTwo description.</span>
+<span class="cm"> */</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyClassTwo</span>
+<span class="p">{</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>In the tests for the module, it is suggested to add an ancillary group:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cm">/**</span>
+<span class="cm"> * \defgroup mynewmodule-test Tests for new module</span>
+<span class="cm"> * \ingroup mynewmodule</span>
+<span class="cm"> * \ingroup tests</span>
+<span class="cm"> */</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * \ingroup mynewmodule-tests</span>
+<span class="cm"> * \brief MyNewModule Test</span>
+<span class="cm"> */</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyNewModuleTest</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">TestCase</span>
+<span class="p">{</span>
+<span class="p">};</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * \ingroup mynewmodule-tests</span>
+<span class="cm"> * \brief MyNewModule TestSuite</span>
+<span class="cm"> */</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyNewModuleTestSuite</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">TestSuite</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="n">MyNewModuleTestSuite</span><span class="p">();</span>
+<span class="p">};</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * \ingroup mynewmodule-tests</span>
+<span class="cm"> * Static variable for test initialization</span>
+<span class="cm"> */</span>
+<span class="k">static</span><span class="w"> </span><span class="n">MyNewModuleTestSuite</span><span class="w"> </span><span class="n">g_myNewModuleTestSuite</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>As for comments within the code, comments should be used to describe intention
+or algorithmic overview where is it not immediately obvious from reading the
+code alone. There are no minimum comment requirements and small routines
+probably need no commenting at all, but it is hoped that many larger
+routines will have commenting to aid future maintainers. Please write
+complete English sentences and capitalize the first word unless a lower-case
+identifier begins the sentence. Two spaces after each sentence helps to make
+emacs sentence commands work. Sometimes <code class="docutils literal notranslate"><span class="pre">NS_LOG_DEBUG</span></code> statements can
+be also used in place of comments.</p>
+<p>Short one-line comments and long comments can use the C++ comment style;
+that is, <code class="docutils literal notranslate"><span class="pre">//</span></code>, but longer comments may use C-style comments.
+Use one space after <code class="docutils literal notranslate"><span class="pre">//</span></code> or <code class="docutils literal notranslate"><span class="pre">/*</span></code>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cm">/*</span>
+<span class="cm"> * A longer comment,</span>
+<span class="cm"> * with multiple lines.</span>
+<span class="cm"> */</span>
+</pre></div>
+</div>
+<p>Variable declaration should have a short, one or two line comment describing
+the purpose of the variable, unless it is a local variable whose use is
+obvious from the context. The short comment should be on the same line as the
+variable declaration, unless it is too long, in which case it should be on
+the preceding lines.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">nNodes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span><span class="w"> </span><span class="c1">// Number of nodes</span>
+
+<span class="c1">/// Node container with the Wi-Fi stations</span>
+<span class="n">NodeContainer</span><span class="w"> </span><span class="nf">wifiStations</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="casts">
+<h3><span class="section-number">6.4.17. </span>Casts<a class="headerlink" href="#casts" title="Link to this heading">¶</a></h3>
+<p>Where casts are necessary, use the Google C++ guidance:  “Use C++-style casts
+like <code class="docutils literal notranslate"><span class="pre">static_cast&lt;float&gt;(double_value)</span></code>, or brace initialization for
+conversion of arithmetic types like <code class="docutils literal notranslate"><span class="pre">int64</span> <span class="pre">y</span> <span class="pre">=</span> <span class="pre">int64{1}</span> <span class="pre">&lt;&lt;</span> <span class="pre">42</span></code>.”
+Do not use C-style casts, since they can be unsafe.</p>
+<p>Try to avoid (and remove current instances of) casting of <code class="docutils literal notranslate"><span class="pre">uint8_t</span></code>
+type to larger integers in our logging output by overriding these types
+within the logging system itself. Also, the unary <code class="docutils literal notranslate"><span class="pre">+</span></code> operator can be used
+to print the numeric value of any variable, such as:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Flags numeric value: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="o">+</span><span class="n">flags</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Avoid unnecessary casts if minor changes to variable declarations can solve
+the issue. In the following example, <code class="docutils literal notranslate"><span class="pre">x</span></code> can be declared as <code class="docutils literal notranslate"><span class="pre">float</span></code> instead of
+<code class="docutils literal notranslate"><span class="pre">int</span></code> to avoid the cast, or write numbers in decimal format:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Do not declare x as int, to avoid casting it to float</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+<span class="kt">float</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+<span class="c1">// Prefer to declare x as float</span>
+<span class="kt">float</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.0</span><span class="p">;</span>
+<span class="kt">float</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
+
+<span class="c1">// Or use 1.0 instead of just 1</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+<span class="kt">float</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
+</pre></div>
+</div>
+</section>
+<section id="namespaces">
+<h3><span class="section-number">6.4.18. </span>Namespaces<a class="headerlink" href="#namespaces" title="Link to this heading">¶</a></h3>
+<p>Code should always be included in a given namespace, namely <code class="docutils literal notranslate"><span class="pre">ns3</span></code>.
+In order to avoid exposing internal symbols, consider placing the code in an
+anonymous namespace, which can only be accessed by functions in the same file.</p>
+<p>Code within namespaces should not be indented. To more easily identify the end
+of a namespace, add a trailing comment to its closing brace.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">ns3</span>
+<span class="p">{</span>
+
+<span class="c1">// (...)</span>
+
+<span class="p">}</span><span class="w"> </span><span class="c1">// namespace ns3</span>
+</pre></div>
+</div>
+<p>Namespace names should follow the snake_case convention.</p>
+</section>
+<section id="unused-variables">
+<h3><span class="section-number">6.4.19. </span>Unused variables<a class="headerlink" href="#unused-variables" title="Link to this heading">¶</a></h3>
+<p>Compilers will typically issue warnings on unused entities (e.g., variables,
+function parameters). Use the <code class="docutils literal notranslate"><span class="pre">[[maybe_unused]]</span></code> attribute to suppress
+such warnings when the entity may be unused depending on how the code
+is compiled (e.g., if the entity is only used in a logging statement or
+an assert statement).</p>
+<p>The general guidelines are as follows:</p>
+<ul>
+<li><p>If a function’s or a method’s parameter is definitely unused,
+prefer to leave it unnamed. In the following example, the second
+parameter is unnamed.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span>
+<span class="nf">UanMacAloha::RxPacketGood</span><span class="p">(</span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">Packet</span><span class="o">&gt;</span><span class="w"> </span><span class="n">pkt</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="p">,</span><span class="w"> </span><span class="n">UanTxMode</span><span class="w"> </span><span class="n">txMode</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">UanHeaderCommon</span><span class="w"> </span><span class="n">header</span><span class="p">;</span>
+<span class="w">    </span><span class="n">pkt</span><span class="o">-&gt;</span><span class="n">RemoveHeader</span><span class="p">(</span><span class="n">header</span><span class="p">);</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In this case, the parameter is also not referenced by Doxygen; e.g.,:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cm">/**</span>
+<span class="cm"> * Receive packet from lower layer (passed to PHY as callback).</span>
+<span class="cm"> *</span>
+<span class="cm"> * \param pkt Packet being received.</span>
+<span class="cm"> * \param txMode Mode of received packet.</span>
+<span class="cm"> */</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">RxPacketGood</span><span class="p">(</span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">Packet</span><span class="o">&gt;</span><span class="w"> </span><span class="n">pkt</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="p">,</span><span class="w"> </span><span class="n">UanTxMode</span><span class="w"> </span><span class="n">txMode</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The omission is preferred to commenting out unused parameters, such as:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span>
+<span class="nf">UanMacAloha::RxPacketGood</span><span class="p">(</span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">Packet</span><span class="o">&gt;</span><span class="w"> </span><span class="n">pkt</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="cm">/*sinr*/</span><span class="p">,</span><span class="w"> </span><span class="n">UanTxMode</span><span class="w"> </span><span class="n">txMode</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">UanHeaderCommon</span><span class="w"> </span><span class="n">header</span><span class="p">;</span>
+<span class="w">    </span><span class="n">pkt</span><span class="o">-&gt;</span><span class="n">RemoveHeader</span><span class="p">(</span><span class="n">header</span><span class="p">);</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>If a function’s parameter is only used in certain cases (e.g., logging),
+or it is part of the function’s Doxygen, mark it as <code class="docutils literal notranslate"><span class="pre">[[maybe_unused]]</span></code>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span>
+<span class="nf">TcpSocketBase::CompleteFork</span><span class="p">(</span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">Packet</span><span class="o">&gt;</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="p">[[</span><span class="n">maybe_unused</span><span class="p">]],</span>
+<span class="w">                            </span><span class="k">const</span><span class="w"> </span><span class="n">TcpHeader</span><span class="o">&amp;</span><span class="w"> </span><span class="n">h</span><span class="p">,</span>
+<span class="w">                            </span><span class="k">const</span><span class="w"> </span><span class="n">Address</span><span class="o">&amp;</span><span class="w"> </span><span class="n">fromAddress</span><span class="p">,</span>
+<span class="w">                            </span><span class="k">const</span><span class="w"> </span><span class="n">Address</span><span class="o">&amp;</span><span class="w"> </span><span class="n">toAddress</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">NS_LOG_FUNCTION</span><span class="p">(</span><span class="k">this</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">h</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">fromAddress</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">toAddress</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Remaining code that definitely uses &#39;h&#39;, &#39;fromAddress&#39; and &#39;toAddress&#39;</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>If a local variable saves the result of a function that must always run,
+but whose value may not be used, declare it <code class="docutils literal notranslate"><span class="pre">[[maybe_unused]]</span></code>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span>
+<span class="nf">MyFunction</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="p">[[</span><span class="n">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MandatoryFunction</span><span class="p">();</span>
+<span class="w">    </span><span class="n">NS_LOG_DEBUG</span><span class="p">(</span><span class="s">&quot;result = &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">result</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>If a local variable saves the result of a function that is only run in
+certain cases, prefer to not declare the variable and use the function’s
+return value directly where needed. This avoids unnecessarily calling the
+function if its result is not used.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span>
+<span class="nf">MyFunction</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// Prefer to call GetDebugInfo() directly on the log statement</span>
+<span class="w">    </span><span class="n">NS_LOG_DEBUG</span><span class="p">(</span><span class="s">&quot;Debug information: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">GetDebugInfo</span><span class="p">());</span>
+
+<span class="w">    </span><span class="c1">// Avoid declaring a local variable with the result of GetDebugInfo()</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">debugInfo</span><span class="w"> </span><span class="p">[[</span><span class="n">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GetDebugInfo</span><span class="p">();</span>
+<span class="w">    </span><span class="n">NS_LOG_DEBUG</span><span class="p">(</span><span class="s">&quot;Debug information: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">debugInfo</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>If the calculation of the maybe unused variable is complex, consider wrapping
+the calculation of its value in a conditional block that is only run if the
+variable is used.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">g_log</span><span class="p">.</span><span class="n">IsEnabled</span><span class="p">(</span><span class="n">ns3</span><span class="o">::</span><span class="n">LOG_DEBUG</span><span class="p">))</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">debugInfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GetDebugInfo</span><span class="p">();</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DoComplexCalculation</span><span class="p">(</span><span class="n">debugInfo</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">NS_LOG_DEBUG</span><span class="p">(</span><span class="s">&quot;The value is &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">value</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="unnecessary-else-after-return">
+<h3><span class="section-number">6.4.20. </span>Unnecessary else after return<a class="headerlink" href="#unnecessary-else-after-return" title="Link to this heading">¶</a></h3>
+<p>In order to increase readability and avoid deep code nests, consider not adding
+an <code class="docutils literal notranslate"><span class="pre">else</span></code> block if the <code class="docutils literal notranslate"><span class="pre">if</span></code> block breaks the control flow (i.e., when using
+<code class="docutils literal notranslate"><span class="pre">return</span></code>, <code class="docutils literal notranslate"><span class="pre">break</span></code>, <code class="docutils literal notranslate"><span class="pre">continue</span></code>, etc.).</p>
+<p>For instance, the following code:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">else</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">n</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">n</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>can be rewritten as:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">n</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+<span class="k">return</span><span class="w"> </span><span class="n">n</span><span class="p">;</span>
+</pre></div>
+</div>
+</section>
+<section id="boolean-simplifications">
+<h3><span class="section-number">6.4.21. </span>Boolean Simplifications<a class="headerlink" href="#boolean-simplifications" title="Link to this heading">¶</a></h3>
+<p>In order to increase readability and performance, avoid unnecessarily complex boolean
+expressions in if statements and variable declarations.</p>
+<p>For instance, the following code:</p>
+<blockquote>
+<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">bool</span><span class="w"> </span><span class="nf">IsPositive</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">ProcessNumber</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">IsPositive</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">true</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="p">...</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>can be rewritten as:</p>
+<blockquote>
+<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">bool</span><span class="w"> </span><span class="nf">IsPositive</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">ProcessNumber</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">IsPositive</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="p">...</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+</section>
+<section id="smart-pointer-boolean-comparisons">
+<h3><span class="section-number">6.4.22. </span>Smart pointer boolean comparisons<a class="headerlink" href="#smart-pointer-boolean-comparisons" title="Link to this heading">¶</a></h3>
+<p>As explained in this <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/merge_requests/732">issue</a>,
+the <em>ns-3</em> smart pointer class <code class="docutils literal notranslate"><span class="pre">Ptr</span></code> should be used in boolean comparisons as follows:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">for</span><span class="w"> </span><span class="n">Ptr</span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">use</span><span class="o">:</span><span class="w">            </span><span class="n">use</span><span class="w"> </span><span class="n">instead</span><span class="o">:</span>
+<span class="o">========================</span><span class="w">            </span><span class="o">=================================</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{...}</span><span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w">      </span><span class="p">{...}</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w">    </span><span class="p">{...}</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w">       </span><span class="p">{...}</span><span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w">      </span><span class="p">{...}</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{...}</span><span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">p</span><span class="p">)</span><span class="w">     </span><span class="p">{...}</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w">    </span><span class="p">{...}</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w">       </span><span class="p">{...}</span>
+
+<span class="n">NS_ASSERT</span><span class="p">...(</span><span class="n">p</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">,</span><span class="w"> </span><span class="p">...)</span><span class="w">    </span><span class="n">NS_ASSERT</span><span class="p">...(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="p">...)</span>
+<span class="n">NS_ABORT</span><span class="p">...</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">,</span><span class="w"> </span><span class="p">...)</span><span class="w">    </span><span class="n">NS_ABORT</span><span class="p">...</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="p">...)</span>
+
+<span class="n">NS_ASSERT</span><span class="p">...(</span><span class="n">p</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">nullptr</span><span class="p">,</span><span class="w"> </span><span class="p">...)</span><span class="w">    </span><span class="n">NS_ASSERT</span><span class="p">...(</span><span class="o">!</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="p">...)</span>
+<span class="n">NS_ABORT</span><span class="p">...</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">nullptr</span><span class="p">,</span><span class="w"> </span><span class="p">...)</span><span class="w">    </span><span class="n">NS_ABORT</span><span class="p">...</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="p">...)</span>
+
+<span class="n">NS_TEST</span><span class="p">...</span><span class="w">  </span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="p">,</span><span class="w"> </span><span class="p">...)</span><span class="w">      </span><span class="n">NS_TEST</span><span class="p">...</span><span class="w">  </span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="p">,</span><span class="w"> </span><span class="p">...)</span>
+</pre></div>
+</div>
+</section>
+<section id="code-performance-tips">
+<h3><span class="section-number">6.4.23. </span>Code performance tips<a class="headerlink" href="#code-performance-tips" title="Link to this heading">¶</a></h3>
+<p>While developing code, consider the following tips to improve the code’s performance.
+Some tips are general recommendations, but are not strictly enforced.
+Other tips are enforced by clang-tidy. Please refer to the clang-tidy section below
+for more details.</p>
+<ul>
+<li><p>Prefer to use <code class="docutils literal notranslate"><span class="pre">.emplace_back()</span></code> over <code class="docutils literal notranslate"><span class="pre">.push_back()</span></code> to optimize performance.</p></li>
+<li><p>When initializing STL containers (e.g., <code class="docutils literal notranslate"><span class="pre">std::vector</span></code>) with known size,
+reserve memory to store all items, before pushing them in a loop.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">constexpr</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">N_ITEMS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">myVector</span><span class="p">;</span>
+<span class="n">myVector</span><span class="p">.</span><span class="n">reserve</span><span class="p">(</span><span class="n">N_ITEMS</span><span class="p">);</span><span class="w"> </span><span class="c1">// Reserve memory to store all items</span>
+
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">N_ITEMS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">myVector</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>Prefer to initialize STL containers (e.g., <code class="docutils literal notranslate"><span class="pre">std::vector</span></code>, <code class="docutils literal notranslate"><span class="pre">std::map</span></code>, etc.)
+directly through the constructor or with a braced-init-list, instead of pushing
+elements one-by-one.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Prefer to initialize containers directly</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">myVector1</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">};</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">myVector2</span><span class="p">(</span><span class="n">myVector1</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">myVector1</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span><span class="w"> </span><span class="n">myVector3</span><span class="p">(</span><span class="n">myVector2</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span>
+
+<span class="c1">// Avoid pushing elements one-by-one</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">myVector1</span><span class="p">;</span>
+<span class="n">myVector1</span><span class="p">.</span><span class="n">reserve</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+<span class="n">myVector1</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">myVector1</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="n">myVector1</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">myVector2</span><span class="p">;</span>
+<span class="n">myVector2</span><span class="p">.</span><span class="n">reserve</span><span class="p">(</span><span class="n">myVector1</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">myVector1</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">myVector2</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">v</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span><span class="w"> </span><span class="n">myVector3</span><span class="p">;</span>
+<span class="n">myVector3</span><span class="p">.</span><span class="n">reserve</span><span class="p">(</span><span class="n">myVector1</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">myVector1</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">myVector3</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>When looping through containers, prefer to use const-ref syntax over copying
+elements.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">myVector</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">};</span>
+
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">myVector</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w">  </span><span class="c1">// OK</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">myVector</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w">         </span><span class="c1">// Avoid</span>
+</pre></div>
+</div>
+</li>
+<li><p>Prefer to use the <code class="docutils literal notranslate"><span class="pre">empty()</span></code> function of STL containers (e.g., <code class="docutils literal notranslate"><span class="pre">std::vector</span></code>),
+instead of the condition <code class="docutils literal notranslate"><span class="pre">size()</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>, to avoid unnecessarily calculating the
+size of the container.</p></li>
+<li><p>Avoid unnecessary calls to the functions <code class="docutils literal notranslate"><span class="pre">.c_str()</span></code> and <code class="docutils literal notranslate"><span class="pre">.data()</span></code> of
+<code class="docutils literal notranslate"><span class="pre">std::string</span></code>.</p></li>
+<li><p>Avoid unnecessarily dereferencing std smart pointers (<code class="docutils literal notranslate"><span class="pre">std::shared_ptr</span></code>,
+<code class="docutils literal notranslate"><span class="pre">std::unique_ptr</span></code>) with calls to their member function <code class="docutils literal notranslate"><span class="pre">.get()</span></code>.
+Prefer to use the std smart pointer directly where needed.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="c1">// OK</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+
+<span class="c1">// Avoid</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ptr</span><span class="p">.</span><span class="n">get</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>Consider caching frequently-used results (especially expensive calculations,
+such as mathematical functions) in a temporary variable, instead of calculating
+them in every loop.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Prefer to cache intermediate results</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">sinTheta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">);</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">cosTheta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">);</span>
+
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_VALUES</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">power</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">array1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">power</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">sinTheta</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">cosTheta</span><span class="p">;</span>
+<span class="w">    </span><span class="n">array2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">power</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">cosTheta</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">sinTheta</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Avoid repeating calculations</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_VALUES</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">array1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">);</span>
+<span class="w">    </span><span class="n">array2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>Do not include inline implementations in header files; put all
+implementation in a <code class="docutils literal notranslate"><span class="pre">.cc</span></code> file (unless implementation in the header file
+brings demonstrable and significant performance improvement).</p></li>
+<li><p>Avoid declaring trivial destructors, to optimize performance.</p></li>
+</ul>
+</section>
+<section id="c-standard">
+<h3><span class="section-number">6.4.24. </span>C++ standard<a class="headerlink" href="#c-standard" title="Link to this heading">¶</a></h3>
+<p>As of ns-3.36, <em>ns-3</em> permits the use of C++-17 (or earlier) features
+in the implementation files.</p>
+<p>If a developer would like to propose to raise this bar to include more
+features than this, please email the developers list. We will move this
+language support forward as our minimally supported compiler moves forward.</p>
+</section>
+<section id="miscellaneous-items">
+<h3><span class="section-number">6.4.25. </span>Miscellaneous items<a class="headerlink" href="#miscellaneous-items" title="Link to this heading">¶</a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">NS_LOG_COMPONENT_DEFINE(&quot;log-component-name&quot;);</span></code> statements should be
+placed within <code class="docutils literal notranslate"><span class="pre">namespace</span> <span class="pre">ns3</span></code> (for module code) and after the
+<code class="docutils literal notranslate"><span class="pre">using</span> <span class="pre">namespace</span> <span class="pre">ns3;</span></code>.  In examples,
+<code class="docutils literal notranslate"><span class="pre">NS_OBJECT_ENSURE_REGISTERED()</span></code> should also be placed within <code class="docutils literal notranslate"><span class="pre">namespace</span> <span class="pre">ns3</span></code>.</p></li>
+<li><p>Pointers and references are left-aligned:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">x</span><span class="p">;</span>
+<span class="kt">int</span><span class="o">&amp;</span><span class="w"> </span><span class="n">ref</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+<li><p>Use a trailing comma in braced-init-lists, so that each item is positioned in a new line.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">myVector</span><span class="p">{</span>
+<span class="w">  </span><span class="s">&quot;string-1&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s">&quot;string-2&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s">&quot;string-3&quot;</span><span class="p">,</span>
+<span class="p">};</span>
+
+<span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">myMap</span><span class="p">{</span>
+<span class="w">  </span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;string-1&quot;</span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;string-2&quot;</span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;string-3&quot;</span><span class="p">},</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</li>
+<li><p>Const reference syntax:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">MySub</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">T</span><span class="o">&amp;</span><span class="w"> </span><span class="n">t</span><span class="p">);</span><span class="w">  </span><span class="c1">// OK</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">MySub</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">t</span><span class="p">);</span><span class="w">  </span><span class="c1">// Not OK</span>
+</pre></div>
+</div>
+</li>
+<li><p>Do not use <code class="docutils literal notranslate"><span class="pre">NULL</span></code>, <code class="docutils literal notranslate"><span class="pre">nil</span></code> or <code class="docutils literal notranslate"><span class="pre">0</span></code> constants; use <code class="docutils literal notranslate"><span class="pre">nullptr</span></code> (improves portability)</p></li>
+<li><p>Consider whether you want the default constructor, copy constructor, or assignment
+operator in your class. If not, explicitly mark them as deleted and make the
+declaration public:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MyClass</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="c1">// Allowed constructors</span>
+<span class="w">    </span><span class="n">MyClass</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Deleted constructors.</span>
+<span class="w">    </span><span class="c1">// Explain why they are not supported.</span>
+<span class="w">    </span><span class="n">MyClass</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">delete</span><span class="p">;</span>
+<span class="w">    </span><span class="n">MyClass</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">MyClass</span><span class="o">&amp;</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">delete</span><span class="p">;</span>
+<span class="w">    </span><span class="n">MyClass</span><span class="o">&amp;</span><span class="w"> </span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">MyClass</span><span class="o">&amp;</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">delete</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</li>
+<li><p>Avoid returning a reference to an internal or local member of an object:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">MyType</span><span class="o">&amp;</span><span class="w"> </span><span class="nf">foo</span><span class="p">();</span><span class="w">        </span><span class="c1">// Avoid. Prefer to return a pointer or an object.</span>
+<span class="k">const</span><span class="w"> </span><span class="n">MyType</span><span class="o">&amp;</span><span class="w"> </span><span class="nf">foo</span><span class="p">();</span><span class="w">  </span><span class="c1">// Same as above.</span>
+</pre></div>
+</div>
+<p>This guidance does not apply to the use of references to implement operators.</p>
+</li>
+<li><p>Expose class members through access functions, rather than direct access
+to a public object. The access functions are typically named <code class="docutils literal notranslate"><span class="pre">Get</span></code> and
+<code class="docutils literal notranslate"><span class="pre">Set</span></code> followed by the member’s name. For example, a member <code class="docutils literal notranslate"><span class="pre">m_delayTime</span></code>
+might have accessor functions <code class="docutils literal notranslate"><span class="pre">GetDelayTime()</span></code> and <code class="docutils literal notranslate"><span class="pre">SetDelayTime()</span></code>.</p></li>
+<li><p>Do not bring the C++ standard library namespace into <em>ns-3</em> source files by
+using the <code class="docutils literal notranslate"><span class="pre">using</span> <span class="pre">namespace</span> <span class="pre">std;</span></code> directive.</p></li>
+<li><p>Do not use the C++ <code class="docutils literal notranslate"><span class="pre">goto</span></code> statement.</p></li>
+<li><p>Do not add the <code class="docutils literal notranslate"><span class="pre">enum</span></code> or <code class="docutils literal notranslate"><span class="pre">struct</span></code> specifiers when declaring the variable’s type.</p></li>
+<li><p>Do not unnecessarily add <code class="docutils literal notranslate"><span class="pre">typedef</span></code> to <code class="docutils literal notranslate"><span class="pre">struct</span></code> or <code class="docutils literal notranslate"><span class="pre">enum</span></code>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Avoid</span>
+<span class="k">typedef</span><span class="w"> </span><span class="k">struct</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="p">}</span><span class="w"> </span><span class="n">MyStruct</span><span class="p">;</span>
+
+<span class="c1">// Prefer</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">MyStruct</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="clang-tidy-rules">
+<h3><span class="section-number">6.4.26. </span>Clang-tidy rules<a class="headerlink" href="#clang-tidy-rules" title="Link to this heading">¶</a></h3>
+<p>Please refer to the <code class="docutils literal notranslate"><span class="pre">.clang-tidy</span></code> file in the <em>ns-3</em> main directory for the full list
+of rules that should be observed while developing code.</p>
+<p>Some rules are explained in the corresponding sections above. The remaining rules are
+explained here.</p>
+<ul>
+<li><p>Explicitly mark inherited functions with the <code class="docutils literal notranslate"><span class="pre">override</span></code> specifier.</p></li>
+<li><p>When creating STL smart pointers, prefer to use <code class="docutils literal notranslate"><span class="pre">std::make_shared</span></code> or
+<code class="docutils literal notranslate"><span class="pre">std::make_unique</span></code>, instead of creating the smart pointer with <code class="docutils literal notranslate"><span class="pre">new</span></code>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">node</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">&gt;</span><span class="p">();</span><span class="w">           </span><span class="c1">// OK</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">node</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">&gt;</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Node</span><span class="p">());</span><span class="w">  </span><span class="c1">// Avoid</span>
+</pre></div>
+</div>
+</li>
+<li><p>When looping through containers, prefer to use range-based for loops rather than
+index-based loops.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">myVector</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">};</span>
+
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">myVector</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w">             </span><span class="c1">// Prefer</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">myVector</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w">  </span><span class="c1">// Avoid</span>
+</pre></div>
+</div>
+</li>
+<li><p>Avoid accessing class static functions and members through objects.
+Instead, prefer to access them through the class.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// OK</span>
+<span class="n">MyClass</span><span class="o">::</span><span class="n">StaticFunction</span><span class="p">();</span>
+
+<span class="c1">// Avoid</span>
+<span class="n">MyClass</span><span class="w"> </span><span class="n">myClass</span><span class="p">;</span>
+<span class="n">MyClass</span><span class="p">.</span><span class="n">StaticFunction</span><span class="p">();</span>
+</pre></div>
+</div>
+</li>
+<li><p>Prefer using type traits in short form <code class="docutils literal notranslate"><span class="pre">traits_t&lt;...&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">traits_v&lt;...&gt;</span></code>,
+instead of the long form <code class="docutils literal notranslate"><span class="pre">traits&lt;...&gt;::type</span></code> and <code class="docutils literal notranslate"><span class="pre">traits&lt;...&gt;::value</span></code>, respectively.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Prefer using the shorter version of type traits</span>
+<span class="n">std</span><span class="o">::</span><span class="n">is_same_v</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">&gt;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">is_integral_v</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">enable_if_t</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">is_integral_v</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">Time</span><span class="o">&gt;</span>
+
+<span class="c1">// Avoid the longer form of type traits</span>
+<span class="n">std</span><span class="o">::</span><span class="n">is_same</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">&gt;::</span><span class="n">value</span>
+<span class="n">std</span><span class="o">::</span><span class="n">is_integral</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">value</span>
+<span class="n">std</span><span class="o">::</span><span class="n">enable_if</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">is_integral</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">Time</span><span class="o">&gt;::</span><span class="n">type</span>
+</pre></div>
+</div>
+</li>
+<li><p>Avoid using integer values (<code class="docutils literal notranslate"><span class="pre">1</span></code> or <code class="docutils literal notranslate"><span class="pre">0</span></code>) to represent boolean variables
+(<code class="docutils literal notranslate"><span class="pre">true</span></code> or <code class="docutils literal notranslate"><span class="pre">false</span></code>), to improve code readability and avoid implicit conversions.</p></li>
+<li><p>Prefer to use <code class="docutils literal notranslate"><span class="pre">static_assert()</span></code> over <code class="docutils literal notranslate"><span class="pre">NS_ASSERT()</span></code> when conditions can be
+evaluated at compile-time.</p></li>
+<li><p>Prefer using transparent functors to non-transparent ones, to avoid repeating
+the type name. This improves readability and avoids errors when refactoring code.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Prefer using transparent functors</span>
+<span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">MyClass</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">less</span><span class="o">&lt;&gt;&gt;</span><span class="w"> </span><span class="n">myMap</span><span class="p">;</span>
+
+<span class="c1">// Avoid repeating the type name &quot;MyClass&quot; in std::less&lt;&gt;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">MyClass</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">less</span><span class="o">&lt;</span><span class="n">MyClass</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">myMap</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+</section>
+<section id="cmake-file-formatting">
+<h2><span class="section-number">6.5. </span>CMake file formatting<a class="headerlink" href="#cmake-file-formatting" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">CMakeLists.txt</span></code> and other <code class="docutils literal notranslate"><span class="pre">*.cmake</span></code> files follow the formatting rules defined in
+<code class="docutils literal notranslate"><span class="pre">build-support/cmake-format.yaml</span></code> and <code class="docutils literal notranslate"><span class="pre">build-support/cmake-format-modules.yaml</span></code>.</p>
+<p>The first set of rules applies to CMake files in all directories that are not modules,
+while the second one applies to files within modules.</p>
+<p>Those rules are enforced via the <a class="reference external" href="https://cmake-format.readthedocs.io/en/latest/cmake-format.html">cmake-format</a> tool, that can be installed via Pip.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install cmake-format pyyaml</span>
+</pre></div>
+</div>
+<p>After installing cmake-format, it can be called to fix the formatting of a CMake file
+with the following command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">cmake-format -c ./build-support/cmake-format.yaml CMakeLists.txt</span>
+</pre></div>
+</div>
+<p>To check the formatting, add the <cite>–check</cite> option to the command, before specifying
+the list of CMake files.</p>
+<p>Instead of calling this command for every single CMake file, it is recommended to use
+the <code class="docutils literal notranslate"><span class="pre">ns3</span></code> script to run the custom targets that do that automatically.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>Check<span class="w"> </span>CMake<span class="w"> </span>formatting
+<span class="go">./ns3 build cmake-format-check</span>
+
+<span class="gp"># </span>Check<span class="w"> </span>and<span class="w"> </span>fix<span class="w"> </span>CMake<span class="w"> </span>formatting
+<span class="go">./ns3 build cmake-format</span>
+</pre></div>
+</div>
+<p>Custom functions and macros need to be explicitly configured in the <code class="docutils literal notranslate"><span class="pre">cmake-format.yaml</span></code> files,
+otherwise their formatting will be broken.</p>
+</section>
+<section id="python-file-formatting">
+<h2><span class="section-number">6.6. </span>Python file formatting<a class="headerlink" href="#python-file-formatting" title="Link to this heading">¶</a></h2>
+<p>Python format style and rule enforcement is based on the default settings for the <a class="reference external" href="https://black.readthedocs.io/en/stable/index.html">Black</a>
+formatter tool and <a class="reference external" href="https://pycqa.github.io/isort/index.html">Isort</a> import sorter tool. Black default format is detailed in <a class="reference external" href="https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html">Black current style</a>.</p>
+<p>The custom settings for both tools are set in the <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> file.</p>
+<p>These tools that can be installed via Pip, using the following command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install black isort</span>
+</pre></div>
+</div>
+<p>To check the formatting, add the <cite>–check</cite> option to the command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">black --check .</span>
+<span class="go">isort --check .</span>
+</pre></div>
+</div>
+<p>To check and fix the formatting, run the commands as follows:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">black .</span>
+<span class="go">isort .</span>
+</pre></div>
+</div>
+<p>For VS Code users, <a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=ms-python.black-formatter">MS Black formatter</a> and <a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=ms-python.isort">MS Isort</a> extensions, which repackage
+Black and Isort for VS Code, can be installed to apply fixes regularly.
+To configure VS Code to automatically format code when saving, editing or pasting code,
+add the following configuration to <code class="docutils literal notranslate"><span class="pre">.vscode/settings.json</span></code>:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;editor.formatOnPaste&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;editor.formatOnSave&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;editor.formatOnType&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;[python]&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;editor.defaultFormatter&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ms-python.black-formatter&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;editor.codeActionsOnSave&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;source.organizeImports&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;black-formatter.args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="s2">&quot;--config&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;pyproject.toml&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;isort.check&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;isort.args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="s2">&quot;--sp&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;pyproject.toml&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/doc/contributing/source/coding-style.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Point to Point Dumbbell Topology Helper &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="point-to-point-dumbbell-topology-helper">
+<h1>Point to Point Dumbbell Topology Helper<a class="headerlink" href="#point-to-point-dumbbell-topology-helper" title="Link to this heading">¶</a></h1>
+<p>This is an introduction to dumbbell topology helper to complement the
+<code class="docutils literal notranslate"><span class="pre">PointToPointDumbbellHelper</span></code> doxygen.</p>
+<section id="model-description">
+<h2>Model Description<a class="headerlink" href="#model-description" title="Link to this heading">¶</a></h2>
+<p>The <a href="#id1"><span class="problematic" id="id2">|ns3|</span></a> <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">PointToPointDumbbellHelper</span></code> class is used to create nodes, add
+point-to-point connections between them and position them in a dumbbell type
+layout. It provides several functions that give complete control over the node
+creation, IPv4/IPv6 address assignment and node positioning (defining bounding
+box).</p>
+<p>It accepts the number of leaf nodes that are to be created on the left, number
+of leaf nodes to be created on the right, and the <code class="docutils literal notranslate"><span class="pre">PointToPointHelper</span></code>
+objects for the left side, right side and router nodes. These
+<code class="docutils literal notranslate"><span class="pre">PointToPointHelper</span></code> objects define Device and Channel attributes for the
+nodes in the respective <code class="docutils literal notranslate"><span class="pre">NodeContainer</span></code> for left, right and router nodes. It
+then connects all the left leaf nodes to the left router and all the right
+leaf nodes to the right router. Thus, all the left leaf nodes are connected
+to the left router, which is connected to the right router, and the right
+router is connected to all the right leaf nodes.</p>
+<p>It provides a feature to position the nodes in a dumbbell type layout to help
+visualize the topology. This is achieved through a function called
+<code class="docutils literal notranslate"><span class="pre">BoundingBox</span></code> which requires coordinate limits as parameters, and then
+positions all the nodes within the limits specified to it in a dumbbell layout
+which is described later in this documentation.</p>
+<p>It also provides a function <code class="docutils literal notranslate"><span class="pre">InstallStack</span></code> which takes a
+<code class="docutils literal notranslate"><span class="pre">InternetStackHelper</span></code> object for installing the <code class="docutils literal notranslate"><span class="pre">InternetStack</span></code> on the
+nodes, function <code class="docutils literal notranslate"><span class="pre">AssignIpv4Addresses</span></code> which takes <code class="docutils literal notranslate"><span class="pre">Ipv4AddressHelper</span></code>
+objects for the left, right and router nodes for assigning IPv4 address to
+each node. It provides a function <code class="docutils literal notranslate"><span class="pre">AssignIpv6Addresses</span></code> which takes a
+<code class="docutils literal notranslate"><span class="pre">Ipv6Address</span></code> address base and a <code class="docutils literal notranslate"><span class="pre">Ipv6Prefix</span></code> prefix for assigning
+IPv6Address to every node.</p>
+<section id="node-positioning">
+<h3>Node Positioning<a class="headerlink" href="#node-positioning" title="Link to this heading">¶</a></h3>
+<p>The algorithm used by the <code class="docutils literal notranslate"><span class="pre">BoundingBox</span></code> function to position the leaf nodes
+and router nodes uses properties of a circle to correctly place the nodes even
+when the user specified coordinate constraints are not enough to place nodes
+accurately.</p>
+<p>It accepts the minimum upper left X-axis coordinate, minimum upper left Y-axis
+coordinate, maximum lower right X-axis coordinate and maximum lower right Y-
+axis coordinate. These limits are used by the algorithm to position the nodes
+in a dumbbell type layout. It automatically adjusts the nodes according to the
+parameters passed to it, and if the parameters specified are too less than
+required, it positions them in a straight line.</p>
+<p>This feature is useful if the user wants to visualize the topology using any
+supported visualization tool such as PyViz or NetAnim.</p>
+</section>
+<section id="using-pointtopointdumbbellhelper">
+<h3>Using PointToPointDumbbellHelper<a class="headerlink" href="#using-pointtopointdumbbellhelper" title="Link to this heading">¶</a></h3>
+<p>A dumbbell topology with point-to-point links can be configured by using the
+<code class="docutils literal notranslate"><span class="pre">PointToPointDumbbellHelper</span></code>. The first task is to create two
+<code class="docutils literal notranslate"><span class="pre">PointToPointHelper</span></code> objects: one for the leaf nodes and the other for the
+router nodes as shown below:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">PointToPointHelper</span><span class="w"> </span><span class="n">p2pLeaf</span><span class="p">;</span>
+<span class="n">p2pLeaf</span><span class="p">.</span><span class="n">SetDeviceAttribute</span><span class="p">(</span><span class="s">&quot;DataRate&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;10Mbps&quot;</span><span class="p">));</span>
+<span class="n">p2pLeaf</span><span class="p">.</span><span class="n">SetChannelAttribute</span><span class="p">(</span><span class="s">&quot;Delay&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;2ms&quot;</span><span class="p">));</span>
+
+<span class="n">PointToPointHelper</span><span class="w"> </span><span class="n">p2pRouter</span><span class="p">;</span>
+<span class="n">p2pRouter</span><span class="p">.</span><span class="n">SetDeviceAttribute</span><span class="p">(</span><span class="s">&quot;DataRate&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;5Mbps&quot;</span><span class="p">));</span>
+<span class="n">p2pRouter</span><span class="p">.</span><span class="n">SetChannelAttribute</span><span class="p">(</span><span class="s">&quot;Delay&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;10ms&quot;</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>After creating the <code class="docutils literal notranslate"><span class="pre">PointToPointHelper</span></code> objects, we need to instantiate the
+<code class="docutils literal notranslate"><span class="pre">PointToPointDumbbellHelper</span></code>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">PointToPointDumbbellHelper</span><span class="w"> </span><span class="nf">dumbbell</span><span class="p">(</span><span class="n">nLeftLeaf</span><span class="p">,</span><span class="w"> </span><span class="n">p2pLeaf</span><span class="p">,</span><span class="w"> </span><span class="n">nRightLeaf</span><span class="p">,</span>
+<span class="w">                                    </span><span class="n">p2pLeaf</span><span class="p">,</span><span class="w"> </span><span class="n">p2pRouter</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>It is also possible to create two separate <code class="docutils literal notranslate"><span class="pre">PointToPointHelper</span></code> objects for
+left leaf nodes and right leaf nodes. In this case, a total of three
+<code class="docutils literal notranslate"><span class="pre">PointToPointHelper</span></code> objects should be created: one for the left leaf nodes,
+one for right leaf nodes and one for the router nodes as shown below:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">PointToPointHelper</span><span class="w"> </span><span class="n">p2pLeft</span><span class="p">;</span>
+<span class="n">p2pLeft</span><span class="p">.</span><span class="n">SetDeviceAttribute</span><span class="p">(</span><span class="s">&quot;DataRate&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;10Mbps&quot;</span><span class="p">));</span>
+<span class="n">p2pLeft</span><span class="p">.</span><span class="n">SetChannelAttribute</span><span class="p">(</span><span class="s">&quot;Delay&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;2ms&quot;</span><span class="p">));</span>
+
+<span class="n">PointToPointHelper</span><span class="w"> </span><span class="n">p2pRight</span><span class="p">;</span>
+<span class="n">p2pRight</span><span class="p">.</span><span class="n">SetDeviceAttribute</span><span class="p">(</span><span class="s">&quot;DataRate&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;15Mbps&quot;</span><span class="p">));</span>
+<span class="n">p2pRight</span><span class="p">.</span><span class="n">SetChannelAttribute</span><span class="p">(</span><span class="s">&quot;Delay&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;5ms&quot;</span><span class="p">));</span>
+
+<span class="n">PointToPointHelper</span><span class="w"> </span><span class="n">p2pRouter</span><span class="p">;</span>
+<span class="n">p2pRouter</span><span class="p">.</span><span class="n">SetDeviceAttribute</span><span class="p">(</span><span class="s">&quot;DataRate&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;5Mbps&quot;</span><span class="p">));</span>
+<span class="n">p2pRouter</span><span class="p">.</span><span class="n">SetChannelAttribute</span><span class="p">(</span><span class="s">&quot;Delay&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">StringValue</span><span class="p">(</span><span class="s">&quot;10ms&quot;</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>In this case, we instantiate the <code class="docutils literal notranslate"><span class="pre">PointToPointDumbbellHelper</span></code> as shown below:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">PointToPointDumbbellHelper</span><span class="w"> </span><span class="nf">dumbbell</span><span class="p">(</span><span class="n">nLeftLeaf</span><span class="p">,</span><span class="w"> </span><span class="n">p2pLeft</span><span class="p">,</span><span class="w"> </span><span class="n">nRightLeaf</span><span class="p">,</span>
+<span class="w">                                    </span><span class="n">p2pRight</span><span class="p">,</span><span class="w"> </span><span class="n">p2pRouter</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>After this, we can tell the helper to position the nodes in a dumbbell layout.
+This is done to improve the visualization of the topology and can be achieved
+by calling the <code class="docutils literal notranslate"><span class="pre">BoundingBox</span></code> function:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// ulx -&gt; Minimum Upper Left X coordinate</span>
+<span class="c1">// uly -&gt; Minimum Upper Left Y coordinate</span>
+<span class="c1">// lrx -&gt; Maximum Lower Right X coordinate</span>
+<span class="c1">// lry -&gt; Maximum Lower Right Y coordinate</span>
+<span class="n">dumbbell</span><span class="p">.</span><span class="n">BoundingBox</span><span class="p">(</span><span class="n">ulx</span><span class="p">,</span><span class="w"> </span><span class="n">uly</span><span class="p">,</span><span class="w"> </span><span class="n">lrx</span><span class="p">,</span><span class="w"> </span><span class="n">lry</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Next, we need to install an Internet Stack on the nodes. We have to
+instantiate a <code class="docutils literal notranslate"><span class="pre">InternetStackHelper</span></code> object for this, and pass it as a
+parameter to <code class="docutils literal notranslate"><span class="pre">InstallStack</span></code> function:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">InternetStackHelper</span><span class="w"> </span><span class="n">stack</span><span class="p">;</span>
+<span class="n">dumbbell</span><span class="p">.</span><span class="n">InstallStack</span><span class="p">(</span><span class="n">stack</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Subsequently, we have to assign a IPv4/IPv6 address to the nodes as shown
+below:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// IPv4</span>
+<span class="n">Ipv4AddressHelper</span><span class="w"> </span><span class="n">leftIp</span><span class="p">,</span><span class="w"> </span><span class="n">rightIp</span><span class="p">,</span><span class="w"> </span><span class="n">routerIp</span><span class="p">;</span>
+<span class="n">leftIp</span><span class="p">.</span><span class="n">SetBase</span><span class="p">(</span><span class="s">&quot;10.1.1.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;255.255.255.0&quot;</span><span class="p">);</span>
+<span class="n">rightIp</span><span class="p">.</span><span class="n">SetBase</span><span class="p">(</span><span class="s">&quot;10.2.1.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;255.255.255.0&quot;</span><span class="p">);</span>
+<span class="n">routerIp</span><span class="p">.</span><span class="n">SetBase</span><span class="p">(</span><span class="s">&quot;10.3.1.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;255.255.255.0&quot;</span><span class="p">);</span>
+
+<span class="n">dumbbell</span><span class="p">.</span><span class="n">AssignIpv4Addresses</span><span class="p">(</span><span class="n">leftIp</span><span class="p">,</span><span class="w"> </span><span class="n">rightIp</span><span class="p">,</span><span class="w"> </span><span class="n">routerIp</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>For IPv6 address:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// IPv6</span>
+<span class="n">Ipv6Address</span><span class="w"> </span><span class="n">addrBase</span><span class="p">(</span><span class="s">&quot;2001:1::&quot;</span><span class="p">);</span>
+<span class="n">Ipv6Prefix</span><span class="w"> </span><span class="nf">prefix</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span>
+
+<span class="n">dumbbell</span><span class="p">.</span><span class="n">AssignIpv6Addresses</span><span class="p">(</span><span class="n">addrBase</span><span class="p">,</span><span class="w"> </span><span class="n">prefix</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="example">
+<h2>Example<a class="headerlink" href="#example" title="Link to this heading">¶</a></h2>
+<p>The example for this helper is <cite>dumbbell-animation.cc</cite> located in
+<code class="docutils literal notranslate"><span class="pre">src/netanim/examples</span></code>. The following command shows the available command-
+line options for this example:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">$</span><span class="w"> </span><span class="p">.</span><span class="o">/</span><span class="n">ns3</span><span class="w"> </span><span class="n">run</span><span class="w"> </span><span class="s">&quot;dumbbell-animation --PrintHelp&quot;</span>
+</pre></div>
+</div>
+<p>The following command sets up a dumbbell topology with the default
+configuration:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">$</span><span class="w"> </span><span class="p">.</span><span class="o">/</span><span class="n">ns3</span><span class="w"> </span><span class="n">run</span><span class="w"> </span><span class="n">dumbbell</span><span class="o">-</span><span class="n">animation</span>
+</pre></div>
+</div>
+<p>The following command sets up a dumbbell topology with 6 left leaf nodes and 9
+right leaf nodes:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">$</span><span class="w"> </span><span class="p">.</span><span class="o">/</span><span class="n">ns3</span><span class="w"> </span><span class="n">run</span><span class="w"> </span><span class="s">&quot;dumbbell-animation --nLeftLeaf=6 --nRightLeaf=9&quot;</span>
+</pre></div>
+</div>
+<p>The following command sets up a dumbbell topology with 10 left leaf nodes and
+10 right leaf nodes:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">$</span><span class="w"> </span><span class="p">.</span><span class="o">/</span><span class="n">ns3</span><span class="w"> </span><span class="n">run</span><span class="w"> </span><span class="s">&quot;dumbbell-animation --nLeaf=10&quot;</span>
+</pre></div>
+</div>
+<p>The expected output from the previous commands is a XML file to playback the
+animation using NetAnim.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/src/point-to-point-layout/doc/point-to-point-dumbbell.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

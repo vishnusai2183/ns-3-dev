@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Testing Documentation &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="testing-documentation">
+<h1>Testing Documentation<a class="headerlink" href="#testing-documentation" title="Link to this heading">¶</a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<p>To test and validate the ns-3 Building Pathloss module, some test suites is provided which are integrated with the ns-3 test framework. To run them, you need to have configured the build of the simulator in this way:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./ns3<span class="w"> </span>configure<span class="w"> </span>--enable-tests<span class="w"> </span>--enable-modules<span class="o">=</span>buildings
+$<span class="w"> </span>./test.py
+</pre></div>
+</div>
+<p>The above will run not only the test suites belonging to the buildings module, but also those belonging to all the other ns-3 modules on which the buildings module depends. See the ns-3 manual for generic information on the testing framework.</p>
+<p>You can get a more detailed report in HTML format in this way:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./test.py<span class="w"> </span>-w<span class="w"> </span>results.html
+</pre></div>
+</div>
+<p>After the above command has run, you can view the detailed result for each test by opening the file <code class="docutils literal notranslate"><span class="pre">results.html</span></code> with a web browser.</p>
+<p>You can run each test suite separately using this command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./test.py<span class="w"> </span>-s<span class="w"> </span>test-suite-name
+</pre></div>
+</div>
+<p>For more details about <code class="docutils literal notranslate"><span class="pre">test.py</span></code> and the ns-3 testing framework, please refer to the ns-3 manual.</p>
+</section>
+<section id="description-of-the-test-suites">
+<h2>Description of the test suites<a class="headerlink" href="#description-of-the-test-suites" title="Link to this heading">¶</a></h2>
+<section id="buildingshelper-test">
+<h3>BuildingsHelper test<a class="headerlink" href="#buildingshelper-test" title="Link to this heading">¶</a></h3>
+<p>The test suite <code class="docutils literal notranslate"><span class="pre">buildings-helper</span></code> checks that the method <code class="docutils literal notranslate"><span class="pre">BuildingsHelper::MakeAllInstancesConsistent</span> <span class="pre">()</span></code> works properly, i.e., that the BuildingsHelper is successful in locating if nodes are outdoor or indoor, and if indoor that they are located in the correct building, room and floor. Several test cases are provided with different buildings (having different size, position, rooms and floors) and different node positions. The test passes if each every node is located correctly.</p>
+</section>
+<section id="buildingpositionallocator-test">
+<h3>BuildingPositionAllocator test<a class="headerlink" href="#buildingpositionallocator-test" title="Link to this heading">¶</a></h3>
+<p>The test suite <code class="docutils literal notranslate"><span class="pre">building-position-allocator</span></code> feature two test cases that check that respectively RandomRoomPositionAllocator and SameRoomPositionAllocator work properly. Each test cases involves a single 2x3x2 room building (total 12 rooms) at known coordinates and respectively 24 and 48 nodes. Both tests check that the number of nodes allocated in each room is the expected one and that the position of the nodes is also correct.</p>
+</section>
+<section id="buildings-pathloss-tests">
+<h3>Buildings Pathloss tests<a class="headerlink" href="#buildings-pathloss-tests" title="Link to this heading">¶</a></h3>
+<p>The test suite <code class="docutils literal notranslate"><span class="pre">buildings-pathloss-model</span></code> provides different unit tests that compare the expected results of the buildings pathloss module in specific scenarios with pre calculated values obtained offline with an Octave script (test/reference/buildings-pathloss.m). The tests are considered passed if the two values are equal up to a tolerance of 0.1, which is deemed appropriate for the typical usage of pathloss values (which are in dB).</p>
+<p>In the following we detailed the scenarios considered, their selection has been done for covering the wide set of possible pathloss logic combinations. The pathloss logic results therefore implicitly tested.</p>
+<section id="test-1-okumura-hata">
+<h4>Test #1 Okumura Hata<a class="headerlink" href="#test-1-okumura-hata" title="Link to this heading">¶</a></h4>
+<p>In this test we test the standard Okumura Hata model; therefore both eNB and UE are placed outside at a distance of 2000 m. The frequency used is the E-UTRA band #5, which correspond to 869 MHz (see table 5.5-1 of 36.101). The test includes also the validation of the areas extensions (i.e., urban, suburban and open-areas) and of the city size (small, medium and large).</p>
+</section>
+<section id="test-2-cost231-model">
+<h4>Test #2 COST231 Model<a class="headerlink" href="#test-2-cost231-model" title="Link to this heading">¶</a></h4>
+<p>This test is aimed at validating the COST231 model. The test is similar to the Okumura Hata one, except that the frequency used is the EUTRA band #1 (2140 MHz) and that the test can be performed only for large and small cities in urban scenarios due to model limitations.</p>
+</section>
+<section id="test-3-2-6-ghz-model">
+<h4>Test #3 2.6 GHz model<a class="headerlink" href="#test-3-2-6-ghz-model" title="Link to this heading">¶</a></h4>
+<p>This test validates the 2.6 GHz Kun model. The test is similar to Okumura Hata one except that the frequency is the EUTRA band #7 (2620 MHz) and the test can be performed only in urban scenario.</p>
+</section>
+<section id="test-4-itu1411-los-model">
+<h4>Test #4 ITU1411 LoS model<a class="headerlink" href="#test-4-itu1411-los-model" title="Link to this heading">¶</a></h4>
+<p>This test is aimed at validating the ITU1411 model in case of line of sight within street canyons transmissions. In this case the UE is placed at 100 meters far from the eNB, since the threshold for switching between LoS and NLoS is left to default one (i.e., 200 m.).</p>
+</section>
+<section id="test-5-itu1411-nlos-model">
+<h4>Test #5 ITU1411 NLoS model<a class="headerlink" href="#test-5-itu1411-nlos-model" title="Link to this heading">¶</a></h4>
+<p>This test is aimed at validating the ITU1411 model in case of non line of sight over the rooftop transmissions. In this case the UE is placed at 900 meters far from the eNB, in order to be above the threshold for switching between LoS and NLoS is left to default one (i.e., 200 m.).</p>
+</section>
+<section id="test-6-itup1238-model">
+<h4>Test #6 ITUP1238 model<a class="headerlink" href="#test-6-itup1238-model" title="Link to this heading">¶</a></h4>
+<p>This test is aimed at validating the ITUP1238 model in case of indoor transmissions. In this case both the UE and the eNB are placed in a residential building with walls made of concrete with windows. Ue is placed at the second floor and distances 30 meters far from the eNB, which is placed at the first floor.</p>
+</section>
+<section id="test-7-outdoor-indoor-with-okumura-hata-model">
+<h4>Test #7 Outdoor -&gt; Indoor with Okumura Hata model<a class="headerlink" href="#test-7-outdoor-indoor-with-okumura-hata-model" title="Link to this heading">¶</a></h4>
+<p>This test validates the outdoor to indoor transmissions for large distances. In this case the UE is placed in a residential building with wall made of concrete with windows and distances 2000 meters from the outdoor eNB.</p>
+</section>
+<section id="test-8-outdoor-indoor-with-itu1411-model">
+<h4>Test #8 Outdoor -&gt; Indoor with ITU1411 model<a class="headerlink" href="#test-8-outdoor-indoor-with-itu1411-model" title="Link to this heading">¶</a></h4>
+<p>This test validates the outdoor to indoor transmissions for short distances. In this case the UE is placed in a residential building with walls made of concrete with windows and distances 100 meters from the outdoor eNB.</p>
+</section>
+<section id="test-9-indoor-outdoor-with-itu1411-model">
+<h4>Test #9 Indoor -&gt; Outdoor with ITU1411 model<a class="headerlink" href="#test-9-indoor-outdoor-with-itu1411-model" title="Link to this heading">¶</a></h4>
+<p>This test validates the outdoor to indoor transmissions for very short distances. In this case the eNB is placed in the second floor of a residential building with walls made of concrete with windows and distances 100 meters from the outdoor UE (i.e., LoS communication). Therefore the height gain has to be included in the pathloss evaluation.</p>
+</section>
+<section id="test-10-indoor-outdoor-with-itu1411-model">
+<h4>Test #10 Indoor -&gt; Outdoor with ITU1411 model<a class="headerlink" href="#test-10-indoor-outdoor-with-itu1411-model" title="Link to this heading">¶</a></h4>
+<p>This test validates the outdoor to indoor transmissions for short distances. In this case the eNB is placed in the second floor of a residential building with walls made of concrete with windows and distances 500 meters from the outdoor UE (i.e., NLoS communication). Therefore the height gain has to be included in the pathloss evaluation.</p>
+</section>
+</section>
+<section id="buildings-shadowing-test">
+<h3>Buildings Shadowing Test<a class="headerlink" href="#buildings-shadowing-test" title="Link to this heading">¶</a></h3>
+<p>The test suite <code class="docutils literal notranslate"><span class="pre">buildings-shadowing-test</span></code> is a unit test intended to verify the statistical distribution of the shadowing model implemented by <code class="docutils literal notranslate"><span class="pre">BuildingsPathlossModel</span></code>. The shadowing is modeled according to a normal distribution with mean <span class="math notranslate nohighlight">\(\mu = 0\)</span> and variable standard deviation <span class="math notranslate nohighlight">\(\sigma\)</span>, according to models commonly used in literature. Three test cases are provided, which cover the cases of indoor, outdoor and indoor-to-outdoor communications.
+Each test case generates 1000 different samples of shadowing for different pairs of MobilityModel instances in a given scenario. Shadowing values are obtained by subtracting from the total loss value returned by <code class="docutils literal notranslate"><span class="pre">HybridBuildingsPathlossModel</span></code> the path loss component which is constant and pre-determined for each test case. The test verifies that the sample mean and sample variance of the shadowing values fall within the 99% confidence interval of the sample mean and sample variance. The test also verifies that the shadowing values returned at successive times for the same pair of MobilityModel instances is constant.</p>
+</section>
+<section id="buildings-channel-condition-model-test">
+<h3>Buildings Channel Condition Model Test<a class="headerlink" href="#buildings-channel-condition-model-test" title="Link to this heading">¶</a></h3>
+<p>The BuildingsChannelConditionModelTestSuite tests the class BuildingsChannelConditionModel.
+It checks if the channel condition between two nodes is correctly determined when a
+building is deployed.</p>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../../_sources/src/buildings/doc/source/buildings-testing.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

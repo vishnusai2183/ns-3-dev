@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>3.4. Helpers &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="helpers">
+<h1><span class="section-number">3.4. </span>Helpers<a class="headerlink" href="#helpers" title="Link to this heading">¶</a></h1>
+<p>The above chapters introduced you to various <em>ns-3</em> programming concepts such as
+smart pointers for reference-counted memory management, attributes, namespaces,
+callbacks, etc. Users who work at this low-level API can interconnect <em>ns-3</em>
+objects with fine granularity. However, a simulation program written entirely
+using the low-level API would be quite long and tedious to code. For this
+reason, a separate so-called “helper API” has been overlaid on the core <em>ns-3</em>
+API. If you have read the <em>ns-3</em> tutorial, you will already be familiar with the
+helper API, since it is the API that new users are typically introduced to
+first.  In this chapter, we introduce the design philosophy of the helper API
+and contrast it to the low-level API. If you become a heavy user of <em>ns-3</em>, you
+will likely move back and forth between these APIs even in the same program.</p>
+<p>The helper API has a few goals:</p>
+<ol class="arabic simple">
+<li><p>the rest of <code class="docutils literal notranslate"><span class="pre">src/</span></code> has no dependencies on the helper API; anything that can
+be done with the helper API can be coded also at the low-level API</p></li>
+<li><p><strong>Containers:</strong> Often simulations will need to do a number of identical
+actions to groups of objects. The helper API makes heavy use of containers of
+similar objects to which similar or identical operations can be performed.</p></li>
+<li><p>The helper API is not generic; it does not strive to maximize code reuse. So,
+programming constructs such as polymorphism and templates that achieve code
+reuse are not as prevalent. For instance, there are separate CsmaNetDevice
+helpers and PointToPointNetDevice helpers but they do not derive from a
+common NetDevice base class.</p></li>
+<li><p>The helper API typically works with stack-allocated (vs. heap-allocated)
+objects. For some programs, <em>ns-3</em> users may not need to worry about any low
+level Object Create or Ptr handling; they can make do with containers of
+objects and stack-allocated helpers that operate on them.</p></li>
+</ol>
+<p>The helper API is really all about making <em>ns-3</em> programs easier to write and
+read, without taking away the power of the low-level interface. The rest of this
+chapter provides some examples of the programming conventions of the helper API.</p>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/doc/manual/source/helpers.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

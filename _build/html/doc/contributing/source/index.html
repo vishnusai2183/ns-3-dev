@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Contributing to ns-3 &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="contributing-to-ns-3">
+<h1>Contributing to ns-3<a class="headerlink" href="#contributing-to-ns-3" title="Link to this heading">¶</a></h1>
+<p>This is the <em>ns-3 Contributing Guide</em>. Primary documentation for the ns-3 project is organized as
+follows:</p>
+<ul class="simple">
+<li><p>Several guides that are version controlled for each release (the
+<a class="reference external" href="https://www.nsnam.org/documentation/latest/">latest release</a>) and
+<a class="reference external" href="https://www.nsnam.org/documentation/development-tree/">development tree</a>:</p>
+<ul>
+<li><p>Tutorial</p></li>
+<li><p>Installation Guide</p></li>
+<li><p>Manual</p></li>
+<li><p>Model Library</p></li>
+<li><p>Contributing Guide <em>(this document)</em></p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="https://www.nsnam.org/docs/doxygen/index.html">ns-3 Doxygen</a>: Documentation of the public APIs of
+the simulator</p></li>
+<li><p><a class="reference external" href="https://www.nsnam.org/wiki/Main_Page">ns-3 wiki</a></p></li>
+</ul>
+<p>This document is written in <a class="reference external" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> for <a class="reference external" href="https://www.sphinx-doc.org/">Sphinx</a> and is maintained in the
+<code class="docutils literal notranslate"><span class="pre">doc/contributing</span></code> directory of ns-3’s source code.  Source file column width is 100 columns.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="general.html">2. General</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="general.html#licensing">2.1. Licensing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="general.html#copyright">2.2. Copyright</a></li>
+<li class="toctree-l2"><a class="reference internal" href="general.html#attribution">2.3. Attribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="general.html#coding-style">2.4. Coding style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="general.html#creating-a-patch">2.5. Creating a patch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="general.html#maintainers">2.6. Maintainers</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="enhancements.html">3. Submitting enhancements</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="enhancements.html#gitlab-com-trackers">3.1. GitLab.com trackers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enhancements.html#reporting-issues">3.2. Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enhancements.html#submitting-merge-requests">3.3. Submitting merge requests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enhancements.html#feature-requests">3.4. Feature requests</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models.html">4. Submitting new models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models.html#options-for-new-models">4.1. Options for new models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#upstreaming-new-models">4.2. Upstreaming new models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#code-reviews">4.3. Code reviews</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#submission-structure">4.4. Submission structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html#documentation-tests-and-examples">4.5. Documentation, tests, and examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="external.html">5. Submitting externally maintained code</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="external.html#rationale-for-the-app-store">5.1. Rationale for the app store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="external.html#app-types">5.2. App types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="external.html#submitting-to-the-app-store">5.3. Submitting to the app store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="external.html#code-review-for-apps">5.4. Code review for apps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="external.html#maintaining-app-store-modules">5.5. Maintaining app store modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="external.html#links-to-related-projects">5.6. Links to related projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="external.html#unmaintained-contributed-code">5.7. Unmaintained, contributed code</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="coding-style.html">6. Coding style</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="coding-style.html#clang-format">6.1. Clang-format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="coding-style.html#check-style-clang-format-py">6.2. check-style-clang-format.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="coding-style.html#clang-tidy">6.3. Clang-tidy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="coding-style.html#source-code-formatting">6.4. Source code formatting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="coding-style.html#cmake-file-formatting">6.5. CMake file formatting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="coding-style.html#python-file-formatting">6.6. Python file formatting</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/doc/contributing/source/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>6.1. Enabling Subsets of ns-3 Modules &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="enabling-subsets-of-ns3-modules">
+<h1><span class="section-number">6.1. </span>Enabling Subsets of <em>ns-3</em> Modules<a class="headerlink" href="#enabling-subsets-of-ns3-modules" title="Link to this heading">¶</a></h1>
+<p>As with most software projects, <em>ns-3</em> is ever growing larger in terms of number of modules, lines of code, and memory footprint.  Users, however, may only use a few of those modules at a time.  For this reason, users may want to explicitly enable only the subset of the possible <em>ns-3</em> modules that they actually need for their research.</p>
+<p>This chapter discusses how to enable only the <em>ns-3</em> modules that you are interested in using.</p>
+<section id="how-to-enable-a-subset-of-ns3-s-modules">
+<h2><span class="section-number">6.1.1. </span>How to enable a subset of <em>ns-3</em>’s modules<a class="headerlink" href="#how-to-enable-a-subset-of-ns3-s-modules" title="Link to this heading">¶</a></h2>
+<p>If shared libraries are being built, then enabling a module will cause at least one library to be built:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>libns3-modulename.so
+</pre></div>
+</div>
+<p>If the module has a test library and test libraries are being built, then</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>libns3-modulename-test.so
+</pre></div>
+</div>
+<p>will be built, too.  Other modules that the module depends on and their test libraries will also be built.</p>
+<p>By default, all modules are built in <em>ns-3</em>.  There are two ways to enable a subset of these modules:</p>
+<ol class="arabic simple">
+<li><p>Using ns3’s –enable-modules option</p></li>
+<li><p>Using the <em>ns-3</em> configuration file</p></li>
+</ol>
+<section id="enable-modules-using-ns3-s-enable-modules-option">
+<h3><span class="section-number">6.1.1.1. </span>Enable modules using ns3’s –enable-modules option<a class="headerlink" href="#enable-modules-using-ns3-s-enable-modules-option" title="Link to this heading">¶</a></h3>
+<p>To enable only the core module with example and tests, for example,
+try these commands:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./ns3<span class="w"> </span>clean
+$<span class="w"> </span>./ns3<span class="w"> </span>configure<span class="w"> </span>--enable-examples<span class="w"> </span>--enable-tests<span class="w"> </span>--enable-modules<span class="o">=</span>core
+$<span class="w"> </span>./ns3<span class="w"> </span>build
+$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>build/lib
+$<span class="w"> </span>ls
+</pre></div>
+</div>
+<p>and the following libraries should be present:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>libns3-core.so
+libns3-core-test.so
+</pre></div>
+</div>
+<p>Note the <code class="docutils literal notranslate"><span class="pre">./ns3</span> <span class="pre">clean</span></code> step is done here only to make it more obvious which module libraries were built.  You don’t have to do <code class="docutils literal notranslate"><span class="pre">./ns3</span> <span class="pre">clean</span></code> in order to enable subsets of modules.</p>
+<p>Running test.py will cause only those tests that depend on module core to be run:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>24 of 24 tests passed (24 passed, 0 skipped, 0 failed, 0 crashed, 0 valgrind errors)
+</pre></div>
+</div>
+<p>Repeat the above steps for the “network” module instead of the “core” module, and the following will be built, since network depends on core:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>libns3-core.so       libns3-network.so
+libns3-core-test.so  libns3-network-test.so
+</pre></div>
+</div>
+<p>Running test.py will cause those tests that depend on only the core and network modules to be run:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>31 of 31 tests passed (31 passed, 0 skipped, 0 failed, 0 crashed, 0 valgrind errors)
+</pre></div>
+</div>
+</section>
+<section id="enable-modules-using-the-ns3-configuration-file">
+<h3><span class="section-number">6.1.1.2. </span>Enable modules using the <em>ns-3</em> configuration file<a class="headerlink" href="#enable-modules-using-the-ns3-configuration-file" title="Link to this heading">¶</a></h3>
+<p>A configuration file, .ns3rc, has been added to <em>ns-3</em> that allows users to specify which modules are to be included in the build.</p>
+<p>When enabling a subset of <em>ns-3</em> modules, the precedence rules are as follows:</p>
+<ol class="arabic simple">
+<li><p>the –enable-modules configure string overrides any .ns3rc file</p></li>
+<li><p>the .ns3rc file in the top level <em>ns-3</em> directory is next consulted, if present</p></li>
+<li><p>the system searches for ~/.ns3rc if the above two are unspecified</p></li>
+</ol>
+<p>If none of the above limits the modules to be built, all modules that CMake knows about will be built.</p>
+<p>The maintained version of the .ns3rc file in the <em>ns-3</em> source code repository resides in the <code class="docutils literal notranslate"><span class="pre">utils</span></code> directory.  The reason for this is if it were in the top-level directory of the repository, it would be prone to accidental checkins from maintainers that enable the modules they want to use.  Therefore, users need to manually copy the .ns3rc from the <code class="docutils literal notranslate"><span class="pre">utils</span></code> directory to their preferred place (top level directory or their home directory) to enable persistent modular build configuration.</p>
+<p>Assuming that you are in the top level <em>ns-3</em> directory, you can get a copy of the .ns3rc file that is in the <code class="docutils literal notranslate"><span class="pre">utils</span></code> directory as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>cp<span class="w"> </span>utils/.ns3rc<span class="w"> </span>.
+</pre></div>
+</div>
+<p>The .ns3rc file should now be in your top level <em>ns-3</em> directory, and it contains the following:</p>
+<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="c"># A list of the modules that will be enabled when ns-3 is run.</span>
+<span class="c"># Modules that depend on the listed modules will be enabled also.</span>
+<span class="c">#</span>
+<span class="c"># All modules can be enabled by emptying the list.</span>
+<span class="c"># To list modules, append the modules separated by space or semicolon; e.g.:</span>
+<span class="c"># set(ns3rc_enabled_modules core propagation)</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">ns3rc_enabled_modules</span><span class="p">)</span>
+
+<span class="c"># A list of the modules that will be disabled when ns-3 is run.</span>
+<span class="c"># Modules that depend on the listed modules will be disabled also.</span>
+<span class="c">#</span>
+<span class="c"># If the list is empty, no module will be disabled.</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">ns3rc_disabled_modules</span><span class="p">)</span>
+
+<span class="c"># Set this equal to ON if you want examples to be run.</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">ns3rc_examples_enabled</span><span class="w"> </span><span class="s">OFF</span><span class="p">)</span>
+
+<span class="c"># Set this equal to ON if you want tests to be run.</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">ns3rc_tests_enabled</span><span class="w"> </span><span class="s">OFF</span><span class="p">)</span>
+
+<span class="c"># Override other ns-3 settings by setting their values below</span>
+<span class="c"># Note: command-line settings will also be overridden.</span>
+<span class="c">#set(NS3_LOG ON)</span>
+</pre></div>
+</div>
+<p>Use your favorite editor to modify the .ns3rc file to only enable the core module with examples and tests like this:</p>
+<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="c"># A list of the modules that will be enabled when ns-3 is run.</span>
+<span class="c"># Modules that depend on the listed modules will be enabled also.</span>
+<span class="c">#</span>
+<span class="c"># All modules can be enabled by emptying the list.</span>
+<span class="c"># To list modules, append the modules separated by space or semicolon; e.g.:</span>
+<span class="c"># set(ns3rc_enabled_modules core propagation)</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">ns3rc_enabled_modules</span><span class="w"> </span><span class="s">core</span><span class="p">)</span>
+
+<span class="c"># A list of the modules that will be disabled when ns-3 is run.</span>
+<span class="c"># Modules that depend on the listed modules will be disabled also.</span>
+<span class="c">#</span>
+<span class="c"># If the list is empty, no module will be disabled.</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">ns3rc_disabled_modules</span><span class="p">)</span>
+
+<span class="c"># Set this equal to ON if you want examples to be run.</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">ns3rc_examples_enabled</span><span class="w"> </span><span class="s">ON</span><span class="p">)</span>
+
+<span class="c"># Set this equal to ON if you want tests to be run.</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">ns3rc_tests_enabled</span><span class="w"> </span><span class="s">ON</span><span class="p">)</span>
+
+<span class="c"># Override other ns-3 settings by setting their values below</span>
+<span class="c"># Note: command-line settings will also be overridden.</span>
+<span class="c">#set(NS3_LOG ON)</span>
+</pre></div>
+</div>
+<p>Only the core module will be enabled now if you try these commands:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./ns3<span class="w"> </span>clean
+$<span class="w"> </span>./ns3<span class="w"> </span>configure
+$<span class="w"> </span>./ns3<span class="w"> </span>build
+$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>build/lib/
+$<span class="w"> </span>ls
+</pre></div>
+</div>
+<p>and the following libraries should be present:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>libns3-core.so
+libns3-core-test.so
+</pre></div>
+</div>
+<p>Note the <code class="docutils literal notranslate"><span class="pre">./ns3</span> <span class="pre">clean</span></code> step is done here only to make it more obvious which module libraries were built.  You don’t have to do <code class="docutils literal notranslate"><span class="pre">./ns3</span> <span class="pre">clean</span></code> in order to enable subsets of modules.</p>
+<p>Running test.py will cause only those tests that depend on module core to be run:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>24 of 24 tests passed (24 passed, 0 skipped, 0 failed, 0 crashed, 0 valgrind errors)
+</pre></div>
+</div>
+<p>Repeat the above steps for the “network” module instead of the “core” module, and the following will be built, since network depends on core:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>libns3-core.so       libns3-network.so
+libns3-core-test.so  libns3-network-test.so
+</pre></div>
+</div>
+<p>Running test.py will cause those tests that depend on only the core and network modules to be run:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>31 of 31 tests passed (31 passed, 0 skipped, 0 failed, 0 crashed, 0 valgrind errors)
+</pre></div>
+</div>
+<p>As the comment in the sample <code class="docutils literal notranslate"><span class="pre">.ns3rc</span></code> file suggests, users may list multiple enabled modules by
+separating each requested module by space or semicolon; e.g.:</p>
+<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span><span class="p">(</span><span class="s">ns3rc_enabled_modules</span><span class="w"> </span><span class="s">core</span><span class="w"> </span><span class="s">propagation</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The following also works (but note that a comma delimiter will not work with this CMake list):</p>
+<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span><span class="p">(</span><span class="s">ns3rc_enabled_modules</span><span class="w"> </span><span class="s">core;propagation</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/doc/manual/source/enable-modules.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

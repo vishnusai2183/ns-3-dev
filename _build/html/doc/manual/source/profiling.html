@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>4.9. Profiling &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="profiling">
+<h1><span class="section-number">4.9. </span>Profiling<a class="headerlink" href="#profiling" title="Link to this heading">¶</a></h1>
+<p>Memory profiling is essential to identify issues that
+may cause memory corruption, which may lead to all sorts of
+side-effects, such as crashing after many hours of simulation and
+producing wrong results that invalidate the entire simulation.</p>
+<p>It also can help tracking sources of excessive memory allocations,
+the size of these allocations and memory usage during simulation.
+These can affect simulation performance, or limit the complexity
+and the number of concurrent simulations.</p>
+<p>Performance profiling on the other hand is essential for
+high-performance applications, as it allows for the identification
+of bottlenecks and their mitigation.</p>
+<p>Another type of profiling is related to system calls. They
+can be used to debug issues and identify hotspots that
+may cause performance issues in specific conditions. Excessive
+calls results in more context switches, which interrupt the
+simulations, ultimately slowing them down.</p>
+<p>Other than profiling the simulations, which can highlight bottlenecks
+in the simulator, we can also profile the compilation process.
+This allows us to identify and fix bottlenecks, which speed up
+build times.</p>
+<section id="memory-profilers">
+<h2><span class="section-number">4.9.1. </span>Memory Profilers<a class="headerlink" href="#memory-profilers" title="Link to this heading">¶</a></h2>
+<p>Memory profilers are tools that help identifying memory related
+issues.</p>
+<p>There are two well known tools for finding bugs such as uninitialized memory usage,
+out-of-bound accesses, dereferencing null pointers and other memory-related bugs:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://valgrind.org/">Valgrind</a></p>
+<ul>
+<li><p>Pros: very rich tooling, no need to recompile programs to profile the program.</p></li>
+<li><p>Cons: very slow and limited to Linux and MacOS.</p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="https://github.com/google/sanitizers/wiki">Sanitizers</a></p>
+<ul>
+<li><p>Pros: sanitizers are distributed along with compilers, such as GCC, Clang and MSVC.
+They are widely available, cross platform and faster than Valgrind.</p></li>
+<li><p>Cons: false positives, high memory usage, memory sanitizer is incompatible
+with other sanitizers (e.g. address sanitizer), requiring two instrumented
+compilations and two test runs. The memory sanitizer requires Clang.</p></li>
+</ul>
+</li>
+</ul>
+<p>There are also tools to count memory allocations, track memory usage and memory leaks,
+such as: <a class="reference external" href="https://apps.kde.org/heaptrack/">Heaptrack</a>, <a class="reference external" href="https://developer.apple.com/library/archive/documentation/Performance/Conceptual/ManagingMemory/Articles/FindingLeaks.html">MacOS’s leaks</a>, <a class="reference external" href="https://github.com/koute/bytehound">Bytehound</a> and <a class="reference external" href="https://github.com/gperftools/gperftools">gperftools</a>.</p>
+<p>An overview on how to use <a class="reference external" href="https://valgrind.org/">Valgrind</a>, <a class="reference external" href="https://github.com/google/sanitizers/wiki">Sanitizers</a> and
+<a class="reference external" href="https://apps.kde.org/heaptrack/">Heaptrack</a> is provided in the following sections.</p>
+<section id="id1">
+<h3><span class="section-number">4.9.1.1. </span>Valgrind<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<p><a class="reference external" href="https://valgrind.org/">Valgrind</a> is suite of profiling tools, being the main tool called Memcheck.
+To check for memory errors including leaks, one can call valgrind directly:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">valgrind --leak-check=yes ./relative/path/to/program argument1 argument2</span>
+</pre></div>
+</div>
+<p>Or can use the <code class="docutils literal notranslate"><span class="pre">ns3</span></code> script:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./ns3 run &quot;program argument1 argument2&quot; --valgrind</span>
+</pre></div>
+</div>
+<p>Additional Valgrind options are listed on its <a class="reference external" href="https://valgrind.org/docs/manual/mc-manual.html">manual</a>.</p>
+</section>
+<section id="id2">
+<h3><span class="section-number">4.9.1.2. </span>Sanitizers<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<p><a class="reference external" href="https://github.com/google/sanitizers/wiki">Sanitizers</a> are a suite of libraries made by Google and part of the LLVM project,
+used to profile programs at runtime and find issues related to undefined behavior,
+memory corruption (out-of-bound access, uninitialized memory use), leaks, race
+conditions and others.</p>
+<p>Sanitizers are shipped with most modern compilers and can be used by instructing the
+compiler to link the required libraries and instrument the code.</p>
+<p>To build ns-3 with sanitizers, enable the <code class="docutils literal notranslate"><span class="pre">NS3_SANITIZE</span></code> option. This can be done
+directly via CMake:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/ns-3-dev/cmake_cache/$ cmake -DNS3_SANITIZE=ON ..</span>
+</pre></div>
+</div>
+<p>Or via the <code class="docutils literal notranslate"><span class="pre">ns3</span></code> wrapper:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/ns-3-dev$ ./ns3 configure --enable-sanitizers</span>
+</pre></div>
+</div>
+<p>The memory sanitizer can be enabled with <code class="docutils literal notranslate"><span class="pre">NS3_SANITIZE_MEMORY</span></code>, but it is not
+compatible with <code class="docutils literal notranslate"><span class="pre">NS3_SANITIZE</span></code> and only works with the Clang compiler.</p>
+<p>Sanitizers were used to find issues in multiple occasions:</p>
+<ul>
+<li><p>A global buffer overflow in the LTE module</p>
+<ul class="simple">
+<li><p>When the wrong index (-1) was used to access a <code class="docutils literal notranslate"><span class="pre">int</span> <span class="pre">[][]</span></code> variable, a different variable that is stored closely in memory was accessed.</p></li>
+<li><p>In the best case scenario, this results in reading an incorrect value that causes the program to fail</p></li>
+<li><p>In the worst case scenario, this value is overwritten corrupting the program memory</p></li>
+<li><p>The likely scenario: wrong value is read and the program continued running, potentially producing incorrect results</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/ns-3-dev/src/lte/model/lte-amc.cc:303:43: runtime error: index -1 out of bounds for type &#39;int [110][27]&#39;</span>
+<span class="go">=================================================================</span>
+<span class="go">==51636==ERROR: AddressSanitizer: global-buffer-overflow on address 0x7fe78cc2dbbc at pc 0x7fe78ba65e65 bp 0x7ffde70b25c0 sp 0x7ffde70b25b0</span>
+<span class="go">READ of size 4 at 0x7fe78cc2dbbc thread T0</span>
+<span class="gp">    #</span><span class="m">0</span><span class="w"> </span>0x7fe78ba65e64<span class="w"> </span><span class="k">in</span><span class="w"> </span>ns3::LteAmc::GetDlTbSizeFromMcs<span class="o">(</span>int,<span class="w"> </span>int<span class="o">)</span><span class="w"> </span>~/ns-3-dev/src/lte/model/lte-amc.cc:303
+<span class="gp">    #</span><span class="m">1</span><span class="w"> </span>0x7fe78c538aba<span class="w"> </span><span class="k">in</span><span class="w"> </span>ns3::TdTbfqFfMacScheduler::DoSchedDlTriggerReq<span class="o">(</span>ns3::FfMacSchedSapProvider::SchedDlTriggerReqParameters<span class="w"> </span>const<span class="p">&amp;</span><span class="o">)</span><span class="w"> </span>~/ns-3-dev/src/lte/model/tdtbfq-ff-mac-scheduler.cc:1160
+<span class="gp">    #</span><span class="m">2</span><span class="w"> </span>0x7fe78c564736<span class="w"> </span><span class="k">in</span><span class="w"> </span>ns3::MemberSchedSapProvider&lt;ns3::TdTbfqFfMacScheduler&gt;::SchedDlTriggerReq<span class="o">(</span>ns3::FfMacSchedSapProvider::SchedDlTriggerReqParameters<span class="w"> </span>const<span class="p">&amp;</span><span class="o">)</span><span class="w"> </span>~/ns-3-dev/build/include/ns3/ff-mac-sched-sap.h:409
+<span class="gp">    #</span><span class="m">3</span><span class="w"> </span>0x7fe78c215596<span class="w"> </span><span class="k">in</span><span class="w"> </span>ns3::LteEnbMac::DoSubframeIndication<span class="o">(</span>unsigned<span class="w"> </span>int,<span class="w"> </span>unsigned<span class="w"> </span>int<span class="o">)</span><span class="w"> </span>~/ns-3-dev/src/lte/model/lte-enb-mac.cc:588
+<span class="gp">    #</span><span class="m">4</span><span class="w"> </span>0x7fe78c20921d<span class="w"> </span><span class="k">in</span><span class="w"> </span>ns3::EnbMacMemberLteEnbPhySapUser::SubframeIndication<span class="o">(</span>unsigned<span class="w"> </span>int,<span class="w"> </span>unsigned<span class="w"> </span>int<span class="o">)</span><span class="w"> </span>~/ns-3-dev/src/lte/model/lte-enb-mac.cc:297
+<span class="gp">    #</span><span class="m">5</span><span class="w"> </span>0x7fe78b924105<span class="w"> </span><span class="k">in</span><span class="w"> </span>ns3::LteEnbPhy::StartSubFrame<span class="o">()</span><span class="w"> </span>~/ns-3-dev/src/lte/model/lte-enb-phy.cc:764
+<span class="gp">    #</span><span class="m">6</span><span class="w"> </span>0x7fe78b949d54<span class="w"> </span><span class="k">in</span><span class="w"> </span>ns3::MakeEvent&lt;void<span class="w"> </span><span class="o">(</span>ns3::LteEnbPhy::*<span class="o">)()</span>,<span class="w"> </span>ns3::LteEnbPhy*&gt;<span class="o">(</span>void<span class="w"> </span><span class="o">(</span>ns3::LteEnbPhy::*<span class="o">)()</span>,<span class="w"> </span>ns3::LteEnbPhy*<span class="o">)</span>::EventMemberImpl0::Notify<span class="o">()</span><span class="w"> </span><span class="o">(</span>~/ns-3-dev/build/lib/libns3-dev-lte-deb.so+0x3a9cd54<span class="o">)</span>
+<span class="gp">    #</span><span class="m">7</span><span class="w"> </span>0x7fe795252022<span class="w"> </span><span class="k">in</span><span class="w"> </span>ns3::EventImpl::Invoke<span class="o">()</span><span class="w"> </span>~/ns-3-dev/src/core/model/event-impl.cc:51
+<span class="gp">    #</span><span class="m">8</span><span class="w"> </span>0x7fe795260de2<span class="w"> </span><span class="k">in</span><span class="w"> </span>ns3::DefaultSimulatorImpl::ProcessOneEvent<span class="o">()</span><span class="w"> </span>~/ns-3-dev/src/core/model/default-simulator-impl.cc:151
+<span class="gp">    #</span><span class="m">9</span><span class="w"> </span>0x7fe795262dbd<span class="w"> </span><span class="k">in</span><span class="w"> </span>ns3::DefaultSimulatorImpl::Run<span class="o">()</span><span class="w"> </span>~/ns-3-dev/src/core/model/default-simulator-impl.cc:204
+<span class="gp">    #</span><span class="m">10</span><span class="w"> </span>0x7fe79525436f<span class="w"> </span><span class="k">in</span><span class="w"> </span>ns3::Simulator::Run<span class="o">()</span><span class="w"> </span>~/ns-3-dev/src/core/model/simulator.cc:176
+<span class="gp">    #</span><span class="m">11</span><span class="w"> </span>0x7fe7b0f77ee2<span class="w"> </span><span class="k">in</span><span class="w"> </span>LteDistributedFfrAreaTestCase::DoRun<span class="o">()</span><span class="w"> </span>~/ns-3-dev/src/lte/test/lte-test-frequency-reuse.cc:1777
+<span class="gp">    #</span><span class="m">12</span><span class="w"> </span>0x7fe7952d125a<span class="w"> </span><span class="k">in</span><span class="w"> </span>ns3::TestCase::Run<span class="o">(</span>ns3::TestRunnerImpl*<span class="o">)</span><span class="w"> </span>~/ns-3-dev/src/core/model/test.cc:363
+<span class="gp">    #</span><span class="m">13</span><span class="w"> </span>0x7fe7952d0f4d<span class="w"> </span><span class="k">in</span><span class="w"> </span>ns3::TestCase::Run<span class="o">(</span>ns3::TestRunnerImpl*<span class="o">)</span><span class="w"> </span>~/ns-3-dev/src/core/model/test.cc:357
+<span class="gp">    #</span><span class="m">14</span><span class="w"> </span>0x7fe7952e39c0<span class="w"> </span><span class="k">in</span><span class="w"> </span>ns3::TestRunnerImpl::Run<span class="o">(</span>int,<span class="w"> </span>char**<span class="o">)</span><span class="w"> </span>~/ns-3-dev/src/core/model/test.cc:1094
+<span class="gp">    #</span><span class="m">15</span><span class="w"> </span>0x7fe7952e427e<span class="w"> </span><span class="k">in</span><span class="w"> </span>ns3::TestRunner::Run<span class="o">(</span>int,<span class="w"> </span>char**<span class="o">)</span><span class="w"> </span>~/ns-3-dev/src/core/model/test.cc:1118
+<span class="gp">    #</span><span class="m">16</span><span class="w"> </span>0x564a13d67c9c<span class="w"> </span><span class="k">in</span><span class="w"> </span>main<span class="w"> </span>~/ns-3-dev/utils/test-runner.cc:23
+<span class="gp">    #</span><span class="m">17</span><span class="w"> </span>0x7fe793cde0b2<span class="w"> </span><span class="k">in</span><span class="w"> </span>__libc_start_main<span class="w"> </span><span class="o">(</span>/lib/x86_64-linux-gnu/libc.so.6+0x270b2<span class="o">)</span>
+<span class="gp">    #</span><span class="m">18</span><span class="w"> </span>0x564a13d67bbd<span class="w"> </span><span class="k">in</span><span class="w"> </span>_start<span class="w"> </span><span class="o">(</span>~/ns-3-dev/build/utils/test-runner+0xae0bbd<span class="o">)</span>
+<span class="go">0x7fe78cc2dbbc is located 40 bytes to the right of global variable &#39;McsToItbsUl&#39; defined in &#39;~/ns-3-dev/src/lte/model/lte-amc.cc:105:18&#39; (0x7fe78cc2db20) of size 116</span>
+<span class="go">0x7fe78cc2dbbc is located 4 bytes to the left of global variable &#39;TransportBlockSizeTable&#39; defined in &#39;~/ns-3-dev/src/lte/model/lte-amc.cc:118:18&#39; (0x7fe78cc2dbc0) of size 11880</span>
+<span class="go">SUMMARY: AddressSanitizer: global-buffer-overflow ~/ns-3-dev/src/lte/model/lte-amc.cc:303 in ns3::LteAmc::GetDlTbSizeFromMcs(int, int)</span>
+<span class="go">Shadow bytes around the buggy address:</span>
+<span class="go">  0x0ffd7197db50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 04 f9</span>
+<span class="go">  0x0ffd7197db60: f9 f9 f9 f9 00 00 00 00 00 00 00 00 00 00 00 00</span>
+<span class="go">=&gt;0x0ffd7197db70: 00 00 04 f9 f9 f9 f9[f9]00 00 00 00 00 00 00 00</span>
+<span class="go">Shadow byte legend (one shadow byte represents 8 application bytes):</span>
+<span class="go">  Addressable:           00</span>
+<span class="go">  Partially addressable: 01 02 03 04 05 06 07</span>
+<span class="go">  Global redzone:        f9</span>
+<span class="go">==51636==ABORTING</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>The output above shows the type of error (<code class="docutils literal notranslate"><span class="pre">global-buffer-overflow</span></code>),
+the stack-trace of where the bug happened (<code class="docutils literal notranslate"><span class="pre">LteAmc::GetDlTbSizeFromMcs</span></code>),
+affected variables (<code class="docutils literal notranslate"><span class="pre">McsToItbsUl</span></code> and <code class="docutils literal notranslate"><span class="pre">TransportBlockSizeTable</span></code>),
+and a shadow bytes map, showing the wrong access between square brackets.</p></li>
+<li><p>The the global redzone (f9) shadow bytes are empty memory allocated between global variables (00s and 04s),
+which are left there to be corrupted by the bugged program.
+Any eventual corruption is then traced back to the source, without affecting the program execution.</p></li>
+<li><p>The adopted solution in merge request <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/merge_requests/703">MR703</a> was to fix one of the schedulers that could produce the index value of -1,
+and updating the asserts to catch the illegal index value.</p></li>
+</ul>
+</li>
+<li><p>A wrong downcast in the Wimax module:</p>
+<ul class="simple">
+<li><p>The pointer was casted incorrectly to U16TlvValue instead of U8TvlValue, which could have different sizes in memory
+leading to the program reading the wrong memory address.
+Reading the wrong memory address can result in unexpected or invalid values being read, which could change the
+program flow and corrupt memory, producing wrong simulation results or crashing the program.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/ns-3-dev/src/wimax/model/service-flow.cc:159:86: runtime error: downcast of address 0x6020000148b0 which does not point to an object of type &#39;U16TlvValue&#39;</span>
+<span class="go">0x6020000148b0: note: object is of type &#39;ns3::U8TlvValue&#39;</span>
+<span class="go">48 00 00 36  c8 09 02 62 5c 7f 00 00  00 be be be be be be be  03 00 00 00 00 00 00 04  10 00 00 00</span>
+<span class="go">              ^~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="go">              vptr for &#39;ns3::U8TlvValue&#39;</span>
+<span class="go">~/ns-3-dev/src/wimax/model/service-flow.cc:159:99: runtime error: member call on address 0x6020000148b0 which does not point to an object of type &#39;U16TlvValue&#39;</span>
+<span class="go">0x6020000148b0: note: object is of type &#39;ns3::U8TlvValue&#39;</span>
+<span class="go">48 00 00 36  c8 09 02 62 5c 7f 00 00  00 be be be be be be be  03 00 00 00 00 00 00 04  10 00 00 00</span>
+<span class="go">              ^~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="go">              vptr for &#39;ns3::U8TlvValue&#39;</span>
+<span class="go">~/ns-3-dev/src/wimax/model/wimax-tlv.cc:589:10: runtime error: member access within address 0x6020000148b0 which does not point to an object of type &#39;U16TlvValue&#39;</span>
+<span class="go">0x6020000148b0: note: object is of type &#39;ns3::U8TlvValue&#39;</span>
+<span class="go">48 00 00 36  c8 09 02 62 5c 7f 00 00  00 be be be be be be be  03 00 00 00 00 00 00 04  10 00 00 00</span>
+<span class="go">              ^~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="go">              vptr for &#39;ns3::U8TlvValue&#39;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>The bug was fixed with the correct cast in merge request <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/merge_requests/704">MR704</a>.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id3">
+<h3><span class="section-number">4.9.1.3. </span>Heaptrack<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<p><a class="reference external" href="https://apps.kde.org/heaptrack/">Heaptrack</a> is an utility made by <a class="reference external" href="https://kde.org">KDE</a> to trace memory allocations
+along with stack traces, allowing developers to identify code responsible
+for possible memory leaks and unnecessary allocations.</p>
+<p>For the examples below we used the default configuration of ns-3,
+with the output going to the <code class="docutils literal notranslate"><span class="pre">build</span></code> directory. The actual executable
+for the <code class="docutils literal notranslate"><span class="pre">wifi-he-network</span></code> example is <code class="docutils literal notranslate"><span class="pre">./build/examples/wireless/ns3-dev-wifi-he-network</span></code>, which is what is
+executed by <code class="docutils literal notranslate"><span class="pre">./ns3</span> <span class="pre">run</span> <span class="pre">wifi-he-network</span></code>.</p>
+<p>To collect information of a program (in this case the <code class="docutils literal notranslate"><span class="pre">wifi-he-network</span></code>
+example), run:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~ns-3-dev/$ heaptrack ./build/examples/wireless/ns3-dev-wifi-he-network --simulationTime=0.3 --frequency=5 --useRts=1 --minExpectedThroughput=6 --maxExpectedThroughput=745</span>
+</pre></div>
+</div>
+<p>If you prefer to use the <code class="docutils literal notranslate"><span class="pre">ns3</span></code> wrapper, try:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~ns-3-dev/$ ./ns3 run &quot;wifi-he-network --simulationTime=0.3 --frequency=5 --useRts=1 --minExpectedThroughput=6 --maxExpectedThroughput=745&quot; --heaptrack --no-build</span>
+</pre></div>
+</div>
+<p>In both cases, heaptrack will print to the terminal the output file:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~ns-3-dev/$ ./ns3 run &quot;wifi-he-network --simulationTime=0.3 --frequency=5 --useRts=1 --minExpectedThroughput=6 --maxExpectedThroughput=745&quot; --heaptrack --no-build</span>
+<span class="go">heaptrack output will be written to &quot;~ns-3-dev/heaptrack.ns3-dev-wifi-he-network.210305.zst&quot;</span>
+<span class="go">starting application, this might take some time...</span>
+<span class="go">MCS value               Channel width           GI                      Throughput</span>
+<span class="go">0                       20 MHz                  3200 ns                 5.91733 Mbit/s</span>
+<span class="go">0                       20 MHz                  1600 ns                 5.91733 Mbit/s</span>
+<span class="go">...</span>
+<span class="go">11                      160 MHz                 1600 ns                 479.061 Mbit/s</span>
+<span class="go">11                      160 MHz                 800 ns                  524.459 Mbit/s</span>
+<span class="go">heaptrack stats:</span>
+<span class="go">        allocations:            149185947</span>
+<span class="go">        leaked allocations:     10467</span>
+<span class="go">        temporary allocations:  21145932</span>
+<span class="go">Heaptrack finished! Now run the following to investigate the data:</span>
+
+<span class="go">    heaptrack --analyze &quot;~/ns-3-dev/heaptrack.ns3-dev-wifi-he-network.210305.zst&quot;</span>
+</pre></div>
+</div>
+<p>The output above shows a summary of the stats collected: ~149 million allocations,
+~21 million temporary allocations and ~10 thousand possible leaked allocations.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">heaptrack-gui</span></code> is installed, running <code class="docutils literal notranslate"><span class="pre">heaptrack</span></code> will launch it. If it is not installed,
+the command line interface will be used.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/ns-3-dev$ heaptrack --analyze &quot;~/ns-3-dev/heaptrack.ns3-dev-wifi-he-network.210305.zst&quot;</span>
+<span class="go">reading file &quot;~/ns-3-dev/heaptrack.ns3-dev-wifi-he-network.210305.zst&quot; - please wait, this might take some time...</span>
+<span class="go">Debuggee command was: ~/ns-3-dev/build/examples/wireless/ns3-dev-wifi-he-network --simulationTime=0.3 --frequency=5 --useRts=1 --minExpectedThroughput=6 --maxExpectedThroughput=745</span>
+<span class="go">finished reading file, now analyzing data:</span>
+
+<span class="go">MOST CALLS TO ALLOCATION FUNCTIONS</span>
+<span class="go">23447502 calls to allocation functions with 1.12MB peak consumption from</span>
+<span class="go">ns3::Packet::Copy() const</span>
+<span class="go">in ~/ns-3-dev/build/lib/libns3-dev-network.so</span>
+<span class="go">4320000 calls with 0B peak consumption from:</span>
+<span class="go">    ns3::UdpSocketImpl::DoSendTo(ns3::Ptr&lt;&gt;, ns3::Ipv4Address, unsigned short, unsigned char)</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-internet.so</span>
+<span class="go">    ns3::UdpSocketImpl::DoSend(ns3::Ptr&lt;&gt;)</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-internet.so</span>
+<span class="go">    ns3::UdpSocketImpl::Send(ns3::Ptr&lt;&gt;, unsigned int)</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-internet.so</span>
+<span class="go">    ns3::Socket::Send(ns3::Ptr&lt;&gt;)</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-network.so</span>
+<span class="go">    ns3::UdpClient::Send()</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-applications.so</span>
+<span class="go">    ns3::DefaultSimulatorImpl::ProcessOneEvent()</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-core.so</span>
+<span class="go">    ns3::DefaultSimulatorImpl::Run()</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-core.so</span>
+<span class="go">    main</span>
+<span class="go">    in ~/ns-3-dev/build/examples/wireless/ns3-dev-wifi-he-network</span>
+
+<span class="go">...</span>
+
+<span class="go">MOST TEMPORARY ALLOCATIONS</span>
+<span class="go">6182320 temporary allocations of 6182701 allocations in total (99.99%) from</span>
+<span class="go">ns3::QueueDisc::DropBeforeEnqueue(ns3::Ptr&lt;&gt;, char const*)</span>
+<span class="go">in ~/ns-3-dev/build/lib/libns3-dev-traffic-control.so</span>
+<span class="go">1545580 temporary allocations of 1545580 allocations in total (100.00%) from:</span>
+<span class="go">    std::_Function_handler&lt;&gt;::_M_invoke(std::_Any_data const&amp;, ns3::Ptr&lt;&gt;&amp;&amp;, char const*&amp;&amp;)</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-traffic-control.so</span>
+<span class="go">    std::function&lt;&gt;::operator()(ns3::Ptr&lt;&gt;, char const*) const</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-traffic-control.so</span>
+<span class="go">    ns3::MemPtrCallbackImpl&lt;&gt;::operator()(ns3::Ptr&lt;&gt;, char const*)</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-traffic-control.so</span>
+<span class="go">    ns3::TracedCallback&lt;&gt;::operator()(ns3::Ptr&lt;&gt;, char const*) const</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-traffic-control.so</span>
+<span class="go">    ns3::QueueDisc::DropBeforeEnqueue(ns3::Ptr&lt;&gt;, char const*)</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-traffic-control.so</span>
+<span class="go">    ns3::CoDelQueueDisc::DoEnqueue(ns3::Ptr&lt;&gt;)</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-traffic-control.so</span>
+<span class="go">    ns3::QueueDisc::Enqueue(ns3::Ptr&lt;&gt;)</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-traffic-control.so</span>
+<span class="go">    ns3::FqCoDelQueueDisc::DoEnqueue(ns3::Ptr&lt;&gt;)</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-traffic-control.so</span>
+<span class="go">    ns3::QueueDisc::Enqueue(ns3::Ptr&lt;&gt;)</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-traffic-control.so</span>
+<span class="go">    ns3::TrafficControlLayer::Send(ns3::Ptr&lt;&gt;, ns3::Ptr&lt;&gt;)</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-traffic-control.so</span>
+<span class="go">    ns3::Ipv4Interface::Send(ns3::Ptr&lt;&gt;, ns3::Ipv4Header const&amp;, ns3::Ipv4Address)</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-internet.so</span>
+<span class="go">    ns3::Ipv4L3Protocol::SendRealOut(ns3::Ptr&lt;&gt;, ns3::Ptr&lt;&gt;, ns3::Ipv4Header const&amp;)</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-internet.so</span>
+<span class="go">    ns3::Ipv4L3Protocol::Send(ns3::Ptr&lt;&gt;, ns3::Ipv4Address, ns3::Ipv4Address, unsigned char, ns3::Ptr&lt;&gt;)</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-internet.so</span>
+<span class="go">    ns3::UdpL4Protocol::Send(ns3::Ptr&lt;&gt;, ns3::Ipv4Address, ns3::Ipv4Address, unsigned short, unsigned short, ns3::Ptr&lt;&gt;)</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-internet.so</span>
+<span class="go">    ns3::UdpSocketImpl::DoSendTo(ns3::Ptr&lt;&gt;, ns3::Ipv4Address, unsigned short, unsigned char)</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-internet.so</span>
+<span class="go">    ns3::UdpSocketImpl::DoSend(ns3::Ptr&lt;&gt;)</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-internet.so</span>
+<span class="go">    ns3::UdpSocketImpl::Send(ns3::Ptr&lt;&gt;, unsigned int)</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-internet.so</span>
+<span class="go">    ns3::Socket::Send(ns3::Ptr&lt;&gt;)</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-network.so</span>
+<span class="go">    ns3::UdpClient::Send()</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-applications.so</span>
+<span class="go">    ns3::DefaultSimulatorImpl::ProcessOneEvent()</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-core.so</span>
+<span class="go">    ns3::DefaultSimulatorImpl::Run()</span>
+<span class="go">    in ~/ns-3-dev/build/lib/libns3-dev-core.so</span>
+<span class="go">    main</span>
+<span class="go">    in ~/ns-3-dev/build/examples/wireless/ns3-dev-wifi-he-network</span>
+
+<span class="go">...</span>
+
+<span class="go">total runtime: 156.30s.</span>
+<span class="go">calls to allocation functions: 149185947 (954466/s)</span>
+<span class="go">temporary memory allocations: 21757614 (139201/s)</span>
+<span class="go">peak heap memory consumption: 4.87MB</span>
+<span class="go">peak RSS (including heaptrack overhead): 42.02MB</span>
+<span class="go">total memory leaked: 895.45KB</span>
+</pre></div>
+</div>
+<p>The terminal output above lists the most frequently called functions that allocated memory.</p>
+<p>Here is a short description of what each line of the last block of the output means:</p>
+<ul class="simple">
+<li><p>Allocation functions are all functions that allocated memory, either explicitly
+via C-style <code class="docutils literal notranslate"><span class="pre">malloc</span></code> and C++ <code class="docutils literal notranslate"><span class="pre">new</span></code>, or implicitly via RAII and automatic conversions.</p></li>
+<li><p>Temporary memory allocations are allocations that are followed by the
+deallocation without modifying the data.</p></li>
+<li><p>Peak heap memory is the maximum memory allocated by the program throughout its execution.
+The memory allocator may reuse memory freed by previous destructors, <code class="docutils literal notranslate"><span class="pre">del</span></code> and <code class="docutils literal notranslate"><span class="pre">free</span></code> calls,
+reducing the number of system calls and maximum memory allocated.</p></li>
+<li><p>RSS is the Resident Set Size, which is the amount of physical memory occupied by the process.</p></li>
+<li><p>Total memory leak refers to memory allocated but never freed. This includes static initialization,
+so it is not uncommon to be different than 0KB. However this does not mean the program does not
+have memory leaks. Other memory profilers such as Valgrind and memory sanitizers are better
+suited to track down memory leaks.</p></li>
+</ul>
+<p>Based on the stack trace, it is fairly easy to locate the corresponding code and act on it to
+reduce the number of allocations.</p>
+<p>In the case of <code class="docutils literal notranslate"><span class="pre">ns3::QueueDisc::DropBeforeEnqueue</span></code> shown above, the
+allocations were caused by the transformation of C strings (<code class="docutils literal notranslate"><span class="pre">char*</span></code>) into C++ strings
+(std::string) before performing the search in ns3::QueueDisc::Stats maps.
+These unnecessary allocations were prevented by making use of the transparent
+comparator <code class="docutils literal notranslate"><span class="pre">std::less&lt;&gt;</span></code>, part of merge request <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/merge_requests/830">MR830</a>.</p>
+<p>Heaptrack also has a GUI that provides the same information printed by the command line interface,
+but in a more interactive way.</p>
+<img alt="doc/manual/source/figures/heaptrack.png" src="doc/manual/source/figures/heaptrack.png" />
+<p>Heaptrack was used in merge request <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/merge_requests/830">MR830</a> to track and reduce the number of allocations
+in the <code class="docutils literal notranslate"><span class="pre">wifi-he-network</span></code> example mentioned above. About 29 million unnecessary allocations
+were removed, which translates to a 20% reduction. This resulted in a 1.07x speedup of the
+test suite with Valgrind (<code class="docutils literal notranslate"><span class="pre">./test.py</span> <span class="pre">-d</span> <span class="pre">-g</span></code>) and 1.02x speedup without it.</p>
+</section>
+<section id="memray">
+<h3><span class="section-number">4.9.1.4. </span>Memray<a class="headerlink" href="#memray" title="Link to this heading">¶</a></h3>
+<p><a class="reference external" href="https://bloomberg.github.io/memray/">Memray</a> is an utility made by Bloomberg to trace memory allocations of Python programs,
+including native code called by them. Along with stack traces, developers can trace down
+possible memory leaks and unnecessary allocations.</p>
+<p>Note: Memray is ineffective for profiling the ns-3 python bindings since Cppyy hides away
+the calls to the ns-3 module libraries. However, it is still useful for python scripts
+in general, for example ones used to parse and consolidate simulation results.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">ns3</span></code> script includes a run option to launch Python programs with Memray.
+Memray can produce different types of reports, such as a flamegraph in HTML, or
+text reports (<code class="docutils literal notranslate"><span class="pre">summary</span></code> and <code class="docutils literal notranslate"><span class="pre">stats</span></code>).</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/ns-3-dev/$ ./ns3 run sample-rng-plot.py --memray</span>
+<span class="go">Writing profile results into memray.output</span>
+<span class="go">Memray WARNING: Correcting symbol for aligned_alloc from 0x7fd97023c890 to 0x7fd97102fce0</span>
+<span class="go">[memray] Successfully generated profile results.</span>
+
+<span class="go">You can now generate reports from the stored allocation records.</span>
+<span class="go">Some example commands to generate reports:</span>
+
+<span class="go">/usr/bin/python3 -m memray flamegraph memray.output</span>
+<span class="go">~/ns-3-dev$ /usr/bin/python3 -m memray stats memray.output</span>
+<span class="go">   Total allocations:</span>
+<span class="go">         5364235</span>
+
+<span class="go">   Total memory allocated:</span>
+<span class="go">         10.748GB</span>
+
+<span class="go">   Histogram of allocation size:</span>
+<span class="go">         min: 0.000B</span>
+<span class="go">         ----------------------------------------------</span>
+<span class="go">         &lt; 8.000B   :  264149 |||</span>
+<span class="go">         &lt; 78.000B  : 2051906 |||||||||||||||||||||||</span>
+<span class="go">         &lt; 699.000B : 2270941 |||||||||||||||||||||||||</span>
+<span class="go">         &lt; 6.064KB  :  608993 |||||||</span>
+<span class="go">         &lt; 53.836KB :  165307 ||</span>
+<span class="go">         &lt; 477.912KB:    2220 |</span>
+<span class="go">         &lt; 4.143MB  :     511 |</span>
+<span class="go">         &lt; 36.779MB :     188 |</span>
+<span class="go">         &lt; 326.492MB:      19 |</span>
+<span class="go">         &lt;=2.830GB  :       1 |</span>
+<span class="go">         ----------------------------------------------</span>
+<span class="go">         max: 2.830GB</span>
+
+<span class="go">   Allocator type distribution:</span>
+<span class="go">          MALLOC: 4647765</span>
+<span class="go">          CALLOC: 435525</span>
+<span class="go">          REALLOC: 277736</span>
+<span class="go">          POSIX_MEMALIGN: 2686</span>
+<span class="go">          MMAP: 523</span>
+
+<span class="go">   Top 5 largest allocating locations (by size):</span>
+<span class="go">         - include:/usr/local/lib/python3.10/dist-packages/cppyy/__init__.py:243 -&gt; 8.814GB</span>
+<span class="go">         - &lt;stack trace unavailable&gt; -&gt; 746.999MB</span>
+<span class="go">         - show:~/.local/lib/python3.10/site-packages/matplotlib/backends/backend_gtk4.py:340 -&gt; 263.338MB</span>
+<span class="go">         - load_library:/usr/local/lib/python3.10/dist-packages/cppyy/__init__.py:235 -&gt; 245.684MB</span>
+<span class="go">         - __init__:/usr/lib/python3.10/ctypes/__init__.py:374 -&gt; 225.797MB</span>
+
+<span class="go">   Top 5 largest allocating locations (by number of allocations):</span>
+<span class="go">         - include:/usr/local/lib/python3.10/dist-packages/cppyy/__init__.py:243 -&gt; 2246145</span>
+<span class="go">         - show:~/.local/lib/python3.10/site-packages/matplotlib/backends/backend_gtk4.py:340 -&gt; 1264614</span>
+<span class="go">         - &lt;stack trace unavailable&gt; -&gt; 1098543</span>
+<span class="go">         - __init__:~/.local/lib/python3.10/site-packages/matplotlib/backends/backend_gtk4.py:61 -&gt; 89466</span>
+<span class="go">         - run:/usr/lib/python3/dist-packages/gi/overrides/Gio.py:42 -&gt; 79582</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="performance-profilers">
+<h2><span class="section-number">4.9.2. </span>Performance Profilers<a class="headerlink" href="#performance-profilers" title="Link to this heading">¶</a></h2>
+<p>Performance profilers are programs that collect runtime information and help to
+identify performance bottlenecks. In some cases, they can point out hotspots
+and suggest solutions.</p>
+<p>There are many tools to profile your program, including:</p>
+<ul class="simple">
+<li><p>profilers from CPU manufacturers, such as <a class="reference external" href="https://www.amd.com/en/developer/uprof.html">AMD uProf</a> and <a class="reference external" href="https://www.intel.com/content/www/us/en/docs/vtune-profiler/get-started-guide/2023-1/overview.html">Intel VTune</a></p></li>
+<li><p>profilers from the operating systems, such as Linux’s <a class="reference external" href="https://perf.wiki.kernel.org/index.php/Tutorial">Perf</a> and <a class="reference external" href="https://docs.microsoft.com/en-us/windows-hardware/test/wpt/">Windows Performance Toolkit</a></p>
+<ul>
+<li><p><a class="reference external" href="https://perf.wiki.kernel.org/index.php/Tutorial">Perf</a> also has a few graphical user interfaces available, being <a class="reference external" href="https://github.com/KDAB/hotspot">Hotspot</a> one of them</p></li>
+</ul>
+</li>
+<li><p>instrumented compilation and auxiliary tools provided by compilers, such as <a class="reference external" href="https://sourceware.org/binutils/docs/gprof/">Gprof</a></p></li>
+<li><p>third-party tools, such as <a class="reference external" href="https://wiki.gnome.org/Apps/Sysprof">Sysprof</a> and <a class="reference external" href="https://oprofile.sourceforge.io/faq/">Oprofile</a></p></li>
+</ul>
+<p>An overview on how to use <a class="reference external" href="https://perf.wiki.kernel.org/index.php/Tutorial">Perf</a> with <a class="reference external" href="https://github.com/KDAB/hotspot">Hotspot</a>, <a class="reference external" href="https://www.amd.com/en/developer/uprof.html">AMD uProf</a> and
+<a class="reference external" href="https://www.intel.com/content/www/us/en/docs/vtune-profiler/get-started-guide/2023-1/overview.html">Intel VTune</a> is provided in the following sections.</p>
+<section id="linux-perf-and-hotspot-gui">
+<span id="id5"></span><h3><span class="section-number">4.9.2.1. </span>Linux Perf and Hotspot GUI<a class="headerlink" href="#linux-perf-and-hotspot-gui" title="Link to this heading">¶</a></h3>
+<p><a class="reference external" href="https://perf.wiki.kernel.org/index.php/Tutorial">Perf</a> is the kernel tool to measure performance of the Linux kernel,
+drivers and user-space applications.</p>
+<p>Perf tracks some performance events, being some of the most important for performance:</p>
+<ul class="simple">
+<li><p>cycles</p>
+<ul>
+<li><p>Clocks (time) spent running.</p></li>
+</ul>
+</li>
+<li><p>cache-misses</p>
+<ul>
+<li><p>When either data or instructions were not in the L1/L2 caches, requiring
+a L3 or memory access.</p></li>
+</ul>
+</li>
+<li><p>branch-misses</p>
+<ul>
+<li><p>How many branch instructions were mispredicted.
+Mispredictions causes the CPU to stall and clean the pipeline,
+slowing down the program.</p></li>
+</ul>
+</li>
+<li><p>stalled-cycles-frontend</p>
+<ul>
+<li><p>Cycles wasted by the processor waiting for the next instruction,
+usually due to instruction cache miss or mispredictions.
+Starves the CPU pipeline of instructions and slows down the program.</p></li>
+</ul>
+</li>
+<li><p>stalled-cycles-backend</p>
+<ul>
+<li><p>Cycles wasted waiting for pipeline resources to finish their work.
+Usually waiting for memory read/write, or executing long-latency instructions.</p></li>
+</ul>
+</li>
+</ul>
+<p>Just like with <code class="docutils literal notranslate"><span class="pre">heaptrack</span></code>, perf can be executed using the <code class="docutils literal notranslate"><span class="pre">ns3</span></code> wrapper
+command template. In the following command we output perf data from <code class="docutils literal notranslate"><span class="pre">wifi-he-network</span></code>
+to the <code class="docutils literal notranslate"><span class="pre">perf.data</span></code> output file.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/ns-3-dev$ ./ns3 run &quot;wifi-he-network --simulationTime=0.3 --frequency=5 --useRts=1 --minExpectedThroughput=6 --maxExpectedThroughput=745&quot; --command-template &quot;perf record -o ./perf.data --call-graph dwarf --event cycles,cache-misses,branch-misses --sample-cpu %s&quot; --no-build</span>
+</pre></div>
+</div>
+<p>For ease of use, <code class="docutils literal notranslate"><span class="pre">ns3</span></code> also provides the <code class="docutils literal notranslate"><span class="pre">--perf</span></code> run option, that
+include the recommended settings.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/ns-3-dev$ ./ns3 run &quot;wifi-he-network --simulationTime=0.3 --frequency=5 --useRts=1 --minExpectedThroughput=6 --maxExpectedThroughput=745&quot; --perf --no-build</span>
+</pre></div>
+</div>
+<p>When running for the first time, you may receive the following error:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/ns-3-dev$ ./ns3 run &quot;wifi-he-network --simulationTime=0.3 --frequency=5 --useRts=1 --minExpectedThroughput=6 --maxExpectedThroughput=745&quot; --perf --no-build</span>
+<span class="go">Error:</span>
+<span class="go">Access to performance monitoring and observability operations is limited.</span>
+<span class="go">Consider adjusting /proc/sys/kernel/perf_event_paranoid setting to open</span>
+<span class="go">access to performance monitoring and observability operations for processes</span>
+<span class="go">without CAP_PERFMON, CAP_SYS_PTRACE or CAP_SYS_ADMIN Linux capability.</span>
+<span class="go">More information can be found at &#39;Perf events and tool security&#39; document:</span>
+<span class="go">https://www.kernel.org/doc/html/latest/admin-guide/perf-security.html</span>
+<span class="go">perf_event_paranoid setting is 1:</span>
+<span class="go">  -1: Allow use of (almost) all events by all users</span>
+<span class="go">      Ignore mlock limit after perf_event_mlock_kb without CAP_IPC_LOCK</span>
+<span class="go">&gt;= 0: Disallow raw and ftrace function tracepoint access</span>
+<span class="go">&gt;= 1: Disallow CPU event access</span>
+<span class="go">&gt;= 2: Disallow kernel profiling</span>
+<span class="go">To make the adjusted perf_event_paranoid setting permanent preserve it</span>
+<span class="go">in /etc/sysctl.conf (e.g. kernel.perf_event_paranoid = &lt;setting&gt;)</span>
+<span class="go">Command &#39;build/examples/wireless/ns3-dev-wifi-he-network-default record --call-graph dwarf -a -e cache-misses,branch-misses,cpu-cycles,instructions,context-switches build/examples/wireless/ns3-dev-wifi-he-network-default -n=100&#39; returned non-zero exit status 255.</span>
+</pre></div>
+</div>
+<p>This error is related to lacking permissions to access performance events from the kernel and CPU.
+As said in the error, permissions can be granted for the current session
+by changing the <code class="docutils literal notranslate"><span class="pre">perf_event_paranoid</span></code> setting with <code class="docutils literal notranslate"><span class="pre">echo</span> <span class="pre">0</span> <span class="pre">&gt;</span> <span class="pre">/proc/sys/kernel/perf_event_paranoid</span></code>.
+This change can be made permanent by changing the setting in <code class="docutils literal notranslate"><span class="pre">/etc/sysctl.conf</span></code>, but
+this is not recommended. Administrative permissions (<code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">su</span></code>) are required in both cases.</p>
+<p>After the program finishes, it will print recording statistics.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">MCS value               Channel width           GI                      Throughput</span>
+<span class="go">0                       20 MHz                  3200 ns                 6.01067 Mbit/s</span>
+<span class="go">0                       20 MHz                  1600 ns                 5.936 Mbit/s</span>
+<span class="go">...</span>
+<span class="go">11                      160 MHz                 1600 ns                 493.397 Mbit/s</span>
+<span class="go">11                      160 MHz                 800 ns                  534.016 Mbit/s</span>
+<span class="go">[ perf record: Woken up 9529 times to write data ]</span>
+<span class="go">Warning:</span>
+<span class="go">Processed 517638 events and lost 94 chunks!</span>
+
+<span class="go">Check IO/CPU overload!</span>
+
+<span class="go">Warning:</span>
+<span class="go">1 out of order events recorded.</span>
+<span class="go">[ perf record: Captured and wrote 2898,307 MB perf.data (436509 samples) ]</span>
+</pre></div>
+</div>
+<p>Results saved in <code class="docutils literal notranslate"><span class="pre">perf.data</span></code> can be reviewed with the <code class="docutils literal notranslate"><span class="pre">perf</span> <span class="pre">report</span></code> command.</p>
+<p><a class="reference external" href="https://github.com/KDAB/hotspot">Hotspot</a> is a GUI for Perf, that makes performance profiling more
+enjoyable and productive. It can parse the <code class="docutils literal notranslate"><span class="pre">perf.data</span></code> and show in
+a more friendly way.</p>
+<p>To record the same perf.data from Hotspot directly, fill the fields
+for working directory, path to the executable, arguments, perf
+events to track and output directory for the <code class="docutils literal notranslate"><span class="pre">perf.data</span></code>.
+Then run to start recording.</p>
+<img alt="doc/manual/source/figures/hotspot-setup.png" src="doc/manual/source/figures/hotspot-setup.png" />
+<p>The cycles per function for this program is shown in the following
+image.</p>
+<img alt="doc/manual/source/figures/hotspot-cycles.png" src="doc/manual/source/figures/hotspot-cycles.png" />
+<p>The data is also presented in a tabular format in the bottom-up,
+top-down and caller/callee tabs (top left of the screen).</p>
+<img alt="doc/manual/source/figures/hotspot-top-down.png" src="doc/manual/source/figures/hotspot-top-down.png" />
+<p>Hotspot was used to identify performance bottlenecks in multiple occasions:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">wifi-primary-channels</span></code> test suite was extremely slow due to unnecessary RF processing.
+The adopted solution was to replace the filtering step of the entire channel to just the desired
+sub-band, and assuming sub-bands are uniformly sized, saving multiplications in the integral
+used to compute the power of each sub-band. This resulted in a 6x speedup with
+<code class="docutils literal notranslate"><span class="pre">./ns3</span> <span class="pre">run</span> <span class="pre">&quot;test-runner</span> <span class="pre">--fullness=TAKES_FOREVER</span> <span class="pre">--test-name=wifi-primary-channels&quot;</span></code>.
+Hotspot was used along with AMD uProf to track this and other bottlenecks in <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/issues/426">issue 426</a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">WifiMacQueue::TtlExceeded</span></code> dereferenced data out of cache when calling Simulator::Now().
+The adopted solution was to move Simulator::Now() out of TtlExceeded and reuse the value
+and inlining TtlExceeded. This resulted in a ~1.20x speedup with the test suite (<code class="docutils literal notranslate"><span class="pre">./test.py</span> <span class="pre">-d</span></code>).
+Hotspot was used along with AMD uProf to track this and other bottlenecks in <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/issues/280">issue 280</a>
+and merge request <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/merge_requests/681">MR681</a>.</p></li>
+<li><p>MpduAggregator and MsduAggregator required an expensive attribute lookup to get the maximum sizes
+from the RegularWifiMac. Bypassing the attribute lookup reduced cache misses and unnecessary branches.
+The adopted solution was to move Simulator::Now() out of TtlExceeded and reuse the value
+and inlining TtlExceeded. This resulted in a ~1.02x speedup with the test suite (<code class="docutils literal notranslate"><span class="pre">./test.py</span> <span class="pre">-d</span></code>).
+More details on: merge requests <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/merge_requests/681">MR681</a> and <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/merge_requests/685">MR685</a>.</p></li>
+</ol>
+</section>
+<section id="id6">
+<h3><span class="section-number">4.9.2.2. </span>AMD uProf<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
+<p><a class="reference external" href="https://www.amd.com/en/developer/uprof.html">AMD uProf</a> works much like <a class="reference internal" href="#linux-perf-and-hotspot-gui">Linux Perf and Hotspot GUI</a>, but
+is available in more platforms (Linux, Windows and BSD) using AMD
+processors. Differently from Perf, it provides more performance
+trackers for finer analysis.</p>
+<p>To use it, open uProf then click to profile an application. If you
+have already profile an application, you can reuse those settings for
+another application by clicking in one of the items in the <code class="docutils literal notranslate"><span class="pre">Recently</span> <span class="pre">Used</span>
+<span class="pre">Configurations</span></code> section.</p>
+<img alt="doc/manual/source/figures/uprof-start.png" src="doc/manual/source/figures/uprof-start.png" />
+<p>Fill the fields with the application path, the arguments and
+the working directory.</p>
+<p>You may need to add the LD_LIBRARY_PATH environment variable
+(or PATH on Windows), pointing it to the library output
+directory (e.g. <code class="docutils literal notranslate"><span class="pre">ns-3-dev/build/lib</span></code>).</p>
+<p>Then click next:</p>
+<img alt="doc/manual/source/figures/uprof-profile-application.png" src="doc/manual/source/figures/uprof-profile-application.png" />
+<p>Now select custom events and pick the events you want.</p>
+<dl class="simple">
+<dt>The recommended ones for performance profiling are:</dt><dd><ul class="simple">
+<li><p>CYCLES_NOT_IN_HALT</p>
+<ul>
+<li><p>Clocks (time) spent running.</p></li>
+</ul>
+</li>
+<li><p>RETIRED_INST</p>
+<ul>
+<li><p>How many instructions were completed.</p></li>
+<li><p>These do not count mispredictions, stalls, etc.</p></li>
+<li><p>Instructions per clock (IPC) = RETIRED_INST / CYCLES_NOT_IN_HALT</p></li>
+</ul>
+</li>
+<li><p>RETIRED_BR_INST_MISP</p>
+<ul>
+<li><p>How many branch instructions were mispredicted.</p></li>
+<li><p>Mispredictions causes the CPU to stall and clean the pipeline,
+slowing down the program.</p></li>
+</ul>
+</li>
+<li><p>L2_CACHE_MISS.FROM_L1_IC_MISS</p>
+<ul>
+<li><p>L2 cache misses caused by instruction L1 cache misses.</p></li>
+<li><p>Results in L3/memory accesses due to missing instructions in L1/L2.</p></li>
+</ul>
+</li>
+<li><p>L2_CACHE_MISS.FROM_L1_DC_MISS</p>
+<ul>
+<li><p>L2 cache misses caused by data L1 cache misses.</p></li>
+<li><p>Results in L3/memory accesses due to missing instructions in L1/L2</p></li>
+</ul>
+</li>
+<li><p>MISALIGNED_LOADS</p>
+<ul>
+<li><p>Loads not aligned with processor words.</p></li>
+<li><p>Might result in additional cache and memory accesses.</p></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+<img alt="doc/manual/source/figures/uprof-select-events.png" src="doc/manual/source/figures/uprof-select-events.png" />
+<p>Now click in advanced options to enable collection of the call stack.</p>
+<img alt="doc/manual/source/figures/uprof-collect-callstack.png" src="doc/manual/source/figures/uprof-collect-callstack.png" />
+<p>Then click <code class="docutils literal notranslate"><span class="pre">Start</span> <span class="pre">Profile</span></code> and wait for the program to end.
+After it finishes you will be greeted with a hotspot summary screen,
+but the <code class="docutils literal notranslate"><span class="pre">Analyze</span></code> tab (top of the screen) has sub-tabs with more
+relevant information.</p>
+<p>In the following image the metrics are shown per module, including the
+C library (libc.so.6) which provides the <code class="docutils literal notranslate"><span class="pre">malloc</span></code> and <code class="docutils literal notranslate"><span class="pre">free</span></code> functions.
+Values can be shown in terms of samples or percentages for easier reading
+and to decide where to optimize.</p>
+<img alt="doc/manual/source/figures/uprof-stats.png" src="doc/manual/source/figures/uprof-stats.png" />
+<p>Here are a few cases where AMD uProf was used to identify performance bottlenecks:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">WifiMacQueue::TtlExceeded</span></code> dereferenced data out of cache when calling Simulator::Now().
+The adopted solution was to move Simulator::Now() out of TtlExceeded and reuse the value
+and inlining TtlExceeded. This resulted in a ~1.20x speedup with the test suite (<code class="docutils literal notranslate"><span class="pre">./test.py</span> <span class="pre">-d</span></code>).
+More details on: <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/issues/280">issue 280</a> and merge request <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/merge_requests/681">MR681</a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">wifi-primary-channels</span></code> test suite was extremely slow due to unnecessary RF processing.
+The adopted solution was to replace the filtering step of the entire channel to just the desired
+sub-band, and assuming sub-bands are uniformly sized, saving multiplications in the integral
+used to compute the power of each sub-band. This resulted in a 6x speedup with
+<code class="docutils literal notranslate"><span class="pre">./ns3</span> <span class="pre">run</span> <span class="pre">&quot;test-runner</span> <span class="pre">--fullness=TAKES_FOREVER</span> <span class="pre">--test-name=wifi-primary-channels&quot;</span></code>.
+More details on: <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/issues/426">issue 426</a> and merge request <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/merge_requests/677">MR677</a>.</p></li>
+<li><p>Continuing the work on <code class="docutils literal notranslate"><span class="pre">wifi-primary-channels</span></code> test suite, profiling showed an excessive
+number of cache misses in <code class="docutils literal notranslate"><span class="pre">InterferenceHelper::GetNextPosition</span></code>.
+This function searches for an iterator on a map, which is very fast
+if the map is small and fits in the cache, which was not the case. After reviewing the code,
+it was noticed in most cases this call was unnecessary as the iterator was already known.
+The adopted solution was to reuse the iterator whenever possible.
+This resulted in a 1.78x speedup on top of the previous 6x with
+<code class="docutils literal notranslate"><span class="pre">./ns3</span> <span class="pre">run</span> <span class="pre">&quot;test-runner</span> <span class="pre">--fullness=TAKES_FOREVER</span> <span class="pre">--test-name=wifi-primary-channels&quot;</span></code>.
+More details on: <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/issues/426">issue 426</a> and merge requests <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/merge_requests/677">MR677</a> and <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/merge_requests/680">MR680</a>.</p></li>
+<li><p>Position-Independent Code libraries (<code class="docutils literal notranslate"><span class="pre">-fPIC</span></code>) have an additional layer of indirection that increases
+instruction cache misses. The adopted solution was to disable <a class="reference external" href="https://maskray.me/blog/2021-05-09-fno-semantic-interposition">semantic interposition</a> with flag
+<code class="docutils literal notranslate"><span class="pre">-fno-semantic-interposition</span></code> on GCC. This is the default setting on Clang. This results in
+approximately 1.14x speedup with <code class="docutils literal notranslate"><span class="pre">./test.py</span> <span class="pre">-d</span></code>. More details on: <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/merge_requests/777">MR777</a>.</p></li>
+</ol>
+<p>Note: all speedups above were measured on the same machine. Results may differ based on clock speeds,
+cache sizes, number of cores, memory bandwidth and latency, storage throughput and latency.</p>
+</section>
+<section id="id8">
+<h3><span class="section-number">4.9.2.3. </span>Intel VTune<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h3>
+<p><a class="reference external" href="https://www.intel.com/content/www/us/en/docs/vtune-profiler/get-started-guide/2023-1/overview.html">Intel VTune</a> works much like <a class="reference internal" href="#linux-perf-and-hotspot-gui">Linux Perf and Hotspot GUI</a>, but
+is available in more platforms (Linux, Windows and Mac) using Intel
+processors. Differently from Perf, it provides more performance
+trackers for finer analysis.</p>
+<p>When you open the program, you will be greeted by the landing page
+shown in the following image. To start a new profiling project, click
+in the <code class="docutils literal notranslate"><span class="pre">Configure</span> <span class="pre">Analysis</span></code> button. If you already have a project,
+right-click the entry and click to configure analysis to reuse the
+settings.</p>
+<img alt="doc/manual/source/figures/vtune-landing.png" src="doc/manual/source/figures/vtune-landing.png" />
+<p>A configuration page will open, where you can fill the fields with
+the path to the program, arguments, and set working directory and
+environment variables.</p>
+<p>Note: in this example on Windows using MinGW,
+we need to define the <code class="docutils literal notranslate"><span class="pre">PATH</span></code> environment variable with the paths
+to both <code class="docutils literal notranslate"><span class="pre">~/ns-3-dev/build/lib</span></code> and the MinGW binaries folder
+(<code class="docutils literal notranslate"><span class="pre">~/msys64/mingw64/bin</span></code>), which contains essential libraries.
+On Linux-like systems you will need to define the
+<code class="docutils literal notranslate"><span class="pre">LD_LIBRARY_PATH</span></code> environment variable instead of <code class="docutils literal notranslate"><span class="pre">PATH</span></code>.</p>
+<p>Clicking on the <code class="docutils literal notranslate"><span class="pre">Performance</span> <span class="pre">Snapshot</span></code> shows the different profiling
+options.</p>
+<img alt="doc/manual/source/figures/vtune-configure.png" src="doc/manual/source/figures/vtune-configure.png" />
+<p>If executed as is, a quicker profiling will be executed to
+determine what areas should be profiled with more details.
+For the specific example, it is indicated that there are
+microarchitectural bottlenecks and low parallelism
+(not a surprise since ns-3 is single-threaded).</p>
+<img alt="doc/manual/source/figures/vtune-perf-snapshot.png" src="doc/manual/source/figures/vtune-perf-snapshot.png" />
+<p>If the <code class="docutils literal notranslate"><span class="pre">microarchitecture</span> <span class="pre">exploration</span></code> option is selected, cycles,
+branch mispredictions, cache misses and other metrics will be collected.</p>
+<img alt="doc/manual/source/figures/vtune-select-uarch-profiling.png" src="doc/manual/source/figures/vtune-select-uarch-profiling.png" />
+<p>After executing the <code class="docutils literal notranslate"><span class="pre">microarchitecture</span> <span class="pre">exploration</span></code>, a summary will
+be shown. Hovering the mouse over the red flags will explain what
+each sentence means and how it impacts performance.</p>
+<img alt="doc/manual/source/figures/vtune-uarch-profiling-summary.png" src="doc/manual/source/figures/vtune-uarch-profiling-summary.png" />
+<p>Clicking in the <code class="docutils literal notranslate"><span class="pre">Bottom-up</span></code> tab shows all the information per module.
+A plethora of stats such as CPU time, instructions retired,
+retiring percentage (how many of the dispatched instructions
+were executed until the end, usually lower than 100% because of branch
+mispredictions), bad speculation, cache misses, unused load ports,
+and more.</p>
+<p>The stats for the wifi module are shown below. The retiring
+metric indicates about 40% of dispatched instructions are
+executed. The diagram on the right shows the bottleneck is
+in the front-end of the pipeline (red), due to high
+instruction cache misses, translation lookaside buffer (TLB)
+overhead and unknown branches (most likely callbacks).</p>
+<img alt="doc/manual/source/figures/vtune-uarch-wifi-stats.png" src="doc/manual/source/figures/vtune-uarch-wifi-stats.png" />
+<p>The stats for the core module are shown below.
+More specifically for the ns3::Object::DoGetObject function.
+Metrics indicates about 63% of bad speculations.
+The diagram on the right shows that there are bottlenecks
+both in the front-end and due to bad speculation (red).</p>
+<img alt="doc/manual/source/figures/vtune-uarch-core-stats.png" src="doc/manual/source/figures/vtune-uarch-core-stats.png" />
+</section>
+</section>
+<section id="system-calls-profilers">
+<h2><span class="section-number">4.9.3. </span>System calls profilers<a class="headerlink" href="#system-calls-profilers" title="Link to this heading">¶</a></h2>
+<p>System call profilers collect information on which system
+calls were made by a program, how long they took to be
+fulfilled and how many of them resulted in errors.</p>
+<p>There are many system call profilers, including <a class="reference external" href="https://github.com/opendtrace/documentation">dtrace</a>, <a class="reference external" href="https://strace.io/">strace</a> and <a class="reference external" href="https://docs.microsoft.com/en-us/sysinternals/downloads/procmon">procmon</a>.</p>
+<p>An overview on how to use <a class="reference external" href="https://strace.io/">strace</a> is provided in the following section.</p>
+<section id="id9">
+<h3><span class="section-number">4.9.3.1. </span>Strace<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h3>
+<p>The <a class="reference external" href="https://strace.io/">strace</a> is a system calls (syscalls) profiler for Linux. It can filter
+specific syscalls, or gather stats during the execution.</p>
+<p>To collect statistics, use <code class="docutils literal notranslate"><span class="pre">strace</span> <span class="pre">-c</span></code>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~ns-3-dev/$ ./ns3 run &quot;wifi-he-network --simulationTime=0.3 --frequency=5 --useRts=1 --minExpectedThroughput=6 --maxExpectedThroughput=745&quot; --command-template &quot;strace -c %s&quot; --no-build</span>
+<span class="go">MCS value               Channel width           GI                      Throughput</span>
+<span class="go">0                       20 MHz                  3200 ns                 5.91733 Mbit/s</span>
+<span class="go">...</span>
+<span class="go">11                      160 MHz                 800 ns                  524.459 Mbit/s</span>
+<span class="gp">% </span><span class="nb">time</span><span class="w">     </span>seconds<span class="w">  </span>usecs/call<span class="w">     </span>calls<span class="w">    </span>errors<span class="w"> </span>syscall
+<span class="go">------ ----------- ----------- --------- --------- ----------------</span>
+<span class="go"> 37.62    0.004332          13       326       233 openat</span>
+<span class="go"> 35.46    0.004083           9       415           mmap</span>
+<span class="go">...</span>
+<span class="go">------ ----------- ----------- --------- --------- ----------------</span>
+<span class="go">100.00    0.011515           8      1378       251 total</span>
+</pre></div>
+</div>
+<p>In the example above, the syscalls are listed in the right, after
+the time spent on each syscall, number of calls and errors.</p>
+<p>The errors can be caused due to multiple reasons and may not
+be a problem. To check if they were problems, strace can log the
+syscalls with <code class="docutils literal notranslate"><span class="pre">strace</span> <span class="pre">-o</span> <span class="pre">calls.log</span></code>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~ns-3-dev/$ ./ns3 run &quot;wifi-he-network --simulationTime=0.3 --frequency=5 --useRts=1 --minExpectedThroughput=6 --maxExpectedThroughput=745&quot; --command-template &quot;strace -o calls.log %s&quot; --no-build</span>
+<span class="go">MCS value               Channel width           GI                      Throughput</span>
+<span class="go">0                       20 MHz                  3200 ns                 5.91733 Mbit/s</span>
+<span class="go">...</span>
+<span class="go">11                      160 MHz                 800 ns                  524.459 Mbit/s</span>
+</pre></div>
+</div>
+<p>Looking at the <code class="docutils literal notranslate"><span class="pre">calls.log</span></code> file, we can see different sections. In the
+following section, the example is executed (<code class="docutils literal notranslate"><span class="pre">execve</span></code>), architecture is checked (<code class="docutils literal notranslate"><span class="pre">arch_prctl</span></code>),
+memory is mapped for execution (<code class="docutils literal notranslate"><span class="pre">mmap</span></code>) and LD_PRELOAD use is checked.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">execve(&quot;~/ns-3-dev/build/examples/wireless/ns3-dev-wifi-he-network&quot;, [&quot;~/ns-3-dev/b&quot;..., &quot;--simulationTime=0.3&quot;, &quot;--frequency=5&quot;, &quot;--useRts=1&quot;, &quot;--minExpectedThroughput=6&quot;, &quot;--maxExpectedThroughput=745&quot;], 0x7fffb0f91ad8 /* 3 vars */) = 0</span>
+<span class="go">brk(NULL)                               = 0x563141b37000</span>
+<span class="go">arch_prctl(0x3001 /* ARCH_??? */, 0x7ffff8d63a50) = -1 EINVAL (Invalid argument)</span>
+<span class="go">mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f103c2e9000</span>
+<span class="go">access(&quot;/etc/ld.so.preload&quot;, R_OK)      = -1 ENOENT (No such file or directory)</span>
+</pre></div>
+</div>
+<p>Then the program searches for the wifi module library and fails multiple times (the errors seen in the table above).</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">openat(AT_FDCWD, &quot;~/ns-3-dev/build/lib/glibc-hwcaps/x86-64-v3/libns3-dev-wifi.so&quot;, O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)</span>
+<span class="go">newfstatat(AT_FDCWD, &quot;~/ns-3-dev/build/lib/glibc-hwcaps/x86-64-v3&quot;, 0x7ffff8d62c80, 0) = -1 ENOENT (No such file or directory)</span>
+<span class="go">...</span>
+<span class="go">openat(AT_FDCWD, &quot;~/ns-3-dev/build/lib/x86_64/libns3-dev-wifi.so&quot;, O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)</span>
+<span class="go">newfstatat(AT_FDCWD, &quot;~/ns-3-dev/build/lib/x86_64&quot;, 0x7ffff8d62c80, 0) = -1 ENOENT (No such file or directory)</span>
+</pre></div>
+</div>
+<p>The library is finally found and its header is read:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">openat(AT_FDCWD, &quot;~/ns-3-dev/build/lib/libns3-dev-wifi.so&quot;, O_RDONLY|O_CLOEXEC) = 3</span>
+<span class="go">read(3, &quot;\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0&gt;\0\1\0\0\0py\30\0\0\0\0\0&quot;..., 832) = 832</span>
+</pre></div>
+</div>
+<p>Then other modules that wifi depends on are loaded, then execution of the program continues to the main
+function of the simulation.</p>
+<p>Strace was used to track down issues found while running the <code class="docutils literal notranslate"><span class="pre">lena-radio-link-failure</span></code> example.
+Its <code class="docutils literal notranslate"><span class="pre">strace</span> <span class="pre">-c</span></code> table was the following:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">% </span><span class="nb">time</span><span class="w">     </span>seconds<span class="w">  </span>usecs/call<span class="w">     </span>calls<span class="w">    </span>errors<span class="w"> </span>syscall
+<span class="go">------ ----------- ----------- --------- --------- ----------------</span>
+<span class="go"> 31,51    0,246243           2    103480       942 openat</span>
+<span class="go"> 30,23    0,236284           2    102360           write</span>
+<span class="go"> 19,90    0,155493           1    102538           close</span>
+<span class="go"> 16,65    0,130132           1    102426           lseek</span>
+<span class="go">  1,05    0,008186          18       437           mmap</span>
+<span class="go">  0,21    0,001671          16        99           newfstatat</span>
+<span class="go">  0,20    0,001595          11       134           mprotect</span>
+<span class="go">  0,18    0,001391          14        98           read</span>
+<span class="go">...</span>
+<span class="go">------ ----------- ----------- --------- --------- ----------------</span>
+<span class="go">100,00    0,781554           1    411681       951 total</span>
+</pre></div>
+</div>
+<p>Notice the number of <code class="docutils literal notranslate"><span class="pre">openat</span></code>, <code class="docutils literal notranslate"><span class="pre">write</span></code>, <code class="docutils literal notranslate"><span class="pre">close</span></code> and <code class="docutils literal notranslate"><span class="pre">lseek</span></code> calls
+are much more frequent than the other calls. These mean
+<code class="docutils literal notranslate"><span class="pre">lena-radio-link-failure</span></code> is opening, then seeking, then writing,
+then closing at least one file handler.</p>
+<p>Using <code class="docutils literal notranslate"><span class="pre">strace</span></code>, we can easily find the most frequently used file handlers.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~ns-3-dev/$./ns3 run &quot;lena-radio-link-failure --numberOfEnbs=2 --useIdealRrc=0 --interSiteDistance=700 --simTime=17&quot; --command-template=&quot;strace %s&quot;</span>
+<span class="go">...</span>
+<span class="go">openat(AT_FDCWD, &quot;DlTxPhyStats.txt&quot;, O_WRONLY|O_CREAT|O_APPEND, 0666) = 3</span>
+<span class="go">lseek(3, 0, SEEK_END)                   = 9252</span>
+<span class="go">write(3, &quot;635\t1\t1\t1\t0\t20\t1191\t0\t1\t0\n&quot;, 26) = 26</span>
+<span class="go">close(3)                                = 0</span>
+<span class="go">openat(AT_FDCWD, &quot;DlMacStats.txt&quot;, O_WRONLY|O_CREAT|O_APPEND, 0666) = 3</span>
+<span class="go">lseek(3, 0, SEEK_END)                   = 11100</span>
+<span class="go">write(3, &quot;0.635\t1\t1\t64\t6\t1\t20\t1191\t0\t0\t0\n&quot;, 31) = 31</span>
+<span class="go">close(3)                                = 0</span>
+<span class="go">openat(AT_FDCWD, &quot;UlMacStats.txt&quot;, O_WRONLY|O_CREAT|O_APPEND, 0666) = 3</span>
+<span class="go">lseek(3, 0, SEEK_END)                   = 8375</span>
+<span class="go">write(3, &quot;0.635\t1\t1\t64\t6\t1\t0\t85\t0\n&quot;, 24) = 24</span>
+<span class="go">close(3)                                = 0</span>
+<span class="go">openat(AT_FDCWD, &quot;DlRsrpSinrStats.txt&quot;, O_WRONLY|O_CREAT|O_APPEND, 0666) = 3</span>
+<span class="go">lseek(3, 0, SEEK_END)                   = 16058</span>
+<span class="go">write(3, &quot;0.635214\t1\t1\t1\t6.88272e-15\t22.99&quot;..., 37) = 37</span>
+<span class="go">close(3)                                = 0</span>
+<span class="go">openat(AT_FDCWD, &quot;UlTxPhyStats.txt&quot;, O_WRONLY|O_CREAT|O_APPEND, 0666) = 3</span>
+<span class="go">...</span>
+</pre></div>
+</div>
+<p>With the name of the files, we can look at the code that manipulates them.</p>
+<p>The issue above was found in <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/merge_requests/777">MR777</a>, were performance for some LTE examples
+regressed for no apparent reason. The flame graph below, produced by <a class="reference external" href="https://www.amd.com/en/developer/uprof.html">AMD uProf</a>,
+contains four large columns/”flames” in red, which
+correspond to the <code class="docutils literal notranslate"><span class="pre">write</span></code>, <code class="docutils literal notranslate"><span class="pre">openat</span></code>, <code class="docutils literal notranslate"><span class="pre">close</span></code> and <code class="docutils literal notranslate"><span class="pre">lseek</span></code> syscalls.</p>
+<img alt="doc/manual/source/figures/uprof-strace-lte.png" src="doc/manual/source/figures/uprof-strace-lte.png" />
+<p>Upon closer inspection, these syscalls take a long time to complete due to
+the underlying filesystem of the machine running the example (NTFS mount
+using the ntfs-3g FUSE filesystem). In other words, the bottleneck only
+exists when running the example in slow file systems
+(e.g. FUSE and network file systems).</p>
+<p>The merge request <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/merge_requests/814">MR814</a> addressed the issue by keeping the files open
+throughout the simulation. That alone resulted in a 1.75x speedup.</p>
+</section>
+</section>
+<section id="compilation-profilers">
+<h2><span class="section-number">4.9.4. </span>Compilation Profilers<a class="headerlink" href="#compilation-profilers" title="Link to this heading">¶</a></h2>
+<p>Compilation profilers can help identifying which steps of the compilation
+are slowing it down. These profilers are built into the compilers themselves,
+only requiring third-party tools to consolidate the results.</p>
+<p>The GCC feature is mentioned and exemplified, but is not the recommended
+compilation profiling method. For that, Clang is recommended.</p>
+<section id="gcc">
+<h3><span class="section-number">4.9.4.1. </span>GCC<a class="headerlink" href="#gcc" title="Link to this heading">¶</a></h3>
+<p>GCC has a special flag <code class="docutils literal notranslate"><span class="pre">-ftime-report</span></code>, which makes it print a table
+with time spent per compilation phase for each compiled file. The printed
+output for a file is shown below. The line of <code class="docutils literal notranslate"><span class="pre">---</span></code> was inserted for clarity.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Time variable                      usr           sys          wall               GGC</span>
+<span class="go">phase setup            :   0.00 (  0%)   0.00 (  0%)   0.01 (  1%)    1478 kB (  2%)</span>
+<span class="go">phase parsing          :   0.31 ( 46%)   0.17 ( 85%)   0.48 ( 55%)   55432 kB ( 71%)</span>
+<span class="go">phase lang. deferred   :   0.03 (  4%)   0.00 (  0%)   0.03 (  3%)    4287 kB (  5%)</span>
+<span class="go">phase opt and generate :   0.32 ( 48%)   0.03 ( 15%)   0.35 ( 40%)   16635 kB ( 21%)</span>
+<span class="go">phase last asm         :   0.01 (  1%)   0.00 (  0%)   0.01 (  1%)     769 kB (  1%)</span>
+<span class="go">------------------------------------------------------------------------------------</span>
+<span class="go">|name lookup           :   0.05 (  7%)   0.02 ( 10%)   0.04 (  5%)    2468 kB (  3%)</span>
+<span class="go">|overload resolution   :   0.05 (  7%)   0.00 (  0%)   0.05 (  6%)    4217 kB (  5%)</span>
+<span class="go">dump files             :   0.00 (  0%)   0.00 (  0%)   0.01 (  1%)       0 kB (  0%)</span>
+<span class="go">callgraph construction :   0.01 (  1%)   0.00 (  0%)   0.01 (  1%)    2170 kB (  3%)</span>
+<span class="go">...</span>
+<span class="go">preprocessing          :   0.05 (  7%)   0.06 ( 30%)   0.10 ( 11%)    1751 kB (  2%)</span>
+<span class="go">parser (global)        :   0.06 (  9%)   0.03 ( 15%)   0.07 (  8%)   16303 kB ( 21%)</span>
+<span class="go">parser struct body     :   0.06 (  9%)   0.04 ( 20%)   0.08 (  9%)   12525 kB ( 16%)</span>
+<span class="go">parser enumerator list :   0.01 (  1%)   0.00 (  0%)   0.00 (  0%)     112 kB (  0%)</span>
+<span class="go">parser function body   :   0.02 (  3%)   0.02 ( 10%)   0.02 (  2%)    3039 kB (  4%)</span>
+<span class="go">parser inl. func. body :   0.03 (  4%)   0.00 (  0%)   0.01 (  1%)    2024 kB (  3%)</span>
+<span class="go">parser inl. meth. body :   0.02 (  3%)   0.01 (  5%)   0.06 (  7%)    5792 kB (  7%)</span>
+<span class="go">template instantiation :   0.09 ( 13%)   0.01 (  5%)   0.13 ( 15%)   12274 kB ( 16%)</span>
+<span class="go">...</span>
+<span class="go">symout                 :   0.01 (  1%)   0.00 (  0%)   0.02 (  2%)    8114 kB ( 10%)</span>
+<span class="go">...</span>
+<span class="go">TOTAL                  :   0.67          0.20          0.88          78612 kB</span>
+</pre></div>
+</div>
+<p>In the table above, the first few lines show the five main compilations steps: <code class="docutils literal notranslate"><span class="pre">setup</span></code>,
+<code class="docutils literal notranslate"><span class="pre">parsing</span></code>, <code class="docutils literal notranslate"><span class="pre">lang.</span> <span class="pre">deferred</span></code> (C++ specific transformations),
+<code class="docutils literal notranslate"><span class="pre">opt(imize)</span> <span class="pre">and</span> <span class="pre">generate</span> <span class="pre">(code)</span></code>, <code class="docutils literal notranslate"><span class="pre">last</span> <span class="pre">asm</span></code> (produce binary code).</p>
+<p>The lines below the <code class="docutils literal notranslate"><span class="pre">---</span></code> line show sub-steps of the five main compilation steps.
+For this specific case, parsing global definitions (21%) and structures (16%),
+<code class="docutils literal notranslate"><span class="pre">template</span> <span class="pre">instantiation</span></code> (16%) and generating the code in <code class="docutils literal notranslate"><span class="pre">symout</span></code> (10%).</p>
+<p>Aggregating the data into a meaningful output to help focus where to improve is not that easy
+and it is <a class="reference external" href="https://gcc.gnu.org/bugzilla/show_bug.cgi?id=92396">not a priority</a> for GCC developers.</p>
+<p>It is recommended to use the Clang alternative.</p>
+</section>
+<section id="clang">
+<span id="id10"></span><h3><span class="section-number">4.9.4.2. </span>Clang<a class="headerlink" href="#clang" title="Link to this heading">¶</a></h3>
+<p>Clang can output very similar results with the <code class="docutils literal notranslate"><span class="pre">-ftime-trace</span></code> flag, but can also aggregate
+it in a more meaningful way. With the help of the third-party tool <a class="reference external" href="https://github.com/aras-p/ClangBuildAnalyzer">ClangBuildAnalyzer</a>,
+we can have really good insights on where to spend time trying to speed up the compilation.</p>
+<p>Support for building with <code class="docutils literal notranslate"><span class="pre">-ftime-trace</span></code>, compiling <a class="reference external" href="https://github.com/aras-p/ClangBuildAnalyzer">ClangBuildAnalyzer</a> and producing a
+report for the project have been baked into the CMake project of ns-3, and can be enabled
+with <code class="docutils literal notranslate"><span class="pre">-DNS3_CLANG_TIMETRACE=ON</span></code>.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/ns-3-dev/cmake_cache$ cmake -DNS3_CLANG_TIMETRACE=ON ..</span>
+</pre></div>
+</div>
+<p>Or via <code class="docutils literal notranslate"><span class="pre">ns3</span></code>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/ns-3-dev$ ./ns3 configure -- -DNS3_CLANG_TIMETRACE=ON</span>
+</pre></div>
+</div>
+<p>The entire procedure looks like the following:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/ns-3-dev$ CXX=&quot;clang++&quot; ./ns3 configure -d release --enable-examples --enable-tests -- -DNS3_CLANG_TIMETRACE=ON</span>
+<span class="go">~/ns-3-dev$ ./ns3 build timeTraceReport</span>
+<span class="go">~/ns-3-dev$ cat ClangBuildAnalyzerReport.txt</span>
+<span class="go">Analyzing build trace from &#39;~/ns-3-dev/cmake_cache/clangBuildAnalyzerReport.bin&#39;...</span>
+<span class="go">**** Time summary:</span>
+<span class="go">Compilation (2993 times):</span>
+<span class="go">  Parsing (frontend):         2476.1 s</span>
+<span class="go">  Codegen &amp; opts (backend):   1882.9 s</span>
+
+<span class="go">**** Files that took longest to parse (compiler frontend):</span>
+<span class="go">  8966 ms: src/test/CMakeFiles/libtest.dir/traced/traced-callback-typedef-test-suite.cc.o</span>
+<span class="go">  6633 ms: src/wifi/examples/CMakeFiles/wifi-bianchi.dir/wifi-bianchi.cc.o</span>
+<span class="go">...</span>
+
+<span class="go">**** Files that took longest to codegen (compiler backend):</span>
+<span class="go">36430 ms: src/wifi/CMakeFiles/libwifi-test.dir/test/block-ack-test-suite.cc.o</span>
+<span class="go">24941 ms: src/wifi/CMakeFiles/libwifi-test.dir/test/wifi-mac-ofdma-test.cc.o</span>
+<span class="go">...</span>
+
+<span class="go">**** Templates that took longest to instantiate:</span>
+<span class="go">12651 ms: std::unordered_map&lt;int, int&gt; (615 times, avg 20 ms)</span>
+<span class="go">10950 ms: std::_Hashtable&lt;int, std::pair&lt;const int, int&gt;, std::allocator&lt;std::... (615 times, avg 17 ms)</span>
+<span class="go">10712 ms: std::__detail::__hyperg&lt;long double&gt; (1172 times, avg 9 ms)</span>
+<span class="go">...</span>
+
+<span class="go">**** Template sets that took longest to instantiate:</span>
+<span class="go">111660 ms: std::list&lt;$&gt; (27141 times, avg 4 ms)</span>
+<span class="go"> 79892 ms: std::_List_base&lt;$&gt; (27140 times, avg 2 ms)</span>
+<span class="go"> 75131 ms: std::map&lt;$&gt; (11752 times, avg 6 ms)</span>
+<span class="go"> 65214 ms: std::allocator&lt;$&gt; (66622 times, avg 0 ms)</span>
+<span class="go">...</span>
+
+<span class="go">**** Functions that took longest to compile:</span>
+<span class="go">  7206 ms: OfdmaAckSequenceTest::CheckResults(ns3::Time, ns3::Time, unsigned ch... (~/ns-3-dev/src/wifi/test/wifi-mac-ofdma-test.cc)</span>
+<span class="go">  6146 ms: PieQueueDiscTestCase::RunPieTest(ns3::QueueSizeUnit) (~/ns-3-dev/src/traffic-control/test/pie-queue-disc-test-suite.cc)</span>
+<span class="go">...</span>
+
+<span class="go">**** Function sets that took longest to compile / optimize:</span>
+<span class="go">14801 ms: std::__cxx11::basic_string&lt;$&gt; ns3::CallbackImplBase::GetCppTypeid&lt;$&gt;() (2342 times, avg 6 ms)</span>
+<span class="go">12013 ms: ns3::CallbackImpl&lt;$&gt;::DoGetTypeid[abi:cxx11]() (1283 times, avg 9 ms)</span>
+<span class="go">10034 ms: ns3::Ptr&lt;$&gt;::~Ptr() (5975 times, avg 1 ms)</span>
+<span class="go"> 8932 ms: ns3::Callback&lt;$&gt;::DoAssign(ns3::Ptr&lt;$&gt;) (591 times, avg 15 ms)</span>
+<span class="go"> 6318 ms: ns3::CallbackImpl&lt;$&gt;::DoGetTypeid() (431 times, avg 14 ms)</span>
+<span class="go">...</span>
+
+<span class="go">*** Expensive headers:</span>
+<span class="go">293609 ms: ~/ns-3-dev/build/include/ns3/log.h (included 1404 times, avg 209 ms), included via:</span>
+<span class="go">  cqa-ff-mac-scheduler.cc.o  (758 ms)</span>
+<span class="go">  ipv6-list-routing.cc.o  (746 ms)</span>
+<span class="go">  ...</span>
+
+<span class="go">239884 ms: ~/ns-3-dev/build/include/ns3/nstime.h (included 1093 times, avg 219 ms), included via:</span>
+<span class="go">  lte-enb-rrc.cc.o lte-enb-rrc.h  (891 ms)</span>
+<span class="go">  wifi-acknowledgment.cc.o wifi-acknowledgment.h  (877 ms)</span>
+<span class="go">  ...</span>
+
+<span class="go">216218 ms: ~/ns-3-dev/build/include/ns3/object.h (included 1205 times, avg 179 ms), included via:</span>
+<span class="go">  energy-source-container.cc.o energy-source-container.h energy-source.h  (1192 ms)</span>
+<span class="go">  phased-array-model.cc.o phased-array-model.h  (1135 ms)</span>
+<span class="go">  ...</span>
+
+<span class="go">206801 ms: ~/ns-3-dev/build/include/ns3/core-module.h (included 195 times, avg 1060 ms), included via:</span>
+<span class="go">  sample-show-progress.cc.o  (1973 ms)</span>
+<span class="go">  length-example.cc.o  (1848 ms)</span>
+<span class="go">  ...</span>
+
+<span class="go">193116 ms: /usr/bin/../lib/gcc/x86_64-linux-gnu/11/../../../../include/c++/11/bits/basic_string.h (included 1499 times, avg 128 ms), included via:</span>
+<span class="go">  model-typeid-creator.h attribute-default-iterator.h type-id.h attribute.h string  (250 ms)</span>
+<span class="go">  li-ion-energy-source-helper.h energy-model-helper.h attribute.h string  (243 ms)</span>
+<span class="go">  ...</span>
+
+<span class="go">185075 ms: /usr/bin/../lib/gcc/x86_64-linux-gnu/11/../../../../include/c++/11/bits/ios_base.h (included 1495 times, avg 123 ms), included via:</span>
+<span class="go">  iomanip  (403 ms)</span>
+<span class="go">  mpi-test-fixtures.h iomanip  (364 ms)</span>
+<span class="go">  ...</span>
+
+<span class="go">169464 ms: ~/ns-3-dev/build/include/ns3/ptr.h (included 1399 times, avg 121 ms), included via:</span>
+<span class="go">  lte-test-rlc-um-e2e.cc.o config.h  (568 ms)</span>
+<span class="go">  lte-test-rlc-um-transmitter.cc.o simulator.h event-id.h  (560 ms)</span>
+<span class="go">  ...</span>
+
+
+<span class="go">  done in 2.8s.</span>
+</pre></div>
+</div>
+<p>The output printed out contain a summary of time spent on parsing and on code generation, along
+with multiple lists for different tracked categories. From the summary, it is clear that parsing times
+are very high when compared to the optimization time (<code class="docutils literal notranslate"><span class="pre">-O3</span></code>). Skipping the others categories and going straight
+to the expensive headers section, we can better understand why parsing times are so high, with some headers
+adding as much as 5 minutes of CPU time to the parsing time.</p>
+<p>Precompiled headers (<code class="docutils literal notranslate"><span class="pre">-DNS3_PRECOMPILE_HEADERS=ON</span></code>) can <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/merge_requests/731#note_687176503">drastically speed up parsing times</a>,
+however, they can increase ccache misses, reducing the time of the first
+compilation at the cost of increasing recompilation times.</p>
+</section>
+<section id="id11">
+<h3><span class="section-number">4.9.4.3. </span>NinjaTracing<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h3>
+<p>If the Ninja generator is being used (<code class="docutils literal notranslate"><span class="pre">./ns3</span> <span class="pre">configure</span> <span class="pre">-G</span> <span class="pre">Ninja</span></code>), its build log
+can be used to identify targets slowing down the build process. The <a class="reference external" href="https://github.com/nico/ninjatracing">NinjaTracing</a>
+utility is used to convert the log format into a tracing Json file.</p>
+<p>The following steps show how it can be used:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/ns-3-dev$ ./ns3 configure --enable-ninja-tracing</span>
+<span class="go">~/ns-3-dev$ ./ns3 build</span>
+<span class="go">~/ns-3-dev$ ./ns3 build ninjaTrace</span>
+</pre></div>
+</div>
+<p>The output <code class="docutils literal notranslate"><span class="pre">ninja_performance_trace.json</span></code> should be located in the <code class="docutils literal notranslate"><span class="pre">~/ns-3-dev</span></code> directory.
+You can then visualize the results using the <code class="docutils literal notranslate"><span class="pre">about:tracing</span></code> panel available in
+Chromium-based browser or with a compatible trace viewer such as <a class="reference external" href="https://ui.perfetto.dev/">Perfetto UI</a>.</p>
+<p>It can also be used in conjunction with the <a class="reference internal" href="#clang">Clang</a> time-trace feature for more granular
+information from within the compiler and linker.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/ns-3-dev$ CXX=clang++ ./ns3 configure --enable-ninja-tracing -- -DNS3_CLANG_TIMETRACE=ON</span>
+<span class="go">~/ns-3-dev$ ./ns3 build</span>
+<span class="go">~/ns-3-dev$ ./ns3 build ninjaTrace</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="cmake-profiler">
+<h2><span class="section-number">4.9.5. </span>CMake Profiler<a class="headerlink" href="#cmake-profiler" title="Link to this heading">¶</a></h2>
+<p>CMake has a built-in tracer that permits tracking hotspots in the CMake files slowing down the
+project configuration. To use the tracer, call cmake directly from a clean CMake cache directory:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/ns-3-dev/cmake-cache$ cmake .. --profiling-format=google-trace --profiling-output=../cmake_performance_trace.log</span>
+</pre></div>
+</div>
+<p>Or using the ns3 wrapper:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/ns-3-dev$ ./ns3 configure --trace-performance</span>
+</pre></div>
+</div>
+<p>A <code class="docutils literal notranslate"><span class="pre">cmake_performance_trace.log</span></code> file will be generated in the ns-3-dev directory.
+The tracing results can be visualized using the <code class="docutils literal notranslate"><span class="pre">about:tracing</span></code> panel available
+in Chromium-based browsers or a compatible trace viewer such as <a class="reference external" href="https://ui.perfetto.dev/">Perfetto UI</a>.</p>
+<p>After opening the trace file, select the traced process and click on
+any of the blocks to inspect the different stacks and find hotspots.
+An auxiliary panel containing the function/macro name, arguments
+and location can be shown, providing enough information to trace
+back the location of each specific call.</p>
+<p>Just like in performance profilers, visual inspection makes it easier
+to identify hotspots and focus on trying to optimize what matters most.</p>
+<p>The trace below was generated during the discussion of <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/issues/588">issue #588</a>,
+while investigating the long configuration times, especially when using HDDs.</p>
+<p>The single largest contributor was CMake’s <code class="docutils literal notranslate"><span class="pre">configure_file</span></code>, used to keeping
+up-to-date copies of headers in the output directory.</p>
+<img alt="doc/manual/source/figures/perfetto-trace-cmake.png" src="doc/manual/source/figures/perfetto-trace-cmake.png" />
+<p>In <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/merge_requests/911">MR911</a>, alternatives such as stub headers that include the original header
+files, keeping them in their respective modules, and symlinking headers to the
+output directory were used to reduce the configuration overhead.</p>
+<p>Note: when testing I/O bottlenecks, you may want to drop filesystem caches,
+otherwise the cache may hide the issues. In Linux, the caches can be cleared
+using the following command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/ns-3-dev$ sudo sysctl vm.drop_caches=3</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/doc/manual/source/profiling.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Cobalt queue disc &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="cobalt-queue-disc">
+<h1>Cobalt queue disc<a class="headerlink" href="#cobalt-queue-disc" title="Link to this heading">¶</a></h1>
+<p>This chapter describes the COBALT (CoDel BLUE Alternate) (<a class="reference internal" href="#cake16" id="id1"><span>[Cake16]</span></a>) queue disc
+implementation in <a href="#id5"><span class="problematic" id="id6">|ns3|</span></a>.</p>
+<p>COBALT queue disc is an integral component of CAKE smart queue management system.
+It is a combination of the CoDel (<a class="reference internal" href="#kath17" id="id2"><span>[Kath17]</span></a>) and BLUE (<a class="reference internal" href="#blue02" id="id3"><span>[BLUE02]</span></a>) Active Queue
+Management algorithms.</p>
+<section id="model-description">
+<h2>Model Description<a class="headerlink" href="#model-description" title="Link to this heading">¶</a></h2>
+<p>The source code for the COBALT model is located in the directory
+<code class="docutils literal notranslate"><span class="pre">src/traffic-control/model</span></code> and consists of 2 files: <cite>cobalt-queue-disc.h</cite> and
+<cite>cobalt-queue-disc.cc</cite> defining a CobaltQueueDisc class and a helper
+CobaltTimestampTag class. The code was ported to <a href="#id7"><span class="problematic" id="id8">|ns3|</span></a> by Vignesh Kanan,
+Harsh Lara, Shefali Gupta, Jendaipou Palmei and Mohit P. Tahiliani based on
+the Linux kernel code.</p>
+<p>Stefano Avallone and Pasquale Imputato helped in verifying the correctness of
+COBALT model in <a href="#id9"><span class="problematic" id="id10">|ns3|</span></a> by comparing the results obtained from it to those obtained
+from the Linux model of COBALT. A detailed comparison of ns-3 model of COBALT with
+Linux model of COBALT is provided in (<a class="reference internal" href="#cobalt19" id="id4"><span>[Cobalt19]</span></a>).</p>
+<ul class="simple">
+<li><p>class <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">CobaltQueueDisc</span></code>: This class implements the main
+Cobalt algorithm:</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CobaltQueueDisc::DoEnqueue</span> <span class="pre">()</span></code>: This routine tags a packet with the
+current time before pushing it into the queue.  The timestamp tag is used by
+<code class="docutils literal notranslate"><span class="pre">CobaltQueue::DoDequeue()</span></code> to compute the packet’s sojourn time.  If the
+queue is full upon the packet arrival, this routine will drop the packet and
+record the number of drops due to queue overflow, which is stored in
+<cite>m_stats.qLimDrop</cite>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CobaltQueueDisc::ShouldDrop</span> <span class="pre">()</span></code>: This routine is
+<code class="docutils literal notranslate"><span class="pre">CobaltQueueDisc::DoDequeue()</span></code>’s helper routine that determines whether a
+packet should be dropped or not based on its sojourn time. If L4S mode is
+enabled then if the packet is ECT1 is checked and if delay is greater than
+CE threshold then the packet is marked and returns <code class="docutils literal notranslate"><span class="pre">false</span></code>.
+If the sojourn time goes above <cite>m_target</cite> and remains above continuously
+for at least <cite>m_interval</cite>, the routine returns <code class="docutils literal notranslate"><span class="pre">true</span></code> indicating that it
+is OK to drop the packet. <code class="docutils literal notranslate"><span class="pre">Otherwise,</span> <span class="pre">it</span> <span class="pre">returns</span> <span class="pre">``false</span></code>.  If L4S mode
+is turned off and CE threshold marking is enabled, then if the delay is
+greater than CE threshold, packet is marked. This routine
+decides if a packet should be dropped based on the dropping state of
+CoDel and drop probability of BLUE.  The idea is to have both algorithms
+running in parallel and their effectiveness is decided by their respective
+parameters (Pdrop of BLUE and dropping state of CoDel). If either of them
+decide to drop the packet, the packet is dropped.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CobaltQueueDisc::DoDequeue</span> <span class="pre">()</span></code>: This routine performs the actual packet
+<code class="docutils literal notranslate"><span class="pre">drop</span> <span class="pre">based</span> <span class="pre">on</span> <span class="pre">``CobaltQueueDisc::ShouldDrop()</span></code>’s return value and
+schedules the next drop. Cobalt will decrease BLUE’s drop probability
+if the queue is empty. This will ensure that the queue does not underflow.
+Otherwise Cobalt will take the next packet from the queue and calculate
+its drop state by running CoDel and BLUE in parallel till there are none
+left to drop.</p></li>
+</ul>
+<section id="references">
+<h3>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h3>
+<div role="list" class="citation-list">
+<div class="citation" id="cake16" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">Cake16</a><span class="fn-bracket">]</span></span>
+<p>Linux implementation of Cobalt as a part of the cake framework.
+Available online at
+<a class="reference external" href="https://github.com/dtaht/sch_cake/blob/master/sch_cake.c">https://github.com/dtaht/sch_cake/blob/master/sch_cake.c</a>.</p>
+</div>
+<div class="citation" id="kath17" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">Kath17</a><span class="fn-bracket">]</span></span>
+<p>Controlled Delay Active Queue Management
+(draft-ietf-aqm-fq-codel-07)
+Available online at
+<a class="reference external" href="https://tools.ietf.org/html/draft-ietf-aqm-codel-07">https://tools.ietf.org/html/draft-ietf-aqm-codel-07</a>.</p>
+</div>
+<div class="citation" id="blue02" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">BLUE02</a><span class="fn-bracket">]</span></span>
+<p>Feng, W. C., Shin, K. G., Kandlur, D. D., &amp; Saha, D. (2002).
+The BLUE
+Active Queue Management Algorithms. IEEE/ACM Transactions on Networking
+(ToN), 10(4), 513-528.</p>
+</div>
+<div class="citation" id="cobalt19" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">Cobalt19</a><span class="fn-bracket">]</span></span>
+<p>Jendaipou Palmei, Shefali Gupta, Pasquale Imputato, Jonathan
+Morton,  Mohit P. Tahiliani, Stefano Avallone and Dave Taht (2019).
+Design and Evaluation of COBALT Queue Discipline. IEEE International
+Symposium on Local and Metropolitan Area Networks (LANMAN), July 2019.</p>
+</div>
+</div>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h3>
+<p>The key attributes that the CobaltQueue Disc class holds include the following:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MaxSize:</span></code> The maximum number of packets/bytes accepted by this queue disc.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Interval:</span></code> The sliding-minimum window. The default value is 100 ms.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Target:</span></code> The Cobalt algorithm target queue delay. The default value is 5 ms.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pdrop:</span></code> Value of drop probability.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Increment:</span></code> Increment value of drop probability. Default value is 1./256 .</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Decrement:</span></code> Decrement value of drop probability. Default value is 1./4096 .</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CeThreshold:</span></code> The CoDel CE threshold for marking packets.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">UseL4s:</span></code> True to use L4S (only ECT1 packets are marked at CE threshold).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Count:</span></code> Cobalt count.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DropState:</span></code> Dropping state of Cobalt. Default value is false.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Sojourn:</span></code> Per packet time spent in the queue.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DropNext:</span></code> Time until next packet drop.</p></li>
+</ul>
+</section>
+<section id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h3>
+<p>An example program named <cite>cobalt-vs-codel.cc</cite> is located in
+<code class="docutils literal notranslate"><span class="pre">src/traffic-control/examples</span></code>. Use the following command to run the program.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./ns3 run cobalt-vs-codel
+</pre></div>
+</div>
+</section>
+</section>
+<section id="validation">
+<h2>Validation<a class="headerlink" href="#validation" title="Link to this heading">¶</a></h2>
+<p>The COBALT model is tested using <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">CobaltQueueDiscTestSuite</span></code> class
+defined in <cite>src/traffic-control/test/cobalt-queue-test-suite.cc</cite>.
+The suite includes 2 test cases:</p>
+<ul class="simple">
+<li><p>Test 1: Simple enqueue/dequeue with no drops.</p></li>
+<li><p>Test 2: Change of BLUE’s drop probability upon queue full
+(Activation of Blue).</p></li>
+<li><p>Test 3: This test verifies ECN marking.</p></li>
+<li><p>Test 4: CE threshold marking test.</p></li>
+</ul>
+<p>The test suite can be run using the following commands:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./ns3 configure --enable-examples --enable-tests
+$ ./ns3 build
+$ ./test.py -s cobalt-queue-disc
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ NS_LOG=&quot;CobaltQueueDisc&quot; ./ns3 run &quot;test-runner --suite=cobalt-queue-disc&quot;
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/src/traffic-control/doc/cobalt.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
