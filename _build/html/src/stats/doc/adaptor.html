@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Adaptors &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="adaptors">
+<h1>Adaptors<a class="headerlink" href="#adaptors" title="Link to this heading">¶</a></h1>
+<p>This section details the functionalities provided by the Adaptor
+class to an <a href="#id1"><span class="problematic" id="id2">|ns3|</span></a> simulation. This section is meant for users
+interested in developing simulations with the <a href="#id3"><span class="problematic" id="id4">|ns3|</span></a> tools and using
+the Data Collection Framework, of which the Adaptor class is a
+part, to generate data output with their simulation’s results.</p>
+<p>Note:  the term ‘adaptor’ may also be spelled ‘adapter’; we chose
+the spelling aligned with the C++ standard.</p>
+<section id="adaptor-overview">
+<h2>Adaptor Overview<a class="headerlink" href="#adaptor-overview" title="Link to this heading">¶</a></h2>
+<p>An Adaptor is used to make connections between different types of DCF
+objects.</p>
+<p>To date, one Adaptor has been implemented:</p>
+<ul class="simple">
+<li><p>TimeSeriesAdaptor</p></li>
+</ul>
+</section>
+<section id="time-series-adaptor">
+<h2>Time Series Adaptor<a class="headerlink" href="#time-series-adaptor" title="Link to this heading">¶</a></h2>
+<p>The TimeSeriesAdaptor lets Probes connect directly to Aggregators
+without needing any Collector in between.</p>
+<p>Both of the implemented DCF helpers utilize TimeSeriesAdaptors
+in order to take probed values of different types and output the
+current time plus the value with both converted to doubles.</p>
+<p>The role of the TimeSeriesAdaptor class is that of an adaptor, which
+takes raw-valued probe data of different types and outputs a tuple of
+two double values.  The first is a timestamp, which may be set to
+different resolutions (e.g. Seconds, Milliseconds, etc.) in the future
+but which is presently hardcoded to Seconds.
+The second is the conversion of a non-double
+value to a double value (possibly with loss of precision).</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/src/stats/doc/adaptor.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

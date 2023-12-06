@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>3. Submitting enhancements &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="submitting-enhancements">
+<span id="enhancements"></span><h1><span class="section-number">3. </span>Submitting enhancements<a class="headerlink" href="#submitting-enhancements" title="Link to this heading">¶</a></h1>
+<p>This chapter covers how to submit fixes and small patches for the existing
+mainline code and its documentation.</p>
+<p>Enhancements (new models) can be proposed for the mainline, and
+maintainers will make a decision on whether to include it as mainline
+or recommend that it be supported in the ns-3 App Store.  Documentation
+on hosting code in the ns-3 App Store is provided in the next
+chapter (<a class="reference internal" href="external.html#external"><span class="std std-ref">Submitting externally maintained code</span></a>). This chapter provides guidance on submitting
+code for inclusion in the mainline (and much of it applies also as
+best practice for app store code).</p>
+<section id="gitlab-com-trackers">
+<h2><span class="section-number">3.1. </span>GitLab.com trackers<a class="headerlink" href="#gitlab-com-trackers" title="Link to this heading">¶</a></h2>
+<p><em>ns-3</em> uses two trackers to keep track of known issues or submitted code.
+Maintainers prefer to list everything on the tracker so that issues do not
+slip through the cracks.  Users are encouraged to use these to report
+or comment on issues or merge requests; this requires users to obtain
+a GitLab.com account.</p>
+<p>If a user wants to report an issue with <em>ns-3</em>, please first search
+the <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/issues">issue tracker</a> for
+something that may be similar, and if nothing is found, please report
+the new issue.</p>
+<p>If a user wants to submit proposed new code for <em>ns-3</em>, please
+submit on the <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/merge_requests">merge request tracker</a>.</p>
+<p>More details for each are provided below.  Similarly, users who want to
+report issues on other related repositories under the <cite>nsnam</cite> project
+(such as the <a class="reference external" href="https://gitlab.com/nsnam/bake">Bake build system</a>)
+should follow similar steps there.</p>
+</section>
+<section id="reporting-issues">
+<h2><span class="section-number">3.2. </span>Reporting issues<a class="headerlink" href="#reporting-issues" title="Link to this heading">¶</a></h2>
+<p>Issues can be reported against the code or the documentation, if you believe
+that something is incorrect or could be improved.  The key to reporting
+an issue with the code is to try to provide as much information as possible
+to allow a maintainer to quickly reproduce the problem.  After you’ve
+determined which module your bug is related to, if it is inside the
+official distribution (mainline), then create an issue, label it with the
+name of the module, and provide as much information as possible.</p>
+<p>First, perform a cursory search on the
+<a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/issues">open issue list</a> to see if
+the problem has already been reported. If it has and the issue is still
+open, add a comment to the existing issue instead of opening a new one.</p>
+<p>If you are reporting an issue against an older version of <em>ns-3</em>, please
+scan the most recent
+<a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/blob/master/RELEASE_NOTES.md">Release Notes</a> to see if it has been fixed since that release.</p>
+<p>If you then decide to list an issue, include details of your environment:</p>
+<ol class="arabic simple">
+<li><p>Which version of ns-3 are you using?</p></li>
+<li><p>What’s the name and version of the OS you’re using?</p></li>
+<li><p>Which modules do you have installed?</p></li>
+<li><p>Have you modified ns-3-dev in any way?</p></li>
+</ol>
+<p>Here are some additional guidelines:</p>
+<ol class="arabic simple">
+<li><p>Use a clear and descriptive title for the issue to identify the problem.</p></li>
+<li><p>Describe the exact steps which reproduce the problem in as many details
+as possible. For example, start by explaining how you coded your script;
+e.g. which functions were called in what order, or else provide an example
+program.  If your program includes modifications to the ns-3 core or a
+module, please list them (or even better, provide the diffs).</p></li>
+<li><p>Provide specific examples to demonstrate the steps. Include links to
+files or projects, or copy/pasteable snippets, which you use in those
+examples. If you’re providing snippets in the issue, use Markdown code
+block formatting.</p></li>
+<li><p>Describe the behavior you observed after following the steps and point out
+what exactly is the problem with that behavior.  Explain which behavior you
+expected to see instead and why.</p></li>
+<li><p>If you’re reporting that ns-3 crashed, include a crash report with a
+stack trace from the operating system. On macOS, the crash report will
+be available in Console.app under
+<cite>“Diagnostic and usage information” &gt; “User diagnostic reports”</cite>. Include
+the crash report in the issue in a code block, or a file attachment.</p></li>
+<li><p>If the problem is related to performance or memory, include a CPU
+profile capture with your report.</p></li>
+</ol>
+<p>Some issues have suggested resolutions that are trivial and do not
+require submitting a merge request.  For more complicated resolutions,
+if you have a patch to propose, either attach it to the issue, or submit a
+merge request (described next).</p>
+</section>
+<section id="submitting-merge-requests">
+<h2><span class="section-number">3.3. </span>Submitting merge requests<a class="headerlink" href="#submitting-merge-requests" title="Link to this heading">¶</a></h2>
+<p>To submit code proposed for <em>ns-3</em> as one or more commits, use a merge
+request.  The following steps are recommended to smooth the process.</p>
+<p>If you are new to public Git repositories, you may want to read
+<a class="reference external" href="https://docs.gitlab.com/ee/user/project/merge_requests/getting_started.html">this overview of merge requests</a>.  If you are familiar with GitHub
+pull requests, the GitLab.com merge requests are very similar.</p>
+<p>In brief, you will want to fork ns-3-dev into your own namespace (i.e.,
+fork the repository into your personal GitLab.com account, via the user
+interface on GitLab.com), clone your fork of ns-3-dev to your local machine,
+create a new feature branch that is based on the
+current tip of ns-3-dev, push that new feature branch up to your fork,
+and then from the GitLab.com user interface, generate a Merge Request back
+to the <em>ns-3</em> mainline.  You will want to monitor and respond to any
+comments from reviewers, and try to resolve threads.</p>
+<section id="remember-the-documentation">
+<h3><span class="section-number">3.3.1. </span>Remember the documentation<a class="headerlink" href="#remember-the-documentation" title="Link to this heading">¶</a></h3>
+<p>If you add or change API to the simulator, please include <a class="reference external" href="https://www.doxygen.nl">Doxygen</a> changes as appropriate.  Please scan the module documentation
+(written in <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html">Restructured Text</a> in the <cite>docs</cite> directory) to check if an update is needed to align with the patch proposal.</p>
+</section>
+<section id="commit-message-format">
+<h3><span class="section-number">3.3.2. </span>Commit message format<a class="headerlink" href="#commit-message-format" title="Link to this heading">¶</a></h3>
+<p>Commit messages should be written as follows.  For examples, please look
+at the output of <cite>git log</cite> command.</p>
+<p>1.  The author string should be formatted such as “John Doe &lt;<a class="reference external" href="mailto:john&#46;doe&#37;&#52;&#48;example&#46;com">john<span>&#46;</span>doe<span>&#64;</span>example<span>&#46;</span>com</a>&gt;”.  It is a good idea to run
+<a class="reference external" href="https://git-scm.com/book/en/v2/Customizing-Git-Git-Configuration">git config</a> on your machine, or hand-edit the <cite>.gitconfig</cite> file in your home directory,
+to ensure that your name and email are how you want them to be displayed.</p>
+<p>2. The first line of the commit message should be limited to 72 columns if possible.  This is not a hard requirement but a preference.  If you prefer to add
+more detail, you can add subsequent message lines below the first one, separated by a blank line.  Example:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>commit e6ca9be6fb5a0592a44967f7885545dce3a6da1a
+Author: Rediet &lt;getachew.redieteab@orange.com&gt;
+Date:   Wed May 19 16:34:01 2021 +0200
+
+  lte: Assign default values
+
+  Fixes crashing optimized/release builds with &#39;may be used uninitialized&#39; error
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>The first line of the commit message should include the relevant module name or names, separated by a colon.  Example:</p></li>
+</ol>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>commit 15ab50c03132a5f7686045014c6bedf10ac7d421
+Author: Stefano Avallone &lt;stavallo@unina.it&gt;
+Date:   Wed Jan 27 14:58:54 2021 +0100
+
+  wifi,wave,mesh: Rescan python bindings
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>If the commit fixes an issue in the issue tracker, list it in parentheses
+after the colon (by saying ‘fixes #NNN’ where NNN is the issue number).
+This reference alerts future readers to an issue where
+more may be discussed about the commit.  Example:</p></li>
+</ol>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>commit 10ef08140ab2a9f2b550f24d1e881e76ea0873ff
+Author: Tom Henderson &lt;tomh@tomh.org&gt;
+Date:   Fri May 21 11:11:33 2021 -0700
+
+  network: (fixes #404) Use Queue::Dispose() for SimpleNetDevice::DoDispose()
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li><p>If the commit is from a merge request, that may also be added in a similar
+way the same by saying ‘merges !NNN’.  The exclamation point differentiates
+merge requests from issues (which use the number sign ‘#’) on GitLab.com.
+Example:</p></li>
+</ol>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>commit d4258b2b32d6254b878eca9200271fa3f4ee7174
+Author: Tom Henderson &lt;tomh@tomh.org&gt;
+Date:   Sat Mar 27 09:56:55 2021 -0700
+
+  build: (merges !584) Exit configuration if path whitespace detected
+</pre></div>
+</div>
+<p>Here is an example making use of both:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>commit a97574779b575af70d975f9e2ca899e2405cf497
+Author: Federico Guerra &lt;federico@guerra-tlc.com&gt;
+Date:   Tue Jan 14 21:14:37 2020 +0100
+
+  uan: (fixes #129, merges !162) EndTx moved to PhyListener
+</pre></div>
+</div>
+<ol class="arabic simple" start="6">
+<li><p>Use the present tense (“Add feature”, not “Added feature”) and the imperative mood (“Move cursor to …”, not “Moves cursor to…”).</p></li>
+</ol>
+</section>
+<section id="code-formatting">
+<h3><span class="section-number">3.3.3. </span>Code formatting<a class="headerlink" href="#code-formatting" title="Link to this heading">¶</a></h3>
+<p><em>ns-3</em> uses a utility called <code class="docutils literal notranslate"><span class="pre">clang-format</span></code> to check and fix formatting
+issues with code.  Please see the chapter on coding
+style to learn more about how to use this tool.  When submitting
+code to the project, it is a good idea to check the formatting on your
+new files and modifications before submission.</p>
+</section>
+<section id="avoid-unrelated-changes">
+<h3><span class="section-number">3.3.4. </span>Avoid unrelated changes<a class="headerlink" href="#avoid-unrelated-changes" title="Link to this heading">¶</a></h3>
+<p>Do not make changes to unrelated parts of the code (unrelated
+to your merge request).  If in the course of your work on a given
+topic, you discover improvements to other things (like documentation
+improvements), please open a separate merge request for separate topics.</p>
+</section>
+<section id="squashing-your-history">
+<h3><span class="section-number">3.3.5. </span>Squashing your history<a class="headerlink" href="#squashing-your-history" title="Link to this heading">¶</a></h3>
+<p>In the course of developing and responding to review comments, you may
+add more commits, so what started out as a single commit might grow into
+several.  Please consider to squash any such revisions if they do not
+need to be preserved as separate commits in the mainline Git history.</p>
+<p>If you squash commits, you must force-push your branch back to your fork.
+Do not worry about this; GitLab.com will update the Merge Request
+automatically.  This <a class="reference external" href="https://docs.gitlab.com/ee/topics/git/git_rebase.html">tutorial</a> may be helpful to learn about Git rebase, force-push, and merge
+conflicts.</p>
+<p>Note that GitLab can squash the commits while merging. However, it is often
+preferred to keep multiple commit messages, especially when the merge request
+contains multiple parts or multiple authors.</p>
+<p>It is a good practice to NOT squash commits while the merge request is being
+reviewed and updated (this helps the reviewers), and perform a selective
+squash before the merge.</p>
+</section>
+<section id="rebasing-on-ns-3-dev">
+<h3><span class="section-number">3.3.6. </span>Rebasing on ns-3-dev<a class="headerlink" href="#rebasing-on-ns-3-dev" title="Link to this heading">¶</a></h3>
+<p>It is also helpful to maintainers to keep your feature branch up to date
+so that the commits are appended to the tip of the mainline code.  This
+is not strictly required; maintainers may do such a rebase upon merging
+your finalized Merge Request.  This may help catch possible merge conflicts
+before the time to merge arrives.</p>
+<p>Note that sometimes it is not possible to rebase a merge request through
+GitLab’s web interface. Hence, it is a good practice to keep your merge
+request in line with the mainline (i.e., rebase it periodically and push
+the updated branch).</p>
+</section>
+<section id="resolving-discussion-threads">
+<h3><span class="section-number">3.3.7. </span>Resolving discussion threads<a class="headerlink" href="#resolving-discussion-threads" title="Link to this heading">¶</a></h3>
+<p>Any time someone opens a new comment thread on a Merge Request, a counter
+of ‘Unresolved threads’ is incremented (near the top of the Merge Request).
+If you are able to successfully resolve the comment thread (either by
+changing your code, or convincing the reviewer that no change is needed),
+then please mark the thread as resolved.  Maintainers will look at the
+count of unresolved threads and make decisions based on this count as to
+whether the Merge Request is ready.  Maintainers prefer that all threads
+are resolved successfully before moving forward with a merge.</p>
+</section>
+<section id="adding-a-label">
+<h3><span class="section-number">3.3.8. </span>Adding a label<a class="headerlink" href="#adding-a-label" title="Link to this heading">¶</a></h3>
+<p>You can use labels to indicate whether the Merge Request is a bug, pertains
+to a specific module or modules, is documentation related, etc.  This is
+not required; if you do not add a label, a maintainer probably will.</p>
+</section>
+<section id="other-metadata">
+<h3><span class="section-number">3.3.9. </span>Other metadata<a class="headerlink" href="#other-metadata" title="Link to this heading">¶</a></h3>
+<p>It is not necessary to set other metadata on the Merge Request such as
+milestone, reviewers, etc.</p>
+</section>
+</section>
+<section id="feature-requests">
+<h2><span class="section-number">3.4. </span>Feature requests<a class="headerlink" href="#feature-requests" title="Link to this heading">¶</a></h2>
+<p>Feature requests are tracked as <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/issues">GitLab.com issues</a>.  If you want to suggest an enhancement, create an issue and provide the following information:</p>
+<ol class="arabic simple">
+<li><p>Use a clear and descriptive title for the issue to identify the suggestion.</p></li>
+<li><p>Provide a step-by-step description of the suggested enhancement in as many details as possible.</p></li>
+<li><p>Provide specific examples to demonstrate the steps. Include copy/pasteable snippets which you use in those examples.</p></li>
+<li><p>Describe the current behavior and explain which behavior you expected to see instead and why.</p></li>
+<li><p>Explain why this enhancement would be useful to most ns-3 users.</p></li>
+</ol>
+<p>The <em>ns-3</em> project does not have professional developers available to respond
+to feature requests, so your best bet is to try to implement it yourself and
+work with maintainers to improve it, but the project does like to hear back
+from users about what would be a useful improvement, and you may find
+like-minded collaborators in the community willing to work on it with you.</p>
+<p>Use the <cite>enhancement</cite> Label on your feature request.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/doc/contributing/source/enhancements.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

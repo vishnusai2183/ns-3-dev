@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>CoDel queue disc &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="codel-queue-disc">
+<h1>CoDel queue disc<a class="headerlink" href="#codel-queue-disc" title="Link to this heading">¶</a></h1>
+<p>This chapter describes the CoDel (<a class="reference internal" href="#nic12" id="id1"><span>[Nic12]</span></a>, <a class="reference internal" href="#nic14" id="id2"><span>[Nic14]</span></a>) queue disc implementation
+in <a href="#id4"><span class="problematic" id="id5">|ns3|</span></a>.</p>
+<p>Developed by Kathleen Nichols and Van Jacobson as a solution to the
+bufferbloat <a class="reference internal" href="#buf14" id="id3"><span>[Buf14]</span></a> problem, CoDel (Controlled Delay Management) is a queuing
+discipline that uses a packet’s sojourn time (time in queue) to make
+decisions on packet drops.</p>
+<p>Note that, starting from ns-3.25, CoDel is no longer a queue variant and
+cannot be installed as a NetDevice queue. Instead, CoDel is a queue disc
+and must be installed in the context of the traffic control (see the
+examples mentioned below).</p>
+<section id="model-description">
+<h2>Model Description<a class="headerlink" href="#model-description" title="Link to this heading">¶</a></h2>
+<p>The source code for the CoDel model is located in the directory <code class="docutils literal notranslate"><span class="pre">src/traffic-control/model</span></code>
+and consists of 2 files <cite>codel-queue-disc.h</cite> and <cite>codel-queue-disc.cc</cite> defining a CoDelQueueDisc
+class and a helper CoDelTimestampTag class. The code was ported to <a href="#id6"><span class="problematic" id="id7">|ns3|</span></a> by
+Andrew McGregor based on Linux kernel code implemented by Dave Täht and Eric Dumazet.</p>
+<ul class="simple">
+<li><p>class <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">CoDelQueueDisc</span></code>: This class implements the main CoDel algorithm:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">CoDelQueueDisc::DoEnqueue()</span></code>: This routine tags a packet with the current time before pushing it into the queue.  The timestamp tag is used by <code class="docutils literal notranslate"><span class="pre">CoDelQueue::DoDequeue()</span></code> to compute the packet’s sojourn time.  If the queue is full upon the packet arrival, this routine will drop the packet and record the number of drops due to queue overflow, which is stored in <cite>m_dropOverLimit</cite>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CoDelQueueDisc::ShouldDrop()</span></code>: This routine is <code class="docutils literal notranslate"><span class="pre">CoDelQueueDisc::DoDequeue()</span></code>’s helper routine that determines whether a packet should be dropped or not based on its sojourn time.  If the sojourn time goes above <cite>m_target</cite> and remains above continuously for at least <cite>m_interval</cite>, the routine returns <code class="docutils literal notranslate"><span class="pre">true</span></code> indicating that it is OK to drop the packet. Otherwise, it returns <code class="docutils literal notranslate"><span class="pre">false</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CoDelQueueDisc::DoDequeue()</span></code>: This routine performs the actual packet drop based on <code class="docutils literal notranslate"><span class="pre">CoDelQueueDisc::ShouldDrop()</span></code>’s return value and schedules the next drop/mark.</p></li>
+</ul>
+</li>
+<li><p>class <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">CoDelTimestampTag</span></code>: This class implements the timestamp tagging for a packet.  This tag is used to compute the packet’s sojourn time (the difference between the time the packet is dequeued and the time it is pushed into the queue).</p></li>
+</ul>
+<p>There are 2 branches to <code class="docutils literal notranslate"><span class="pre">CoDelQueueDisc::DoDequeue()</span></code>:</p>
+<ol class="arabic">
+<li><p>If the queue is currently in the dropping state, which means the sojourn time has remained above <cite>m_target</cite> for more than <cite>m_interval</cite>, the routine determines if it’s OK to leave the dropping state or it’s time for the next drop/mark. When <code class="docutils literal notranslate"><span class="pre">CoDelQueueDisc::ShouldDrop()</span></code> returns <code class="docutils literal notranslate"><span class="pre">false</span></code>, the queue can move out of the dropping state (set <cite>m_dropping</cite> to <code class="docutils literal notranslate"><span class="pre">false</span></code>).  Otherwise, the queue continuously drops/marks packets and updates the time for next drop (<cite>m_dropNext</cite>) until one of the following conditions is met:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>The queue is empty, upon which the queue leaves the dropping state and exits <code class="docutils literal notranslate"><span class="pre">CoDelQueueDisc::ShouldDrop()</span></code> routine;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CoDelQueueDisc::ShouldDrop()</span></code> returns <code class="docutils literal notranslate"><span class="pre">false</span></code> (meaning the sojourn time goes below <cite>m_target</cite>) upon which the queue leaves the dropping state;</p></li>
+<li><p>It is not yet time for next drop/mark (<cite>m_dropNext</cite> is less than current time) upon which the queue waits for the next packet dequeue to check the condition again.</p></li>
+</ol>
+</div></blockquote>
+</li>
+<li><p>If the queue is not in the dropping state, the routine enters the dropping state and drop/mark the first packet if <code class="docutils literal notranslate"><span class="pre">CoDelQueueDisc::ShouldDrop()</span></code> returns <code class="docutils literal notranslate"><span class="pre">true</span></code> (meaning the sojourn time has gone above <cite>m_target</cite> for at least <cite>m_interval</cite> for the first time or it has gone above again after the queue leaves the dropping state).</p></li>
+</ol>
+<p>The CoDel queue disc does not require packet filters, does not admit
+child queue discs and uses a single internal queue. If not provided by
+the user, a DropTail queue operating in the same mode (packet or byte)
+as the queue disc and having a size equal to the CoDel MaxSize attribute
+is created. Otherwise, the capacity of the queue disc is determined by
+the capacity of the internal queue provided by the user.</p>
+<section id="references">
+<h3>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h3>
+<div role="list" class="citation-list">
+<div class="citation" id="nic12" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">Nic12</a><span class="fn-bracket">]</span></span>
+<ol class="upperalpha simple" start="11">
+<li><p>Nichols and V. Jacobson, Controlling Queue Delay, ACM Queue, Vol. 10 No. 5, May 2012.  Available online at <a class="reference external" href="http://queue.acm.org/detail.cfm?id=2209336">http://queue.acm.org/detail.cfm?id=2209336</a>.</p></li>
+</ol>
+</div>
+<div class="citation" id="nic14" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">Nic14</a><span class="fn-bracket">]</span></span>
+<ol class="upperalpha simple" start="11">
+<li><p>Nichols and V. Jacobson, Internet-Draft:  Controlled Delay Active Queue Management, March 2014.  Available online at <a class="reference external" href="https://datatracker.ietf.org/doc/html/draft-nichols-tsvwg-codel-02">https://datatracker.ietf.org/doc/html/draft-nichols-tsvwg-codel-02</a>.</p></li>
+</ol>
+</div>
+<div class="citation" id="buf14" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">Buf14</a><span class="fn-bracket">]</span></span>
+<p>Bufferbloat.net.  Available online at <a class="reference external" href="http://www.bufferbloat.net/">http://www.bufferbloat.net/</a>.</p>
+</div>
+</div>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h3>
+<p>The key attributes that the CoDelQueue class holds include the following:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MaxSize:</span></code> The maximum number of packets/bytes the queue can hold. The default value is 1500 * DEFAULT_CODEL_LIMIT, which is 1500 * 1000 bytes.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MinBytes:</span></code> The CoDel algorithm minbytes parameter. The default value is 1500 bytes.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Interval:</span></code> The sliding-minimum window. The default value is 100 ms.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Target:</span></code> The CoDel algorithm target queue delay. The default value is 5 ms.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">UseEcn:</span></code> True to use ECN (packets are marked instead of being dropped). The default value is false.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CeThreshold:</span></code> The CoDel CE threshold for marking packets. Disabled by default.</p></li>
+</ul>
+</section>
+<section id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h3>
+<p>The first example is <cite>codel-vs-pfifo-basic-test.cc</cite> located in <code class="docutils literal notranslate"><span class="pre">src/traffic-control/examples</span></code>.  To run the file (the first invocation below shows the available
+command-line options):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./ns3<span class="w"> </span>run<span class="w"> </span><span class="s2">&quot;codel-vs-pfifo-basic-test --PrintHelp&quot;</span>
+$<span class="w"> </span>./ns3<span class="w"> </span>run<span class="w"> </span><span class="s2">&quot;codel-vs-pfifo-basic-test --queueType=CoDel --pcapFileName=codel.pcap --cwndTrFileName=cwndCodel.tr&quot;</span>
+</pre></div>
+</div>
+<p>The expected output from the previous commands are two files: <cite>codel.pcap</cite> file and <cite>cwndCoDel.tr</cite> (ASCII trace) file The .pcap file can be analyzed using
+wireshark or tcptrace:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>tcptrace<span class="w"> </span>-l<span class="w"> </span>-r<span class="w"> </span>-n<span class="w"> </span>-W<span class="w"> </span>codel.pcap
+</pre></div>
+</div>
+<p>The second example is <cite>codel-vs-pfifo-asymmetric.cc</cite> located in <code class="docutils literal notranslate"><span class="pre">src/traffic-control/examples</span></code>.  This example is intended to model a typical cable modem
+deployment scenario.  To run the file:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./ns3<span class="w"> </span>run<span class="w"> </span><span class="s2">&quot;codel-vs-pfifo-asymmetric --PrintHelp&quot;</span>
+$<span class="w"> </span>./ns3<span class="w"> </span>run<span class="w"> </span>codel-vs-pfifo-asymmetric
+</pre></div>
+</div>
+<p>The expected output from the previous commands is six pcap files:</p>
+<ul class="simple">
+<li><p>codel-vs-pfifo-asymmetric-CoDel-server-lan.pcap</p></li>
+<li><p>codel-vs-pfifo-asymmetric-CoDel-router-wan.pcap</p></li>
+<li><p>codel-vs-pfifo-asymmetric-CoDel-router-lan.pcap</p></li>
+<li><p>codel-vs-pfifo-asymmetric-CoDel-cmts-wan.pcap</p></li>
+<li><p>codel-vs-pfifo-asymmetric-CoDel-cmts-lan.pcap</p></li>
+<li><p>codel-vs-pfifo-asymmetric-CoDel-host-lan.pcap</p></li>
+</ul>
+<p>One attribute file:</p>
+<ul class="simple">
+<li><p>codel-vs-pfifo-asymmetric-CoDel.attr</p></li>
+</ul>
+<p>Five ASCII trace files:</p>
+<ul class="simple">
+<li><p>codel-vs-pfifo-asymmetric-CoDel-drop.tr</p></li>
+<li><p>codel-vs-pfifo-asymmetric-CoDel-drop-state.tr</p></li>
+<li><p>codel-vs-pfifo-asymmetric-CoDel-sojourn.tr</p></li>
+<li><p>codel-vs-pfifo-asymmetric-CoDel-length.tr</p></li>
+<li><p>codel-vs-pfifo-asymmetric-CoDel-cwnd.tr</p></li>
+</ul>
+</section>
+</section>
+<section id="validation">
+<h2>Validation<a class="headerlink" href="#validation" title="Link to this heading">¶</a></h2>
+<p>The CoDel model is tested using <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">CoDelQueueDiscTestSuite</span></code> class defined in <cite>src/traffic-control/test/codel-queue-test-suite.cc</cite>.  The suite includes 5 test cases:</p>
+<ul class="simple">
+<li><p>Test 1: The first test checks the enqueue/dequeue with no drops and makes sure that CoDel attributes can be set correctly.</p></li>
+<li><p>Test 2: The second test checks the enqueue with drops due to queue overflow.</p></li>
+<li><p>Test 3: The third test checks the NewtonStep() arithmetic against explicit port of Linux implementation</p></li>
+<li><p>Test 4: The fourth test checks the ControlLaw() against explicit port of Linux implementation</p></li>
+<li><p>Test 5: The fifth test checks the enqueue/dequeue with drops according to CoDel algorithm</p></li>
+<li><p>Test 6: The sixth test checks the enqueue/dequeue with marks according to CoDel algorithm</p></li>
+</ul>
+<p>The test suite can be run using the following commands:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./ns3<span class="w"> </span>configure<span class="w"> </span>--enable-examples<span class="w"> </span>--enable-tests
+$<span class="w"> </span>./ns3<span class="w"> </span>build
+$<span class="w"> </span>./test.py<span class="w"> </span>-s<span class="w"> </span>codel-queue-disc
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nv">NS_LOG</span><span class="o">=</span><span class="s2">&quot;CoDelQueueDisc&quot;</span><span class="w"> </span>./ns3<span class="w"> </span>run<span class="w"> </span><span class="s2">&quot;test-runner --suite=codel-queue-disc&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/src/traffic-control/doc/codel.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

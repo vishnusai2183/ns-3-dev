@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>PIE queue disc &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="pie-queue-disc">
+<h1>PIE queue disc<a class="headerlink" href="#pie-queue-disc" title="Link to this heading">¶</a></h1>
+<p>This chapter describes the PIE (<a class="reference internal" href="#pan13" id="id1"><span>[Pan13]</span></a>, <a class="reference internal" href="#pan16" id="id2"><span>[Pan16]</span></a>) queue disc implementation
+in <a href="#id4"><span class="problematic" id="id5">|ns3|</span></a>.</p>
+<p>Proportional Integral controller Enhanced (PIE) is a queuing discipline that aims to
+solve the bufferbloat <a class="reference internal" href="codel.html#buf14" id="id3"><span>[Buf14]</span></a> problem. The model in ns-3 is a port of Preethi
+Natarajan’s ns-2 PIE model.</p>
+<section id="model-description">
+<h2>Model Description<a class="headerlink" href="#model-description" title="Link to this heading">¶</a></h2>
+<p>The source code for the PIE model is located in the directory <code class="docutils literal notranslate"><span class="pre">src/traffic-control/model</span></code>
+and consists of 2 files <cite>pie-queue-disc.h</cite> and <cite>pie-queue-disc.cc</cite> defining a PieQueueDisc
+class. The code was ported to <a href="#id6"><span class="problematic" id="id7">|ns3|</span></a> by Mohit P. Tahiliani, Shravya K. S. and Smriti Murali
+based on ns-2 code implemented by Preethi Natarajan, Rong Pan, Chiara Piglione, Greg White
+and Takashi Hayakawa. The implementation was aligned with RFC 8033 by Vivek Jain and Mohit
+P. Tahiliani for the ns-3.32 release, with additional unit test cases contributed by Bhaskar Kataria.</p>
+<ul class="simple">
+<li><p>class <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">PieQueueDisc</span></code>: This class implements the main PIE algorithm:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">PieQueueDisc::DoEnqueue()</span></code>: This routine checks whether the queue is full, and if so, drops the packets and records the number of drops due to queue overflow. If queue is not full then if ActiveThreshold is set then it checks if queue delay is higher than ActiveThreshold and if it is then, this routine calls <code class="docutils literal notranslate"><span class="pre">PieQueueDisc::DropEarly()</span></code>, and depending on the value returned, the incoming packet is either enqueued or dropped.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PieQueueDisc::DropEarly()</span></code>: The decision to enqueue or drop the packet is taken by invoking this routine, which returns a boolean value; false indicates enqueue and true indicates drop.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PieQueueDisc::CalculateP()</span></code>: This routine is called at a regular interval of <cite>m_tUpdate</cite> and updates the drop probability, which is required by <code class="docutils literal notranslate"><span class="pre">PieQueueDisc::DropEarly()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PieQueueDisc::DoDequeue()</span></code>: This routine calculates queue delay using timestamps (by default) or, optionally with the <cite>UseDequeRateEstimator</cite> attribute enabled, calculates the average departure rate to estimate queue delay. A queue delay estimate required for updating the drop probability in <code class="docutils literal notranslate"><span class="pre">PieQueueDisc::CalculateP()</span></code>. Starting with the ns-3.32 release, the default approach to calculate queue delay has been changed to use timestamps.</p></li>
+</ul>
+</li>
+</ul>
+<section id="references">
+<h3>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h3>
+<div role="list" class="citation-list">
+<div class="citation" id="pan13" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">Pan13</a><span class="fn-bracket">]</span></span>
+<p>Pan, R., Natarajan, P., Piglione, C., Prabhu, M. S., Subramanian, V., Baker, F., &amp; VerSteeg, B. (2013, July). PIE: A lightweight control scheme to address the bufferbloat problem. In High Performance Switching and Routing (HPSR), 2013 IEEE 14th International Conference on (pp. 148-155). IEEE.  Available online at <a class="reference external" href="https://www.ietf.org/mail-archive/web/iccrg/current/pdfB57AZSheOH.pdf">https://www.ietf.org/mail-archive/web/iccrg/current/pdfB57AZSheOH.pdf</a>.</p>
+</div>
+<div class="citation" id="pan16" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">Pan16</a><span class="fn-bracket">]</span></span>
+<ol class="upperalpha simple" start="18">
+<li><p>Pan, P. Natarajan, F. Baker, G. White, B. VerSteeg, M.S. Prabhu, C. Piglione, V. Subramanian, Internet-Draft: PIE: A lightweight control scheme to address the bufferbloat problem, April 2016.  Available online at <a class="reference external" href="https://tools.ietf.org/html/draft-ietf-aqm-pie-07">https://tools.ietf.org/html/draft-ietf-aqm-pie-07</a>.</p></li>
+</ol>
+</div>
+</div>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h3>
+<p>The key attributes that the PieQueue class holds include the following:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MaxSize:</span></code> The maximum number of bytes or packets the queue can hold.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MeanPktSize:</span></code> Mean packet size in bytes. The default value is 1000 bytes.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Tupdate:</span></code> Time period to calculate drop probability. The default value is 30 ms.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Supdate:</span></code> Start time of the update timer. The default value is 0 ms.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DequeueThreshold:</span></code> Minimum queue size in bytes before dequeue rate is measured. The default value is 10000 bytes.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">QueueDelayReference:</span></code> Desired queue delay. The default value is 20 ms.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MaxBurstAllowance:</span></code> Current max burst allowance in seconds before random drop. The default value is 0.1 seconds.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">A:</span></code> Value of alpha. The default value is 0.125.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">B:</span></code> Value of beta. The default value is 1.25.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">UseDequeueRateEstimator:</span></code> Enable/Disable usage of Dequeue Rate Estimator (Default: false).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">UseEcn:</span></code> True to use ECN. Packets are marked instead of being dropped (Default: false).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MarkEcnThreshold:</span></code> ECN marking threshold (Default: 10% as suggested in RFC 8033).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">UseDerandomization:</span></code> Enable/Disable Derandomization feature mentioned in RFC 8033 (Default: false).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">UseCapDropAdjustment:</span></code> Enable/Disable Cap Drop Adjustment feature mentioned in RFC 8033 (Default: true).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ActiveThreshold:</span></code> Threshold for activating PIE (disabled by default).</p></li>
+</ul>
+</section>
+<section id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h3>
+<p>The example for PIE is <cite>pie-example.cc</cite> located in <code class="docutils literal notranslate"><span class="pre">src/traffic-control/examples</span></code>.  To run the file (the first invocation below shows the available
+command-line options):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./ns3<span class="w"> </span>run<span class="w"> </span><span class="s2">&quot;pie-example --PrintHelp&quot;</span>
+$<span class="w"> </span>./ns3<span class="w"> </span>run<span class="w"> </span><span class="s2">&quot;pie-example --writePcap=1&quot;</span>
+</pre></div>
+</div>
+<p>The expected output from the previous commands are ten .pcap files.</p>
+</section>
+</section>
+<section id="validation">
+<h2>Validation<a class="headerlink" href="#validation" title="Link to this heading">¶</a></h2>
+<p>The PIE model is tested using <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">PieQueueDiscTestSuite</span></code> class defined in <cite>src/traffic-control/test/pie-queue-test-suite.cc</cite>. The suite includes the following test cases:</p>
+<ul class="simple">
+<li><p>Test 1: simple enqueue/dequeue with defaults, no drops</p></li>
+<li><p>Test 2: more data with defaults, unforced drops but no forced drops</p></li>
+<li><p>Test 3: same as test 2, but with higher QueueDelayReference</p></li>
+<li><p>Test 4: same as test 2, but with reduced dequeue rate</p></li>
+<li><p>Test 5: same dequeue rate as test 4, but with higher Tupdate</p></li>
+<li><p>Test 6: same as test 2, but with UseDequeueRateEstimator enabled</p></li>
+<li><p>Test 7: test with CapDropAdjustment disabled</p></li>
+<li><p>Test 8: test with CapDropAdjustment enabled</p></li>
+<li><p>Test 9: PIE queue disc is ECN enabled, but packets are not ECN capable</p></li>
+<li><p>Test 10: Packets are ECN capable, but PIE queue disc is not ECN enabled</p></li>
+<li><p>Test 11: Packets and PIE queue disc both are ECN capable</p></li>
+<li><p>Test 12: test with Derandomization enabled</p></li>
+<li><p>Test 13: same as test 11 but with accumulated drop probability set below the low threshold</p></li>
+<li><p>Test 14: same as test 12 but with accumulated drop probability set above the high threshold</p></li>
+<li><p>Test 15: Tests Active/Inactive feature, ActiveThreshold set to a high value so PIE never starts.</p></li>
+<li><p>Test 16: Tests Active/Inactive feature, ActiveThreshold set to a low value so PIE starts early.</p></li>
+</ul>
+<p>The test suite can be run using the following commands:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./ns3<span class="w"> </span>configure<span class="w"> </span>--enable-examples<span class="w"> </span>--enable-tests
+$<span class="w"> </span>./ns3<span class="w"> </span>build
+$<span class="w"> </span>./test.py<span class="w"> </span>-s<span class="w"> </span>pie-queue-disc
+</pre></div>
+</div>
+<p>or alternatively (to see logging statements in a debug build):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nv">NS_LOG</span><span class="o">=</span><span class="s2">&quot;PieQueueDisc&quot;</span><span class="w"> </span>./ns3<span class="w"> </span>run<span class="w"> </span><span class="s2">&quot;test-runner --suite=pie-queue-disc&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/src/traffic-control/doc/pie.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

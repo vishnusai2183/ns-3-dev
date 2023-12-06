@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>3. Resources &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="resources">
+<h1><span class="section-number">3. </span>Resources<a class="headerlink" href="#resources" title="Link to this heading">¶</a></h1>
+<section id="the-web">
+<h2><span class="section-number">3.1. </span>The Web<a class="headerlink" href="#the-web" title="Link to this heading">¶</a></h2>
+<p>There are several important resources of which any <em>ns-3</em> user must be
+aware.  The main web site is located at <a class="reference external" href="https://www.nsnam.org">https://www.nsnam.org</a> and
+provides access to basic information about the <em>ns-3</em> system.  Detailed
+documentation is available through the main web site at
+<a class="reference external" href="https://www.nsnam.org/documentation/">https://www.nsnam.org/documentation/</a>.  You can also find documents
+relating to the system architecture from this page.</p>
+<p>There is a Wiki that complements the main <em>ns-3</em> web site which you will
+find at <a class="reference external" href="https://www.nsnam.org/wiki/">https://www.nsnam.org/wiki/</a>.  You will find user and developer
+FAQs there, as well as troubleshooting guides, third-party contributed code,
+papers, etc.</p>
+<p>The source code may be found and browsed at GitLab.com:
+<a class="reference external" href="https://gitlab.com/nsnam/">https://gitlab.com/nsnam/</a>.
+There you will find the current development tree in the repository named
+<code class="docutils literal notranslate"><span class="pre">ns-3-dev</span></code>. Past releases and experimental repositories of the core
+developers may also be found at the project’s old Mercurial site at
+<a class="reference external" href="http://code.nsnam.org">http://code.nsnam.org</a>.</p>
+</section>
+<section id="git">
+<h2><span class="section-number">3.2. </span>Git<a class="headerlink" href="#git" title="Link to this heading">¶</a></h2>
+<p>Complex software systems need some way to manage the organization and
+changes to the underlying code and documentation.  There are many ways to
+perform this feat, and you may have heard of some of the systems that are
+currently used to do this.  Until recently, the <em>ns-3</em> project used Mercurial
+as its source code management system, but in December 2018, switch to
+using Git.  Although you do not need to know much about Git in order to
+complete this tutorial, we recommend becoming familiar with Git and using it
+to access the source code.  GitLab.com provides resources to get started
+at: <a class="reference external" href="https://docs.gitlab.com/ee/gitlab-basics/">https://docs.gitlab.com/ee/gitlab-basics/</a>.</p>
+</section>
+<section id="cmake">
+<h2><span class="section-number">3.3. </span>CMake<a class="headerlink" href="#cmake" title="Link to this heading">¶</a></h2>
+<p>Once you have source code downloaded to your local system, you will need
+to compile that source to produce usable programs.  Just as in the case of
+source code management, there are many tools available to perform this
+function.  Probably the most well known of these tools is <code class="docutils literal notranslate"><span class="pre">make</span></code>.  Along
+with being the most well known, <code class="docutils literal notranslate"><span class="pre">make</span></code> is probably the most difficult to
+use in a very large and highly configurable system.  Because of this, many
+alternatives have been developed.</p>
+<p>The build system CMake is used on the <em>ns-3</em> project.</p>
+<p>For those interested in the details of CMake, the CMake documents are available
+at <a class="reference external" href="https://cmake.org/cmake/help/latest/index.html">https://cmake.org/cmake/help/latest/index.html</a> and the current code
+at <a class="reference external" href="https://gitlab.kitware.com/cmake/cmake">https://gitlab.kitware.com/cmake/cmake</a>.</p>
+</section>
+<section id="development-environment">
+<h2><span class="section-number">3.4. </span>Development Environment<a class="headerlink" href="#development-environment" title="Link to this heading">¶</a></h2>
+<p>As mentioned above, scripting in <em>ns-3</em> is done in C++ or Python.
+Most of the <em>ns-3</em> API is available in Python, but the
+models are written in C++ in either case.  A working
+knowledge of C++ and object-oriented concepts is assumed in this document.
+We will take some time to review some of the more advanced concepts or
+possibly unfamiliar language features, idioms and design patterns as they
+appear.  We don’t want this tutorial to devolve into a C++ tutorial, though,
+so we do expect a basic command of the language.  There are a wide
+number of sources of information on C++ available on the web or
+in print.</p>
+<p>If you are new to C++, you may want to find a tutorial- or cookbook-based
+book or web site and work through at least the basic features of the language
+before proceeding.  For instance, <a class="reference external" href="http://www.cplusplus.com/doc/tutorial/">this tutorial</a>.</p>
+<p>On Linux, the <em>ns-3</em> system uses several components of the GNU “toolchain”
+for development.  A
+software toolchain is the set of programming tools available in the given
+environment. For a quick review of what is included in the GNU toolchain see,
+<a class="reference external" href="http://en.wikipedia.org/wiki/GNU_toolchain">http://en.wikipedia.org/wiki/GNU_toolchain</a>.  <em>ns-3</em> uses gcc,
+GNU binutils, and gdb.  However, we do not use the GNU build system tools,
+neither make directly.  We use CMake for these functions.</p>
+<p>On macOS, the toolchain used is Xcode.  <em>ns-3</em> users on a Mac are strongly
+encouraged to install Xcode and the command-line tools packages from the
+Apple App Store, and to look at the <em>ns-3</em> installation guide for more
+information (<a class="reference external" href="https://www.nsnam.org/docs/installation/html/">https://www.nsnam.org/docs/installation/html/</a>).</p>
+<p>Typically an <em>ns-3</em> author will work in Linux or a Unix-like environment.
+For those running under Windows, there do exist environments
+which simulate the Linux environment to various degrees.  The <em>ns-3</em>
+installation guide has information about Windows support
+(<a class="reference external" href="https://www.nsnam.org/docs/installation/html/windows.html">https://www.nsnam.org/docs/installation/html/windows.html</a>).</p>
+</section>
+<section id="socket-programming">
+<h2><span class="section-number">3.5. </span>Socket Programming<a class="headerlink" href="#socket-programming" title="Link to this heading">¶</a></h2>
+<p>We will assume a basic facility with the Berkeley Sockets API in the examples
+used in this tutorial.  If you are new to sockets, we recommend reviewing the
+API and some common usage cases.  For a good overview of programming TCP/IP
+sockets we recommend <a class="reference external" href="https://www.elsevier.com/books/tcp-ip-sockets-in-c/donahoo/978-0-12-374540-8">TCP/IP Sockets in C, Donahoo and Calvert</a>.</p>
+<p>There is an associated web site that includes source for the examples in the
+book, which you can find at:
+<a class="reference external" href="http://cs.baylor.edu/~donahoo/practical/CSockets/">http://cs.baylor.edu/~donahoo/practical/CSockets/</a>.</p>
+<p>If you understand the first four chapters of the book (or for those who do
+not have access to a copy of the book, the echo clients and servers shown in
+the website above) you will be in good shape to understand the tutorial.
+There is a similar book on Multicast Sockets,
+<a class="reference external" href="https://www.elsevier.com/books/multicast-sockets/makofske/978-1-55860-846-7">Multicast Sockets, Makofske and Almeroth</a>.
+that covers material you may need to understand if you look at the multicast
+examples in the distribution.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/doc/tutorial/source/resources.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

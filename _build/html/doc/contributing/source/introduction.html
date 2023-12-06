@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>1. Introduction &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="introduction">
+<span id="id1"></span><h1><span class="section-number">1. </span>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">¶</a></h1>
+<p>This document is a guide for those who wish to contribute code to <em>ns-3</em>
+or its related projects in some way.</p>
+<p>Changes to <em>ns-3</em> software are made by
+or reviewed by <em>maintainers</em>.  <em>ns-3</em> has a small core team of maintainers,
+and also some specialized maintainers who maintain a portion of the software.
+The source code branch that is centrally maintained is sometimes
+called the <em>mainline</em>, a term used further herein.
+End users are encouraged to report issues and bugs, or to propose
+software or documentation modifications, to be reviewed by and handled by
+maintainers.  End users can also help by reviewing code
+proposals made by others.  Some end users who contribute high quality
+patches or code reviews over time may ask or be invited to become
+a maintainer of software within their areas of expertise.  Finally, some
+end users wish to disseminate their <em>ns-3</em> work to the community, through
+the addition of new features or modules to <em>ns-3</em>.</p>
+<p>A question often asked by newcomers is “How can I contribute to <em>ns-3</em>?”
+or “How do I get started?”.
+This document summarizes the various ways and processes used to contribute
+to <em>ns-3</em>.  Contribution by users is essential for a project maintained
+largely by volunteers.  However, one of the most scarce resources on
+an open source project is the available time of maintainers, so we ask
+contributors to please become familiar with conventions and processes
+used by <em>ns-3</em> so as to smooth the contribution process.</p>
+<p>The very first step is to become familiar with <em>ns-3</em> by reading the tutorial,
+running some example programs, and then reading some of the code and
+documentation to get a feel for things.  From that point, there are a
+number of options to contribute:</p>
+<ul class="simple">
+<li><p>Contributing a small documentation correction</p></li>
+<li><p>Reporting or discussing a bug in the software</p></li>
+<li><p>Fixing an already reported bug by submitting a patch</p></li>
+<li><p>Reviewing code contributed by others</p></li>
+<li><p>Submitting new code for inclusion in the mainline</p></li>
+<li><p>Alerting users to code that is maintained or archived elsewhere</p></li>
+<li><p>Submitting a module or fork for publishing in the ns-3 app store</p></li>
+<li><p>Becoming a maintainer of part of the simulator</p></li>
+</ul>
+<p><em>ns-3</em> is mainly a C++ project, and this contribution guide focuses on
+how to contribute <em>ns-3</em> code specifically, but the overall open source
+project maintains various related codebases written in several other
+languages, so if you are interested in contributing outside of <em>ns-3</em>
+C++ code, there are several possibilities:</p>
+<ul class="simple">
+<li><p><em>ns-3</em> provides Python bindings to most of its API, and maintains an
+automated API scanning process that relies on other tools.  We can use
+maintenance help in the C++/Python bindings support.</p></li>
+<li><p>Another Python project is the <a class="reference external" href="https://gitlab.com/nsnam/bake/-/issues">bake build tool</a>, which has a number of open issues.</p></li>
+<li><p>See also our Python-based <a class="reference external" href="https://www.nsnam.org/wiki/PyViz">PyViz visualizer</a>; extensions and documentation would be welcome.</p></li>
+<li><p>The <a class="reference external" href="https://gitlab.com/nsnam/netanim">NetAnim</a> animator is written in <a class="reference external" href="https://www.qt.io/">Qt</a> and has lacked a maintainer for several years.</p></li>
+<li><p>If you are interested in Linux kernel hacking, or use of applications in <em>ns-3</em> such as open source routing daemons, we maintain the
+<a class="reference external" href="https://www.nsnam.org/about/projects/direct-code-execution/">Direct Code Execution project</a>.</p></li>
+<li><p>If you are familiar with <a class="reference external" href="https://www.djangoproject.com/">Django</a>, we have work to do on <a class="reference external" href="https://gitlab.com/nsnam/ns-3-AppStore">our app store infrastructure</a>.</p></li>
+<li><p>Our <a class="reference external" href="https://gitlab.com/nsnam/nsnam-web">website</a> is written in <a class="reference external" href="https://jekyllrb.com/">Jekyll</a> and is in need of more work.</p></li>
+</ul>
+<p>The remainder of this document is organized as follows.</p>
+<ul class="simple">
+<li><p>Chapter 2 covers general issues surrounding code and documentation
+contributions, including license and copyright;</p></li>
+<li><p>Chapter 3 describes approaches for contributing small enhancements to
+the <em>ns-3</em> mainline, such as a documentation or bug fix;</p></li>
+<li><p>Chapter 4 outlines the approach for proposing new models for the mainline;</p></li>
+<li><p>Chapter 5 describes how to contribute code that will be stored outside
+of the <em>ns-3</em> mainline, with emphasis on the <em>ns-3</em> <em>AppStore</em>; and</p></li>
+<li><p>Chapter 6 provides the coding style guidelines that are mandatory for the
+<em>ns-3</em> mainline and strongly suggested for contributed modules.</p></li>
+</ul>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/doc/contributing/source/introduction.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>5. Submitting externally maintained code &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="submitting-externally-maintained-code">
+<span id="external"></span><h1><span class="section-number">5. </span>Submitting externally maintained code<a class="headerlink" href="#submitting-externally-maintained-code" title="Link to this heading">¶</a></h1>
+<p>This chapter mainly pertains to code that will be maintained in external
+repositories (such as a personal or university research group repository,
+possibly hosted on GitHub or GitLab.com),
+but for which the contributor wishes to keep consistent and compatible
+with the <em>ns-3</em> mainline.</p>
+<p>If the contributor does not want to maintain the external code
+but wants to make the community aware that it is available with
+no ongoing support, links to the code can be posted on the <em>ns-3</em>
+<a class="reference external" href="https://www.nsnam.org/wiki/Contributed_Code">wiki</a> contributed code page.  A typical example is the graduating
+student who wishes to make his or her thesis-related code available
+but who does not plan to update it further.
+See <a class="reference internal" href="#sec-unmaintained-contributed"><span class="std std-ref">Unmaintained, contributed code</span></a> below.</p>
+<p>However, much of the emphasis of this chapter is on hosting <em>ns-3</em> extensions
+in the <em>ns-3</em> <a class="reference external" href="https://apps.nsnam.org">App Store</a>.</p>
+<section id="rationale-for-the-app-store">
+<h2><span class="section-number">5.1. </span>Rationale for the app store<a class="headerlink" href="#rationale-for-the-app-store" title="Link to this heading">¶</a></h2>
+<p>Historically, <em>ns-3</em> tried to merge all code contributions (that met the
+contribution guidelines) to the mainline.  However, this approach has
+reached its limits in terms of scalability:</p>
+<ol class="arabic simple">
+<li><p>As <em>ns-3</em> includes more lines of code, it takes longer to compile, while
+users typically only need a subset of the available <em>ns-3</em> model code.</p></li>
+<li><p>Merging to the mainline requires maintainer participation for code
+reviews (which can be time consuming for maintainers), resulting in some
+contributions not being merged due to lack of code reviews.</p></li>
+</ol>
+<p>The app store federates the maintenance of <em>ns-3</em> modules, and puts more
+control in the hands of the contributor to maintain their code.  The idea
+is to provide a central place where users can discover <em>ns-3</em> extensions
+and add them to their <em>ns-3</em> installation.  One of the drawbacks of this
+approach, however, is the potential for a lot of compatibility headaches,
+such as a user trying to use two separately developed modules, but the
+modules are compatible with different <em>ns-3</em> mainline versions.  Therefore,
+the app store is designed to assist in testing and clarifying which version
+of the external module is compatible with which mainline version of <em>ns-3</em>.</p>
+<p>In brief, what it means for <em>ns-3</em> users is the following.  There is an
+empty directory in the <em>ns-3</em> source code tree called <cite>contrib</cite>.  This directory
+behaves the same way (with respect to the build system) as the <cite>src</cite>
+directory, but is the place in which externally developed models can
+be downloaded and added to <em>ns-3</em>.</p>
+<p>For contributors, the app store provides a means for module developers
+to make releases on their own schedule and not be tied to the release
+schedule of the mainline, nor to be blocked by mainline code reviews
+or style requirements.  It is still possible (and recommended) to obtain
+code reviews and follow style guidelines for contributed modules, as
+described below.</p>
+<section id="example-app">
+<h3><span class="section-number">5.1.1. </span>Example app<a class="headerlink" href="#example-app" title="Link to this heading">¶</a></h3>
+<p>For example, consider a user who wants to use a model of the LoRaWAN
+sensor networking protocol in <em>ns-3</em>.  This model is not available in
+the mainline <em>ns-3</em> releases, but the user checks in the
+<a class="reference external" href="https://apps.nsnam.org">App Store</a>.  Sensor networking protocols can
+be found by browsing the category <em>Sensor Networks</em> in the left-hand
+menu, upon which the LoRaWAN module is displayed.  This module is maintained
+by an external research group.  Clicking on the app icon leads to a page
+in which more details about this module are displayed, including
+<em>Release History</em>, <em>Installation</em>, and <em>Maintenance</em>.</p>
+<p>The installation tab suggests two primary ways to add a <cite>lorawan</cite> module
+to an <em>ns-3</em> installation:</p>
+<ol class="arabic simple">
+<li><p>Download a source archive from the link provided on the app store and
+unpack it in the <cite>contrib/</cite> directory.</p></li>
+<li><p>Perform a <cite>git clone</cite> operation from within the <em>ns-3</em> <cite>contrib/</cite> directory.</p></li>
+</ol>
+<p>There is a third way in general, which is to use the Bake build system
+to add or remove modules.  Most modules have a <cite>bakeconf.xml</cite> file
+associated with them, which can be added to the <cite>contrib/</cite> folder of
+Bake.  This permits bake configuration operations such as:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ ./bake.py configure -e ns-3.34 -e lorawan-0.3.0
+$ ./bake.py download
+$ ./bake.py build
+</pre></div>
+</div>
+<p>Users will be concerned about which version of the module applies to the
+version of <em>ns-3</em>.  The <em>Release History</em> tab describes the releases and
+the minimum (and, optionally, the maximum) <em>ns-3</em> version that the release
+works with.</p>
+<p>Finally, information about how the module will continue to be maintained,
+and how to submit issue reports or ask questions about it, are typically
+posted in the optional <em>Maintenance</em> or <em>Development</em> tabs.</p>
+</section>
+</section>
+<section id="app-types">
+<h2><span class="section-number">5.2. </span>App types<a class="headerlink" href="#app-types" title="Link to this heading">¶</a></h2>
+<p>Two types of “apps” are hosted on the app store:  1) contributed modules,
+and 2) forks of <em>ns-3</em>.  It benefits users the most when contributed code
+can be added as modules to the <cite>contrib</cite> directory, because this allows
+the modules to be used with different versions of the <em>ns-3</em> mainline
+and to combine multiple such modules.  However, some authors have chosen
+to create a full fork of <em>ns-3</em>, and to publish full <em>ns-3</em> source trees.
+One reason for such forks is if the fork requires intrusive changes to
+the <em>ns-3</em> mainline code, in such a manner that the patch will likely not
+be accepted in the mainline.  For an example of a full fork in the
+app store, see the <a class="reference external" href="https://apps.nsnam.org/app/publicsafetylte/">Public Safety Communications</a> app page; this is a full fork because of the intrusive
+changes to the mainline LTE module necessary to support the public
+safety extensions.</p>
+<p>Sometimes a contributed module does require a very small patch to the
+mainline despite being largely implemented in a modular way.  In this
+case, the best strategy is to try to create a minimal patch to
+upstream to the mainline, and work with maintainers to incorporate it.
+Even if this is not successful or not attempted, one can maintain
+a small patch file as part of the module, and bake build instructions
+for the module can be extended to patch the mainline code as the first
+step in the build process.  Please consult the app store maintainers
+if guidance on this approach is needed.</p>
+</section>
+<section id="submitting-to-the-app-store">
+<h2><span class="section-number">5.3. </span>Submitting to the app store<a class="headerlink" href="#submitting-to-the-app-store" title="Link to this heading">¶</a></h2>
+<p>If you are interested in adding an app to the app store, contact
+<code class="docutils literal notranslate"><span class="pre">webmaster&#64;nsnam.org</span></code> or one of the app store maintainers.  Before
+getting started, browse through the existing apps so that you get
+a feel for what type of information will be required.</p>
+<p>The main requirements are:</p>
+<ol class="arabic simple">
+<li><p>Define a module name that will be the name of the subdirectory in the
+<cite>contrib</cite> folder.  Use <em>ns-3</em> naming conventions for directory names; i.e.,
+all lower case, with separate words separated by dashes.</p></li>
+<li><p>Ensure that your module can be successfully cloned into the contrib folder
+using the proposed module name, that it builds successfully, and that
+all examples and tests run.</p></li>
+<li><p>Make at least one release on your GitHub or GitLab.com, associated
+with the latest <em>ns-3</em> release if possible.  To do this, you will need
+to decide on a numbering scheme, such as ‘v1.0’ or ‘0.1’, etc.
+Consult GitHub or GitLab.com documentation on how to make a (tagged)
+release.</p></li>
+<li><p>Come up with a small thumbnail icon for your app.  A general guideline
+is a transparent PNG, size 100x100 pixels.</p></li>
+<li><p>Provide names and email addresses of the person(s) who should have edit
+privileges (accounts) on the app store.</p></li>
+</ol>
+<p>After providing this information, a skeleton page will be set up on the
+app store and will be initially invisible to users who visit the front
+page.  Contributors can then log in and work with the app store
+maintainer to finalize the page, and then make it active (visible) to
+other users when ready.</p>
+</section>
+<section id="code-review-for-apps">
+<h2><span class="section-number">5.4. </span>Code review for apps<a class="headerlink" href="#code-review-for-apps" title="Link to this heading">¶</a></h2>
+<p>Even though apps are not added to the <em>ns-3</em> mainline, it is still possible
+to request code reviews for them (in order to improve the code).  There
+is a special repository set up for this purpose:
+<a class="reference external" href="https://gitlab.com/nsnam/ns-3-contrib-reviews">ns-3-contrib-reviews</a>.  The
+purpose of this repository is to provide a fork-able repository against
+which to generate Merge Requests, but no eventual merge ever takes place.</p>
+<p>The steps to request a code review are:</p>
+<ol class="arabic simple">
+<li><p>Fork <cite>ns-3-contrib-reviews</cite> into your own namespace</p></li>
+<li><p>Clone the fork to your local machine</p></li>
+<li><p>Create a new feature branch  on what you just checked out for your new code</p></li>
+<li><p>cd to ‘contrib’ and clone your extension module there</p></li>
+<li><p>remove the .git directory of that module so that git does not treat it as a submodule; e.g., if your module name is <cite>modulename</cite>:</p></li>
+</ol>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ rm -rf modulename/.git
+</pre></div>
+</div>
+<ol class="arabic simple" start="6">
+<li><p>Force an add of the module, overcoming the .gitignore file for contrib modules</p></li>
+</ol>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ git add -f modulename
+</pre></div>
+</div>
+<ol class="arabic simple" start="7">
+<li><p>Add your files:</p></li>
+</ol>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ git commit -m&quot;Add modulename for review&quot; -a
+</pre></div>
+</div>
+<ol class="arabic simple" start="8">
+<li><p>Push the feature branch to your remote repository</p></li>
+</ol>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ git push -u origin
+</pre></div>
+</div>
+<ol class="arabic simple" start="9">
+<li><p>Navigate to your github.com page and generate a Merge Request towards
+the upstream <cite>ns-3-contrib-reviews</cite></p></li>
+<li><p>Announce on ns-developers mailing list that you would like a review.</p></li>
+</ol>
+</section>
+<section id="maintaining-app-store-modules">
+<h2><span class="section-number">5.5. </span>Maintaining app store modules<a class="headerlink" href="#maintaining-app-store-modules" title="Link to this heading">¶</a></h2>
+<p>A recent <a class="reference external" href="https://mishal.dev/gsoc19-report">Google Summer of Code project</a>
+worked on allowing integration of the app store with continuous integration
+(CI) testing.  This integration is ongoing, but the eventual goal is that
+regressions that are caused by upstream changes to <em>ns-3</em> will be quickly
+caught, and the app owner will be asked to fix the build of their app,
+possibly by issuing another module release as well.</p>
+</section>
+<section id="links-to-related-projects">
+<h2><span class="section-number">5.6. </span>Links to related projects<a class="headerlink" href="#links-to-related-projects" title="Link to this heading">¶</a></h2>
+<p>Some projects choose to maintain their own version of <em>ns-3</em>, or maintain models
+outside of the main tree of the code.  In this case, the way to find out
+about these is to look at the Related Projects page on the <em>ns-3</em>
+<a class="reference external" href="https://www.nsnam.org/wiki/Contributed_Code">wiki</a>.</p>
+<p>If you know of externally maintained code that the project does not know about,
+please email <code class="docutils literal notranslate"><span class="pre">webmaster&#64;nsnam.org</span></code> to request that it be added to the
+list of external projects.</p>
+<p>Going forward, we will tend to prefer to list related projects on the
+app store so that there is a single place to discover them.</p>
+</section>
+<section id="unmaintained-contributed-code">
+<span id="sec-unmaintained-contributed"></span><h2><span class="section-number">5.7. </span>Unmaintained, contributed code<a class="headerlink" href="#unmaintained-contributed-code" title="Link to this heading">¶</a></h2>
+<p>Anyone who wants to provide access to code that has been developed to
+extend <em>ns-3</em> but that will not be further maintained may list its
+availability on our website. Furthermore, we can provide, in some
+circumstances, storage of a compressed archive on a web server if needed.
+This type of code contribution will
+not be listed in the app store, although popular extensions might be
+adopted by a future contributor.</p>
+<p>We ask anyone who wishes to do this to provide at least this information
+on our <a class="reference external" href="https://www.nsnam.org/wiki/Contributed_Code">wiki</a>:</p>
+<ul class="simple">
+<li><p>Authors,</p></li>
+<li><p>Name and description of the extension,</p></li>
+<li><p>How it is distributed (as a patch or full tarball),</p></li>
+<li><p>Location,</p></li>
+<li><p>Status (how it is maintained)</p></li>
+</ul>
+<p>Please also make clear in your code the applicable software license.
+The contribution will be stored on our <a class="reference external" href="https://www.nsnam.org/wiki/Contributed_Code">wiki</a>. If you need web server
+space for your archive, please contact <code class="docutils literal notranslate"><span class="pre">webmaster&#64;nsnam.org</span></code>.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/doc/contributing/source/external.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

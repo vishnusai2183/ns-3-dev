@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>1. Overview &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="overview">
+<h1><span class="section-number">1. </span>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h1>
+<p>This guide documents the different ways that users can download, build, and install <em>ns-3</em> from source code.  All of these actions (download, build, install) have variations
+or options, and can be customized or extended by users; this document attempts to inform readers
+about different possibilities.</p>
+<p>Please note a few important details:</p>
+<ul class="simple">
+<li><p><em>ns-3</em> is supported for Linux, macOS, and Windows systems.  Linux is the primary system
+supported, and (almost) all <em>ns-3</em> features are supported on Linux.  However, most features can
+also be used on macOS and Windows.  Windows is probably the least used and least supported
+system.</p></li>
+<li><p><em>ns-3</em> has minimal prerequisites for its most basic installation; namely, a <strong>C++</strong> compiler,
+<strong>Python3</strong> support, the <strong>CMake</strong> build system, and at least one of <strong>make</strong>, <strong>ninja</strong>, or
+<strong>Xcode</strong> build systems.  However, some users will want to install optional packages
+to make use of the many optional extensions.</p></li>
+<li><p><em>ns-3</em> installation requirements vary from release to release, and also as underlying operating
+systems evolve.  This document is version controlled, so if you are using the <em>ns-3.X</em> release,
+try to read the <em>ns-3.X</em> version of this document.  Even with this guidance, you may encounter
+issues if you are trying to use an old version of <em>ns-3</em> on a much newer system.  For instance,
+<em>ns-3</em> versions until around 2020 relied on Python2, which is now end-of-life and not installed
+by default on many Linux distributions.  Compilers also become more pedantic and issue more
+warnings as they evolve.  Solutions to some of these forward compatibility problems exist and
+are discussed herein or might be found in the ns-3-users mailing list archives.</p></li>
+</ul>
+<p>If you find any stale or inaccurate information in this document, please report it to maintainers,
+on our <a class="reference external" href="https://ns-3.zulipchat.com">Zulip chat</a>, in the GitLab.com
+<a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/issues/">Issue tracker</a>, (or better yet, a patch to fix
+in the <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/merge_requests">Merge Request tracker</a>), or on our
+developers mailing list.</p>
+<p>We also will accept patches to this document to provide installation guidance for the
+FreeBSD operating system and other operating systems being used in practice.</p>
+<section id="software-organization">
+<h2><span class="section-number">1.1. </span>Software organization<a class="headerlink" href="#software-organization" title="Link to this heading">¶</a></h2>
+<p><em>ns-3</em> is a set of C++ libraries (usually compiled as shared libraries) that can be used by C++
+or Python programs to construct simulation scenarios and execute simulations.  Users can also
+write programs that link other C++ shared libraries (or import other Python modules).  Users can
+choose to use a subset of the available libraries; only the <code class="docutils literal notranslate"><span class="pre">core</span></code> library is strictly required.</p>
+<p><em>ns-3</em> uses the CMake build system (until release 3.36, the Waf build system was used).  It can be
+built from command-line or via a code editor program.</p>
+<p>Most users write C++ ns-3 programs; Python support is less frequently used.
+As of <em>ns-3.37</em>, <em>ns-3</em> uses <cite>cppyy</cite> to generate runtime Python
+bindings, and <em>ns-3</em> is available in the Pip repositories as of ns-3.39 release.</p>
+<p>Many users may be familiar with how software is packaged and installed on Linux and other systems
+using package managers.  For example, to install a given Linux development library such as
+OpenSSL, a package manager is typically used (e.g., <code class="docutils literal notranslate"><span class="pre">apt</span> <span class="pre">install</span> <span class="pre">openssl</span> <span class="pre">libssl-dev</span></code>), which leads
+to shared libraries being installed under <code class="docutils literal notranslate"><span class="pre">/usr/lib/</span></code>, development headers being installed
+under <code class="docutils literal notranslate"><span class="pre">/usr/include/</span></code>, etc.  Programs that wish to use these libraries must link the system
+libraries and include the development headers.  <em>ns-3</em> is capabile of being installed in exactly
+the same way, and some downstream package maintainers have packaged <em>ns-3</em> for some systems
+such as Ubuntu.  However, as of this writing, the <em>ns-3</em> project has not prioritized or
+standardized such package distribution, favoring instead to recommend a <em>source download</em> without
+a system-level install.  This is mainly because most <em>ns-3</em> users prefer to slightly or extensively
+edit or extend the <em>ns-3</em> libraries, or to build them in specific ways (for debugging, or optimized
+for large-scale simulation campaign).  Our build system provides an <code class="docutils literal notranslate"><span class="pre">install</span></code> command that can
+be used to install libraries and headers to system locations (usually requiring administrator
+privileges), but usually the libraries are just built and used from within the <em>ns-3</em> <code class="docutils literal notranslate"><span class="pre">build</span></code>
+directory.</p>
+</section>
+<section id="document-organization">
+<h2><span class="section-number">1.2. </span>Document organization<a class="headerlink" href="#document-organization" title="Link to this heading">¶</a></h2>
+<p>The rest of this document is organized as follows:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../../tutorial/source/quick-start.html#quick-start"><span class="std std-ref">Quick Start</span></a> (for any operating system)</p></li>
+<li><p><a class="reference internal" href="system.html#general-list"><span class="std std-ref">System Prerequisites</span></a> of requirements, recommendations, and optional prerequisites</p></li>
+<li><p><a class="reference internal" href="linux.html#linux"><span class="std std-ref">Linux</span></a> installation</p></li>
+<li><p><a class="reference internal" href="macos.html#macos"><span class="std std-ref">macOS</span></a> installation</p></li>
+<li><p><a class="reference internal" href="windows.html#windows"><span class="std std-ref">Windows</span></a> installation</p></li>
+<li><p><a class="reference internal" href="bake.html#bake"><span class="std std-ref">Installing Bake</span></a> installation</p></li>
+</ul>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/doc/installation/source/overview.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

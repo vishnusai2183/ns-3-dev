@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>4.10. Working with gitlab-ci-local &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="working-with-gitlab-ci-local">
+<h1><span class="section-number">4.10. </span>Working with gitlab-ci-local<a class="headerlink" href="#working-with-gitlab-ci-local" title="Link to this heading">¶</a></h1>
+<p>The ns-3 project repository is currently hosted in GitLab, which includes
+<a class="reference external" href="https://docs.gitlab.com/ee/ci/">continuous integration (CI)</a> tools to automate build, tests, packaging and
+distribution of software. The CI works based on jobs, that are defined
+on YAML files.</p>
+<p>The ns-3 GitLab CI files are located in <code class="docutils literal notranslate"><span class="pre">ns-3-dev/utils/tests/</span></code>.
+The main GitLab CI file is <code class="docutils literal notranslate"><span class="pre">gitlab-ci.yml</span></code>. The different jobs
+are used to check if a multitude of compilers and package versions
+are compatible with the current ns-3 build, which is why a build is
+usually followed by a test run. Other CI jobs build and warn about
+missing the documentation.</p>
+<p>The GitLab CI jobs are executed based on <a class="reference external" href="https://docs.gitlab.com/ee/ci/introduction/index.html#continuous-integration">pipelines</a> containing a
+sequence of job batches. Jobs within a batch can be executed in parallel.
+These <a class="reference external" href="https://docs.gitlab.com/ee/ci/introduction/index.html#continuous-integration">pipelines</a> can be triggered manually, or scheduled to run automatically
+per commit and/or based on a time period
+(ns-3 has <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/-/pipeline_schedules">daily and weekly pipelines</a> scheduled).</p>
+<p>The GitLab CI free tier is very slow, taking a lot of time to identify
+issues during active merge request development.</p>
+<p>Note: the free tier
+now requires a credit card due to <a class="reference external" href="https://about.gitlab.com/blog/2021/05/17/prevent-crypto-mining-abuse/">crypto miners abuse</a>.</p>
+<p><a class="reference external" href="https://github.com/firecow/gitlab-ci-local">GitLab-CI-local</a> is a tool that allows an user to use the <a class="reference external" href="https://docs.gitlab.com/ee/ci/">GitLab CI</a>
+configuration files locally, allowing for the debugging of CI settings
+and pipelines without requiring pushes to test repositories or main
+repositories that fill up the CI job queues with failed jobs due to
+script errors.</p>
+<p>GitLab-CI-local relies on <a class="reference external" href="https://docs.docker.com/desktop/">Docker</a> to setup the environment to execute
+the jobs.</p>
+<p>Note: Docker is usually setup in root mode, requiring
+frequent use of administrative permissions/sudo. However,
+this is highly discouraged. You can configure Docker to run
+in <a class="reference external" href="https://docs.docker.com/engine/security/rootless/">rootless mode</a>. From this point onwards, we assume Docker is configured
+in <a class="reference external" href="https://docs.docker.com/engine/security/rootless/">rootless mode</a>.</p>
+<p>After installing both <a class="reference external" href="https://docs.docker.com/desktop/">Docker</a> in <a class="reference external" href="https://docs.docker.com/engine/security/rootless/">rootless mode</a> and <a class="reference external" href="https://github.com/firecow/gitlab-ci-local">GitLab-CI-local</a>,
+the ns-3 jobs can be listed using the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/ns-3-dev$<span class="w"> </span>gitlab-ci-local<span class="w"> </span>--file<span class="w"> </span>./utils/tests/gitlab-ci.yml<span class="w"> </span>--list
+parsing<span class="w"> </span>and<span class="w"> </span>downloads<span class="w"> </span>finished<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">226</span><span class="w"> </span>ms
+name<span class="w">                                   </span>description<span class="w">  </span>stage<span class="w">          </span>when<span class="w">        </span>allow_failure<span class="w">  </span>needs
+weekly-build-ubuntu-18.04-debug<span class="w">                     </span>build<span class="w">          </span>on_success<span class="w">  </span><span class="nb">false</span>
+
+...
+
+weekly-build-clang-11-optimized<span class="w">                     </span>build<span class="w">          </span>on_success<span class="w">  </span><span class="nb">false</span>
+cppyy-22.04<span class="w">                                         </span>build<span class="w">          </span>on_success<span class="w">  </span><span class="nb">false</span>
+per-commit-compile-debug<span class="w">                            </span>build<span class="w">          </span>on_success<span class="w">  </span><span class="nb">false</span>
+per-commit-compile-release<span class="w">                          </span>build<span class="w">          </span>on_success<span class="w">  </span><span class="nb">false</span>
+per-commit-compile-optimized<span class="w">                        </span>build<span class="w">          </span>on_success<span class="w">  </span><span class="nb">false</span>
+daily-test-debug<span class="w">                                    </span><span class="nb">test</span><span class="w">           </span>on_success<span class="w">  </span><span class="nb">false</span>
+daily-test-release<span class="w">                                  </span><span class="nb">test</span><span class="w">           </span>on_success<span class="w">  </span><span class="nb">false</span>
+daily-test-optimized<span class="w">                                </span><span class="nb">test</span><span class="w">           </span>on_success<span class="w">  </span><span class="nb">false</span>
+daily-test-optimized-valgrind<span class="w">                       </span><span class="nb">test</span><span class="w">           </span>on_success<span class="w">  </span><span class="nb">false</span>
+weekly-test-debug-valgrind<span class="w">                          </span><span class="nb">test</span><span class="w">           </span>on_success<span class="w">  </span><span class="nb">false</span>
+weekly-test-release-valgrind<span class="w">                        </span><span class="nb">test</span><span class="w">           </span>on_success<span class="w">  </span><span class="nb">false</span>
+weekly-test-optimized-valgrind<span class="w">                      </span><span class="nb">test</span><span class="w">           </span>on_success<span class="w">  </span><span class="nb">false</span>
+weekly-test-takes-forever-optimized<span class="w">                 </span><span class="nb">test</span><span class="w">           </span>on_success<span class="w">  </span><span class="nb">false</span>
+doxygen<span class="w">                                             </span>documentation<span class="w">  </span>on_success<span class="w">  </span><span class="nb">false</span>
+manual<span class="w">                                              </span>documentation<span class="w">  </span>on_success<span class="w">  </span><span class="nb">false</span>
+tutorial<span class="w">                                            </span>documentation<span class="w">  </span>on_success<span class="w">  </span><span class="nb">false</span>
+models<span class="w">                                              </span>documentation<span class="w">  </span>on_success<span class="w">  </span><span class="nb">false</span>
+</pre></div>
+</div>
+<p>To execute the <code class="docutils literal notranslate"><span class="pre">per-commit-compile-release</span></code> job, or any of the others listed above, use
+the following command.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/ns-3-dev$ gitlab-ci-local --file ./utils/tests/gitlab-ci.yml per-commit-compile-release</span>
+</pre></div>
+</div>
+<p>WARNING: if you do not specify the job name, all jobs that can be executed in parallel will be
+executed at the same time. You may run out of disk, memory or both.</p>
+<p>Some jobs might require a previous job to complete successfully before getting started.
+The doxygen job is one of these.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/ns-3-dev$ gitlab-ci-local --file ./utils/tests/gitlab-ci.yml doxygen</span>
+<span class="go">Using fallback git user.name</span>
+<span class="go">Using fallback git user.email</span>
+<span class="go">parsing and downloads finished in 202 ms</span>
+<span class="go">doxygen                               starting archlinux:latest (documentation)</span>
+<span class="go">doxygen                               pulled archlinux:latest in 64 ms</span>
+<span class="go">doxygen                               &gt; still running...</span>
+<span class="go">doxygen                               &gt; still running...</span>
+<span class="go">doxygen                               copied to container in 20 s</span>
+<span class="go">doxygen                               imported cache &#39;ccache-&#39; in 3.67 s</span>
+<span class="go">~/ns-3-dev/.gitlab-ci-local/artifacts/pybindgen doesn&#39;t exist, did you forget --needs</span>
+</pre></div>
+</div>
+<p>As instructed by the previous command output, you can add the <code class="docutils literal notranslate"><span class="pre">--needs</span></code> to build required
+jobs before proceeding. However, doing so will run all jobs as the <code class="docutils literal notranslate"><span class="pre">doxygen</span></code> is only supposed
+to run after weekly jobs are successfully executed.</p>
+<p>Another option is to run the specific job that produces the required artifact. In this case
+the <code class="docutils literal notranslate"><span class="pre">pybindgen</span></code> job.</p>
+<p>Note: Pybindgen has been replaced by Cppyy, which does not produce artifacts to be consumed
+by other jobs. However, the example is kept for reference.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">~/ns-3-dev$ gitlab-ci-local --file ./utils/tests/gitlab-ci.yml pybindgen</span>
+<span class="go">Using fallback git user.name</span>
+<span class="go">Using fallback git user.email</span>
+<span class="go">parsing and downloads finished in 202 ms</span>
+<span class="go">pybindgen                               starting archlinux:latest (build)</span>
+
+<span class="go">...</span>
+
+<span class="go">pybindgen                             $ git diff src &gt; pybindgen_new.patch</span>
+<span class="go">pybindgen                             exported artifacts in 911 ms</span>
+<span class="go">pybindgen                             copied artifacts to cwd in 56 ms</span>
+<span class="go">pybindgen                             finished in 5.77 min</span>
+
+<span class="go"> PASS  pybindgen</span>
+</pre></div>
+</div>
+<p>Then run the doxygen job again:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/ns-3-dev$<span class="w"> </span>gitlab-ci-local<span class="w"> </span>--file<span class="w"> </span>./utils/tests/gitlab-ci.yml<span class="w"> </span>doxygen
+Using<span class="w"> </span>fallback<span class="w"> </span>git<span class="w"> </span>user.name
+Using<span class="w"> </span>fallback<span class="w"> </span>git<span class="w"> </span>user.email
+parsing<span class="w"> </span>and<span class="w"> </span>downloads<span class="w"> </span>finished<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">170</span><span class="w"> </span>ms
+doxygen<span class="w">                               </span>starting<span class="w"> </span>archlinux:latest<span class="w"> </span><span class="o">(</span>documentation<span class="o">)</span>
+
+...
+
+doxygen<span class="w">                               </span>&gt;<span class="w">      </span><span class="m">1</span><span class="w"> </span>files<span class="w"> </span>with<span class="w"> </span>warnings
+doxygen<span class="w">                               </span>&gt;<span class="w"> </span>Doxygen<span class="w"> </span>Warnings<span class="w"> </span>Summary
+doxygen<span class="w">                               </span>&gt;<span class="w"> </span>----------------------------------------
+doxygen<span class="w">                               </span>&gt;<span class="w">      </span><span class="m">1</span><span class="w"> </span>directories
+doxygen<span class="w">                               </span>&gt;<span class="w">      </span><span class="m">1</span><span class="w"> </span>files
+doxygen<span class="w">                               </span>&gt;<span class="w">     </span><span class="m">23</span><span class="w"> </span>warnings
+doxygen<span class="w">                               </span>&gt;<span class="w"> </span><span class="k">done</span>.
+doxygen<span class="w">                               </span>exported<span class="w"> </span>cache<span class="w"> </span>ns-3-ccache-storage/<span class="w"> </span><span class="s1">&#39;ccache-&#39;</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">6</span>.86<span class="w"> </span>s
+doxygen<span class="w">                               </span>exported<span class="w"> </span>artifacts<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">954</span><span class="w"> </span>ms
+doxygen<span class="w">                               </span>copied<span class="w"> </span>artifacts<span class="w"> </span>to<span class="w"> </span>cwd<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">59</span><span class="w"> </span>ms
+doxygen<span class="w">                               </span>finished<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">15</span><span class="w"> </span>min
+
+<span class="w"> </span>PASS<span class="w">  </span>doxygen
+</pre></div>
+</div>
+<p>Artifacts built by the CI jobs will be stored in separate subfolders
+based on the job name.</p>
+<p><code class="docutils literal notranslate"><span class="pre">~/ns-3-dev/.gitlab-ci-local/artifacts/jobname</span></code></p>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/doc/manual/source/working-with-gitlab-ci-local.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

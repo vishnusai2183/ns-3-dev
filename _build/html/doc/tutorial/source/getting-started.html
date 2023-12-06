@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>4. Getting Started &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="getting-started">
+<span id="id1"></span><h1><span class="section-number">4. </span>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h1>
+<p>This section is aimed at getting a user to a working state starting
+with a machine that may never have had <em>ns-3</em> installed.  It covers
+supported platforms, prerequisites, ways to obtain <em>ns-3</em>, ways to
+build <em>ns-3</em>, and ways to verify your build and run simple programs.</p>
+<section id="overview">
+<h2><span class="section-number">4.1. </span>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<p><em>ns-3</em> is built as a system of software libraries that work together.
+User programs can be written that links with (or imports from) these
+libraries.  User programs are written in either the C++ or Python
+programming languages.</p>
+<p><em>ns-3</em> is distributed as source code, meaning that the target system
+needs to have a software development environment to build the libraries
+first, then build the user program.  <em>ns-3</em> could in principle be
+distributed as pre-built libraries for selected systems, and in the
+future it may be distributed that way, but at present, many users
+actually do their work by editing <em>ns-3</em> itself, so having the source
+code around to rebuild the libraries is useful.  If someone would like
+to undertake the job of making pre-built libraries and packages for
+operating systems, please contact the ns-developers mailing list.</p>
+<p>In the following, we’ll look at three ways of downloading and building
+<em>ns-3</em>.  The first is to download and build an official release
+from the main web site.  The second is to fetch and build development
+copies of a basic <em>ns-3</em> installation.  The third is to use an additional
+build tool to download more extensions for <em>ns-3</em>.  We’ll walk through each
+since the tools involved are slightly different.</p>
+<p>Experienced Linux users may wonder at this point why <em>ns-3</em> is not provided
+like most other libraries using a package management tool?  Although there
+exist some binary packages for various Linux distributions (e.g. Debian),
+most users end up editing and having to rebuild the <em>ns-3</em> libraries
+themselves, so having the source code available is more convenient.
+We will therefore focus on a source installation in this tutorial.</p>
+<p>For most uses of <em>ns-3</em>, root permissions are not needed, and the use of
+a non-privileged user account is recommended.</p>
+</section>
+<section id="prerequisites">
+<h2><span class="section-number">4.2. </span>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">¶</a></h2>
+<p>The entire set of available <em>ns-3</em> libraries has a number of dependencies
+on third-party libraries, but most of <em>ns-3</em> can be built and used with
+support for a few common (often installed by default) components:  a
+C++ compiler, an installation of Python, a source code editor (such as vim,
+emacs, or Eclipse) and, if using the development repositories, an
+installation of Git source code control system.  Most beginning users
+need not concern themselves if their configuration reports some missing
+optional features of <em>ns-3</em>, but for those wishing a full installation,
+the project provides an installation guide
+for various systems, available at
+<a class="reference external" href="https://www.nsnam.org/docs/installation/html/index.html">https://www.nsnam.org/docs/installation/html/index.html</a>.</p>
+<p>As of the most recent <em>ns-3</em> release (ns-3.40), the following tools
+are needed to get started with <em>ns-3</em>:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Prerequisite</p></th>
+<th class="head"><p>Package/version</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>C++ compiler</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">clang++</span></code> or <code class="docutils literal notranslate"><span class="pre">g++</span></code> (g++ version 9 or greater)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Python</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">python3</span></code> version &gt;=3.6</p></td>
+</tr>
+<tr class="row-even"><td><p>CMake</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cmake</span></code> version &gt;=3.10</p></td>
+</tr>
+<tr class="row-odd"><td><p>Build system</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">make</span></code>, <code class="docutils literal notranslate"><span class="pre">ninja</span></code>, <code class="docutils literal notranslate"><span class="pre">xcodebuild</span></code> (XCode)</p></td>
+</tr>
+<tr class="row-even"><td><p>Git</p></td>
+<td><p>any recent version (to access <em>ns-3</em> from <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev/">GitLab.com</a>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>tar</p></td>
+<td><p>any recent version (to unpack an <a class="reference external" href="https://www.nsnam.org/releases/">ns-3 release</a>)</p></td>
+</tr>
+<tr class="row-even"><td><p>bunzip2</p></td>
+<td><p>any recent version (to uncompress an <em>ns-3</em> release)</p></td>
+</tr>
+</tbody>
+</table>
+<p>To check the default version of Python, type <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-V</span></code>.  To check
+the default version of g++, type <code class="docutils literal notranslate"><span class="pre">g++</span> <span class="pre">-v</span></code>.  If your installation is
+missing or too old, please consult the <em>ns-3</em>
+<a class="reference external" href="https://www.nsnam.org/docs/installation/html/index.html">installation guide</a> for guidance.</p>
+<p>From this point forward, we are going to assume that the reader is working in
+Linux, macOS, or a Linux emulation environment, and has at least the above
+prerequisites.</p>
+<p>For example, do not use a directory path such as the below, because one
+of the parent directories contains a space in the directory name:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">pwd</span>
+<span class="go">/home/user/5G simulations/ns-3-allinone/ns-3-dev</span>
+</pre></div>
+</div>
+<section id="downloading-a-release-of-ns-3-as-a-source-archive">
+<h3><span class="section-number">4.2.1. </span>Downloading a release of ns-3 as a source archive<a class="headerlink" href="#downloading-a-release-of-ns-3-as-a-source-archive" title="Link to this heading">¶</a></h3>
+<p>This option is for the new user who wishes to download and experiment with
+the most recently released and packaged version of <em>ns-3</em>.
+<em>ns-3</em> publishes its releases as compressed source archives, sometimes
+referred to as a tarball.
+A tarball is a particular format of software archive where multiple
+files are bundled together and the archive is usually compressed.
+The process for downloading <em>ns-3</em> via tarball is simple; you just
+have to pick a release, download it and uncompress it.</p>
+<p>Let’s assume that you, as a user, wish to build <em>ns-3</em> in a local
+directory called <code class="docutils literal notranslate"><span class="pre">workspace</span></code>.
+If you adopt the <code class="docutils literal notranslate"><span class="pre">workspace</span></code> directory approach, you can
+get a copy of a release by typing the following into your Linux shell
+(substitute the appropriate version numbers, of course)</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span>
+<span class="gp">$ </span>mkdir<span class="w"> </span>workspace
+<span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>workspace
+<span class="gp">$ </span>wget<span class="w"> </span>https://www.nsnam.org/release/ns-allinone-3.40.tar.bz2
+<span class="gp">$ </span>tar<span class="w"> </span>xjf<span class="w"> </span>ns-allinone-3.40.tar.bz2
+</pre></div>
+</div>
+<p>Notice the use above of the <code class="docutils literal notranslate"><span class="pre">wget</span></code> utility, which is a command-line
+tool to fetch objects from the web; if you do not have this installed,
+you can use a browser for this step.</p>
+<p>Following these steps, if you change into the directory
+<code class="docutils literal notranslate"><span class="pre">ns-allinone-3.40</span></code>, you should see a number of files and directories</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ cd ns-allinone-3.40
+$ ls
+bake  build.py  constants.py  netanim-3.109 ns-3.40  README.md  util.py
+</pre></div>
+</div>
+<p>You are now ready to build the base <em>ns-3</em> distribution and may skip ahead
+to the section on building <em>ns-3</em>.</p>
+</section>
+</section>
+<section id="downloading-ns-3-using-git">
+<h2><span class="section-number">4.3. </span>Downloading ns-3 using Git<a class="headerlink" href="#downloading-ns-3-using-git" title="Link to this heading">¶</a></h2>
+<p>The <em>ns-3</em> code is available in Git repositories on the GitLab.com service
+at <a class="reference external" href="https://gitlab.com/nsnam/">https://gitlab.com/nsnam/</a>.  The group name <code class="docutils literal notranslate"><span class="pre">nsnam</span></code> organizes the
+various repositories used by the open source project.</p>
+<p>The simplest way to get started using Git repositories is to fork or clone
+the <code class="docutils literal notranslate"><span class="pre">ns-3-allinone</span></code> environment.  This is a set of scripts that manages the
+downloading and building of the most commonly used subsystems of <em>ns-3</em>
+for you.  If you are new to Git, the terminology of <code class="docutils literal notranslate"><span class="pre">fork</span></code> and <code class="docutils literal notranslate"><span class="pre">clone</span></code>
+may be foreign to you; if so, we recommend that you simply <code class="docutils literal notranslate"><span class="pre">clone</span></code>
+(create your own replica) of the repository found on GitLab.com, as
+follows:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span>
+<span class="gp">$ </span>mkdir<span class="w"> </span>workspace
+<span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>workspace
+<span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://gitlab.com/nsnam/ns-3-allinone.git
+<span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>ns-3-allinone
+</pre></div>
+</div>
+<p>At this point, your view of the ns-3-allinone directory is slightly
+different than described above with a release archive; it should look
+something like this:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ls
+<span class="go">build.py  constants.py   download.py  README.md  util.py</span>
+</pre></div>
+</div>
+<p>Note the presence of the <code class="docutils literal notranslate"><span class="pre">download.py</span></code> script, which will further fetch
+the <em>ns-3</em> and related sourcecode.  At this point, you have a choice, to
+either download the most recent development snapshot of <em>ns-3</em>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python3<span class="w"> </span>download.py
+</pre></div>
+</div>
+<p>or to specify a release of <em>ns-3</em>, using the <code class="docutils literal notranslate"><span class="pre">-n</span></code> flag to specify a
+release number:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python3<span class="w"> </span>download.py<span class="w"> </span>-n<span class="w"> </span>ns-3.40
+</pre></div>
+</div>
+<p>After this step, the additional repositories of <em>ns-3</em>, bake, pybindgen,
+and netanim will be downloaded to the <code class="docutils literal notranslate"><span class="pre">ns-3-allinone</span></code> directory.</p>
+<section id="downloading-ns-3-using-bake">
+<h3><span class="section-number">4.3.1. </span>Downloading ns-3 Using Bake<a class="headerlink" href="#downloading-ns-3-using-bake" title="Link to this heading">¶</a></h3>
+<p>The above two techniques (source archive, or ns-3-allinone repository
+via Git) are useful to get the most basic installation of <em>ns-3</em> with a
+few addons (pybindgen for generating Python bindings, and netanim
+for network animations).  The third repository provided by default in
+ns-3-allinone is called <code class="docutils literal notranslate"><span class="pre">bake</span></code>.</p>
+<p>Bake is a tool for coordinated software building from multiple repositories,
+developed for the <em>ns-3</em> project. Bake can be used to fetch development
+versions of the <em>ns-3</em> software, and to download and build extensions to the
+base <em>ns-3</em> distribution, such as the Direct Code Execution environment,
+Network Simulation Cradle, ability to create new Python bindings, and
+various <em>ns-3</em> “apps”.  If you envision that your <em>ns-3</em> installation may
+use advanced or optional features, you may wish to follow this installation
+path.</p>
+<p>In recent <em>ns-3</em> releases, Bake has been included in the release
+tarball.  The configuration file included in the released version
+will allow one to download any software that was current at the
+time of the release.  That is, for example, the version of Bake that
+is distributed with the <code class="docutils literal notranslate"><span class="pre">ns-3.30</span></code> release can be used to fetch components
+for that <em>ns-3</em> release or earlier, but can’t be used to fetch components
+for later releases (unless the <code class="docutils literal notranslate"><span class="pre">bakeconf.xml</span></code> package description file
+is updated).</p>
+<p>You can also get the most recent copy of <code class="docutils literal notranslate"><span class="pre">bake</span></code> by typing the
+following into your Linux shell (assuming you have installed Git):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span>
+<span class="gp">$ </span>mkdir<span class="w"> </span>workspace
+<span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>workspace
+<span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://gitlab.com/nsnam/bake.git
+</pre></div>
+</div>
+<p>As the git command executes, you should see something like the
+following displayed:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Cloning into &#39;bake&#39;...</span>
+<span class="go">remote: Enumerating objects: 2086, done.</span>
+<span class="go">remote: Counting objects: 100% (2086/2086), done.</span>
+<span class="go">remote: Compressing objects: 100% (649/649), done.</span>
+<span class="go">remote: Total 2086 (delta 1404), reused 2078 (delta 1399)</span>
+<span class="go">Receiving objects: 100% (2086/2086), 2.68 MiB | 3.82 MiB/s, done.</span>
+<span class="go">Resolving deltas: 100% (1404/1404), done.</span>
+</pre></div>
+</div>
+<p>After the clone command completes, you should have a directory called
+<code class="docutils literal notranslate"><span class="pre">bake</span></code>, the contents of which should look something like the following:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>bake
+<span class="gp">$ </span>ls
+<span class="go">bake  bakeconf.xml  bake.py  doc  examples  generate-binary.py  test  TODO</span>
+</pre></div>
+</div>
+<p>Notice that you have downloaded some Python scripts, a Python
+module called <code class="docutils literal notranslate"><span class="pre">bake</span></code>, and an XML configuration file.  The next step
+will be to use those scripts to download and build the <em>ns-3</em>
+distribution of your choice.</p>
+<p>There are a few configuration targets available:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ns-3.40</span></code>:  the code corresponding to the release</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ns-3-dev</span></code>:  a similar module but using the development code tree</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ns-allinone-3.40</span></code>:  the module that includes other optional features
+such as bake build system, netanim animator, and pybindgen</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ns-3-allinone</span></code>:  similar to the released version of the allinone
+module, but for development code.</p></li>
+</ol>
+<p>The current development snapshot (unreleased) of <em>ns-3</em> may be found
+and cloned from <a class="reference external" href="https://gitlab.com/nsnam/ns-3-dev.git">https://gitlab.com/nsnam/ns-3-dev.git</a>.  The
+developers attempt to keep these repositories in consistent, working states but
+they are in a development area with unreleased code present, so you may want
+to consider staying with an official release if you do not need newly-
+introduced features.</p>
+<p>You can find the latest version  of the
+code either by inspection of the repository list or by going to the
+<a class="reference external" href="https://www.nsnam.org/releases">“ns-3 Releases”</a>
+web page and clicking on the latest release link.  We’ll proceed in
+this tutorial example with <code class="docutils literal notranslate"><span class="pre">ns-3.40</span></code>.</p>
+<p>We are now going to use the bake tool to pull down the various pieces of
+<em>ns-3</em> you will be using.  First, we’ll say a word about running bake.</p>
+<p>Bake works by downloading source packages into a source directory,
+and installing libraries into a build directory.  bake can be run
+by referencing the binary, but if one chooses to run bake from
+outside of the directory it was downloaded into, it is advisable
+to put bake into your path, such as follows (Linux bash shell example).
+First, change into the ‘bake’ directory, and then set the following
+environment variables:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">BAKE_HOME</span><span class="o">=</span><span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>
+<span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:<span class="nv">$BAKE_HOME</span>/build/bin
+<span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$BAKE_HOME</span>/build/lib
+<span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span><span class="nv">$BAKE_HOME</span>/build/lib
+</pre></div>
+</div>
+<p>This will put the bake.py program into the shell’s path, and will allow
+other programs to find executables and libraries created by bake.  Although
+several bake use cases do not require setting PATH and PYTHONPATH as above,
+full builds of ns-3-allinone (with the optional packages) typically do.</p>
+<p>Step into the workspace directory and type the following into your shell:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./bake.py<span class="w"> </span>configure<span class="w"> </span>-e<span class="w"> </span>ns-allinone-3.40
+</pre></div>
+</div>
+<p>Next, we’ll ask bake to check whether we have enough tools to download
+various components.  Type:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./bake.py<span class="w"> </span>check
+</pre></div>
+</div>
+<p>You should see something like the following:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&gt; Python - OK
+&gt; GNU C++ compiler - OK
+&gt; Git - OK
+&gt; Tar tool - OK
+&gt; Unzip tool - OK
+&gt; Make - OK
+&gt; cMake - OK
+&gt; patch tool - OK
+&gt; Path searched for tools: /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin ...
+</pre></div>
+</div>
+<p>Please install missing tools at this stage, in the usual
+way for your system (if you are able to), or contact your system
+administrator as needed to install these tools.</p>
+<p>Next, try to download the software:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./bake.py<span class="w"> </span>download
+</pre></div>
+</div>
+<p>should yield something like:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&gt;&gt; Searching for system dependency libxml2-dev - OK
+&gt;&gt; Searching for system dependency gi-cairo - OK
+&gt;&gt; Searching for system dependency gir-bindings - OK
+&gt;&gt; Searching for system dependency pygobject - OK
+&gt;&gt; Searching for system dependency pygraphviz - OK
+&gt;&gt; Searching for system dependency python3-dev - OK
+&gt;&gt; Searching for system dependency qt - OK
+&gt;&gt; Searching for system dependency g++ - OK
+&gt;&gt; Searching for system dependency cmake - OK
+&gt;&gt; Downloading netanim-3.109 - OK
+&gt;&gt; Downloading click-ns-3.37 - OK
+&gt;&gt; Downloading BRITE - OK
+&gt;&gt; Downloading openflow-dev - OK
+&gt;&gt; Downloading ns-3.40 (target directory:ns-3.40) - OK
+</pre></div>
+</div>
+<p>The above suggests that three sources have been downloaded.  Check the
+<code class="docutils literal notranslate"><span class="pre">source</span></code> directory now and type <code class="docutils literal notranslate"><span class="pre">ls</span></code>; one should see:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span><span class="nb">source</span>
+<span class="gp">$ </span>ls
+<span class="go">BRITE  click-ns-3.37  netanim-3.109  ns-3.40  openflow-dev</span>
+</pre></div>
+</div>
+<p>You are now ready to build the <em>ns-3</em> distribution.</p>
+</section>
+</section>
+<section id="building-ns-3">
+<h2><span class="section-number">4.4. </span>Building ns-3<a class="headerlink" href="#building-ns-3" title="Link to this heading">¶</a></h2>
+<p>As with downloading <em>ns-3</em>, there are a few ways to build <em>ns-3</em>.  The main
+thing that we wish to emphasize is the following.  <em>ns-3</em> is built with
+a build tool called <code class="docutils literal notranslate"><span class="pre">CMake</span></code>, described below.  Most users will end up
+working most directly with the ns3 command-line wrapper for CMake, for the sake
+of convenience.  Therefore, please have a look at <code class="docutils literal notranslate"><span class="pre">build.py</span></code> and building
+with <code class="docutils literal notranslate"><span class="pre">bake</span></code>, before reading about CMake and the ns3 wrapper below.</p>
+<section id="building-with-build-py">
+<h3><span class="section-number">4.4.1. </span>Building with <code class="docutils literal notranslate"><span class="pre">build.py</span></code><a class="headerlink" href="#building-with-build-py" title="Link to this heading">¶</a></h3>
+<p><strong>Note:</strong> This build step is only available from a source archive release
+described above; not from downloading via git or bake.</p>
+<p>When working from a released tarball, a convenience script available as
+part of <code class="docutils literal notranslate"><span class="pre">ns-3-allinone</span></code> can orchestrate a simple build of components.
+This program is called <code class="docutils literal notranslate"><span class="pre">build.py</span></code>.  This
+program will get the project configured for you
+in the most commonly useful way.  However, please note that more advanced
+configuration and work with <em>ns-3</em> will typically involve using the
+native <em>ns-3</em> build system, CMake, to be introduced later in this tutorial.</p>
+<p>If you downloaded
+using a tarball you should have a directory called something like
+<code class="docutils literal notranslate"><span class="pre">ns-allinone-3.40</span></code> under your <code class="docutils literal notranslate"><span class="pre">~/workspace</span></code> directory.
+Type the following:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./build.py<span class="w"> </span>--enable-examples<span class="w"> </span>--enable-tests
+</pre></div>
+</div>
+<p>Because we are working with examples and tests in this tutorial, and
+because they are not built by default in <em>ns-3</em>, the arguments for
+build.py tells it to build them for us.  The program also defaults to
+building all available modules.  Later, you can build
+<em>ns-3</em> without examples and tests, or eliminate the modules that
+are not necessary for your work, if you wish.</p>
+<p>You will see lots of compiler output messages displayed as the build
+script builds the various pieces you downloaded.  First, the script will
+attempt to build the netanim animator, and then <em>ns-3</em>.</p>
+</section>
+<section id="building-with-bake">
+<h3><span class="section-number">4.4.2. </span>Building with bake<a class="headerlink" href="#building-with-bake" title="Link to this heading">¶</a></h3>
+<p>If you used bake above to fetch source code from project repositories, you
+may continue to use it to build <em>ns-3</em>.  Type:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./bake.py<span class="w"> </span>build
+</pre></div>
+</div>
+<p>and you should see something like:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&gt;&gt; Building netanim-3.109 - OK
+&gt;&gt; Building ns-3.40 - OK
+</pre></div>
+</div>
+<p>There may be failures to build all components, but the build will proceed
+anyway if the component is optional.</p>
+<p>If there happens to be a failure, please have a look at what the following
+command tells you; it may give a hint as to a missing dependency:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./bake.py<span class="w"> </span>show
+</pre></div>
+</div>
+<p>This will list out the various dependencies of the packages you are
+trying to build.</p>
+</section>
+<section id="building-with-the-ns3-cmake-wrapper">
+<h3><span class="section-number">4.4.3. </span>Building with the ns3 CMake wrapper<a class="headerlink" href="#building-with-the-ns3-cmake-wrapper" title="Link to this heading">¶</a></h3>
+<p>Up to this point, we have used either the <cite>build.py</cite> script, or the
+<cite>bake</cite> tool, to get started with building <em>ns-3</em>.  These tools are useful
+for building <em>ns-3</em> and supporting libraries, and they call into
+the <em>ns-3</em> directory to call the CMake build tool to do the actual building.
+CMake needs to be installed before building <em>ns-3</em>.
+So, to proceed, please change your working directory to
+the <em>ns-3</em> directory that you have initially built.</p>
+<p>It’s not
+strictly required at this point, but it will be valuable to take a slight
+detour and look at how to make changes to the configuration of the project.
+Probably the most useful configuration change you can make will be to
+build the optimized version of the code. The project will be configured
+by default using the <code class="docutils literal notranslate"><span class="pre">default</span></code> build profile, which is an optimized
+build with debug information (CMAKE_BUILD_TYPE=relwithdebinfo) version.
+Let’s tell the project to make an optimized build.</p>
+<p>To maintain a similar interface for command-line users, we include a
+wrapper script for CMake, <em>ns-3</em>. To tell <em>ns-3</em> that it should do optimized
+builds that include the examples and tests, you will need to execute the
+following commands:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>clean
+<span class="gp">$ </span>./ns3<span class="w"> </span>configure<span class="w"> </span>--build-profile<span class="o">=</span>optimized<span class="w"> </span>--enable-examples<span class="w"> </span>--enable-tests
+</pre></div>
+</div>
+<p>This runs CMake out of the local directory (which is provided as a convenience
+for you).  The first command to clean out the previous build is not
+typically strictly necessary but is good practice (but see <a class="reference internal" href="#build-profiles">Build Profiles</a>,
+below); it will remove the
+previously built libraries and object files found in directory <code class="docutils literal notranslate"><span class="pre">build/</span></code>.
+When the project is reconfigured and the build system checks for various
+dependencies, you should see
+output that looks similar to the following:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>configure<span class="w"> </span>--build-profile<span class="o">=</span>optimized<span class="w"> </span>--enable-examples<span class="w"> </span>--enable-tests
+<span class="go">-- CCache is enabled. Precompiled headers are disabled by default.</span>
+<span class="go">-- The CXX compiler identification is GNU 11.2.0</span>
+<span class="go">-- The C compiler identification is GNU 11.2.0</span>
+<span class="go">-- Detecting CXX compiler ABI info</span>
+<span class="go">-- Detecting CXX compiler ABI info - done</span>
+<span class="go">-- Check for working CXX compiler: /usr/bin/c++ - skipped</span>
+<span class="go">-- Detecting CXX compile features</span>
+<span class="go">-- Detecting CXX compile features - done</span>
+<span class="go">-- Detecting C compiler ABI info</span>
+<span class="go">-- Detecting C compiler ABI info - done</span>
+<span class="go">-- Check for working C compiler: /usr/bin/cc - skipped</span>
+<span class="go">-- Detecting C compile features</span>
+<span class="go">-- Detecting C compile features - done</span>
+<span class="go">-- Using default output directory /mnt/dev/tools/source/ns-3-dev/build</span>
+<span class="go">-- Found GTK3_GTK: /usr/lib/x86_64-linux-gnu/libgtk-3.so</span>
+<span class="go">-- GTK3 was found.</span>
+<span class="go">-- LibXML2 was found.</span>
+<span class="go">-- LibRT was found.</span>
+<span class="go">-- Visualizer requires Python bindings</span>
+<span class="go">-- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake (found version &quot;1.74.0&quot;)</span>
+<span class="go">-- Found PkgConfig: /usr/bin/pkg-config (found version &quot;0.29.2&quot;)</span>
+<span class="go">-- GSL was found.</span>
+<span class="go">-- Found Sphinx: /usr/bin/sphinx-build</span>
+<span class="go">-- Looking for sys/types.h</span>
+<span class="go">-- Looking for sys/types.h - found</span>
+<span class="go">-- Looking for stdint.h</span>
+<span class="go">-- Looking for stdint.h - found</span>
+<span class="go">-- Looking for stddef.h</span>
+<span class="go">-- Looking for stddef.h - found</span>
+<span class="go">-- Check size of long long</span>
+<span class="go">-- Check size of long long - done</span>
+<span class="go">-- Check size of int128_t</span>
+<span class="go">-- Check size of int128_t - failed</span>
+<span class="go">-- Check size of __int128_t</span>
+<span class="go">-- Check size of __int128_t - done</span>
+<span class="go">-- Performing Test has_hash___int128_t</span>
+<span class="go">-- Performing Test has_hash___int128_t - Success</span>
+<span class="go">-- Check size of unsigned long long</span>
+<span class="go">-- Check size of unsigned long long - done</span>
+<span class="go">-- Check size of uint128_t</span>
+<span class="go">-- Check size of uint128_t - failed</span>
+<span class="go">-- Check size of __uint128_t</span>
+<span class="go">-- Check size of __uint128_t - done</span>
+<span class="go">-- Performing Test has_hash___uint128_t</span>
+<span class="go">-- Performing Test has_hash___uint128_t - Success</span>
+<span class="go">-- Looking for C++ include inttypes.h</span>
+<span class="go">-- Looking for C++ include inttypes.h - found</span>
+<span class="go">-- Looking for C++ include stat.h</span>
+<span class="go">-- Looking for C++ include stat.h - not found</span>
+<span class="go">-- Looking for C++ include dirent.h</span>
+<span class="go">-- Looking for C++ include dirent.h - found</span>
+<span class="go">-- Looking for C++ include stdlib.h</span>
+<span class="go">-- Looking for C++ include stdlib.h - found</span>
+<span class="go">-- Looking for C++ include signal.h</span>
+<span class="go">-- Looking for C++ include signal.h - found</span>
+<span class="go">-- Looking for C++ include netpacket/packet.h</span>
+<span class="go">-- Looking for C++ include netpacket/packet.h - found</span>
+<span class="go">-- Looking for getenv</span>
+<span class="go">-- Looking for getenv - found</span>
+<span class="go">-- Processing src/antenna</span>
+<span class="go">-- Processing src/aodv</span>
+<span class="go">-- Processing src/applications</span>
+<span class="go">-- Processing src/bridge</span>
+<span class="go">-- Processing src/brite</span>
+<span class="go">-- Brite was not found</span>
+<span class="go">-- Processing src/buildings</span>
+<span class="go">-- Processing src/click</span>
+<span class="go">-- Click was not found</span>
+<span class="go">-- Processing src/config-store</span>
+<span class="go">-- Processing src/core</span>
+<span class="go">-- Looking for C++ include boost/units/quantity.hpp</span>
+<span class="go">-- Looking for C++ include boost/units/quantity.hpp - found</span>
+<span class="go">-- Looking for C++ include boost/units/systems/si.hpp</span>
+<span class="go">-- Looking for C++ include boost/units/systems/si.hpp - found</span>
+<span class="go">-- Boost Units have been found.</span>
+<span class="go">-- Processing src/csma</span>
+<span class="go">-- Processing src/csma-layout</span>
+<span class="go">-- Processing src/dsdv</span>
+<span class="go">-- Processing src/dsr</span>
+<span class="go">-- Processing src/energy</span>
+<span class="go">-- Processing src/fd-net-device</span>
+<span class="go">-- Looking for C++ include net/ethernet.h</span>
+<span class="go">-- Looking for C++ include net/ethernet.h - found</span>
+<span class="go">-- Looking for C++ include netpacket/packet.h</span>
+<span class="go">-- Looking for C++ include netpacket/packet.h - found</span>
+<span class="go">-- Looking for C++ include net/if.h</span>
+<span class="go">-- Looking for C++ include net/if.h - found</span>
+<span class="go">-- Looking for C++ include linux/if_tun.h</span>
+<span class="go">-- Looking for C++ include linux/if_tun.h - found</span>
+<span class="go">-- Looking for C++ include net/netmap_user.h</span>
+<span class="go">-- Looking for C++ include net/netmap_user.h - not found</span>
+<span class="go">-- Looking for C++ include sys/ioctl.h</span>
+<span class="go">-- Looking for C++ include sys/ioctl.h - found</span>
+<span class="go">-- Checking for module &#39;libdpdk&#39;</span>
+<span class="go">--   No package &#39;libdpdk&#39; found</span>
+<span class="go">-- Processing src/flow-monitor</span>
+<span class="go">-- Processing src/internet</span>
+<span class="go">-- Processing src/internet-apps</span>
+<span class="go">-- Processing src/lr-wpan</span>
+<span class="go">-- Processing src/lte</span>
+<span class="go">-- Processing src/mesh</span>
+<span class="go">-- Processing src/mobility</span>
+<span class="go">-- Processing src/netanim</span>
+<span class="go">-- Processing src/network</span>
+<span class="go">-- Processing src/nix-vector-routing</span>
+<span class="go">-- Processing src/olsr</span>
+<span class="go">-- Processing src/openflow</span>
+<span class="go">-- Openflow was not found</span>
+<span class="go">-- Processing src/point-to-point</span>
+<span class="go">-- Processing src/point-to-point-layout</span>
+<span class="go">-- Processing src/propagation</span>
+<span class="go">-- Processing src/sixlowpan</span>
+<span class="go">-- Processing src/spectrum</span>
+<span class="go">-- Processing src/stats</span>
+<span class="go">-- Processing src/tap-bridge</span>
+<span class="go">-- Processing src/test</span>
+<span class="go">-- Processing src/topology-read</span>
+<span class="go">-- Processing src/traffic-control</span>
+<span class="go">-- Processing src/uan</span>
+<span class="go">-- Processing src/virtual-net-device</span>
+<span class="go">-- Processing src/wifi</span>
+<span class="go">-- Processing src/wimax</span>
+<span class="go">-- ---- Summary of optional NS-3 features:</span>
+<span class="go">Build profile                 : optimized</span>
+<span class="go">Build directory               : /mnt/dev/tools/source/ns-3-dev/build</span>
+<span class="go">BRITE Integration             : OFF (missing dependency)</span>
+<span class="go">DES Metrics event collection  : OFF (not requested)</span>
+<span class="go">DPDK NetDevice                : OFF (missing dependency)</span>
+<span class="go">Emulation FdNetDevice         : ON</span>
+<span class="go">Examples                      : ON</span>
+<span class="go">File descriptor NetDevice     : ON</span>
+<span class="go">GNU Scientific Library (GSL)  : ON</span>
+<span class="go">GtkConfigStore                : ON</span>
+<span class="go">MPI Support                   : OFF (not requested)</span>
+<span class="go">NS-3 Click Integration        : OFF (missing dependency)</span>
+<span class="go">NS-3 OpenFlow Integration     : OFF (missing dependency)</span>
+<span class="go">Netmap emulation FdNetDevice  : OFF (missing dependency)</span>
+<span class="go">PyViz visualizer              : OFF (missing dependency)</span>
+<span class="go">Python Bindings               : OFF (not requested)</span>
+<span class="go">Real Time Simulator           : ON</span>
+<span class="go">SQLite stats support          : ON</span>
+<span class="go">Tap Bridge                    : ON</span>
+<span class="go">Tap FdNetDevice               : ON</span>
+<span class="go">Tests                         : ON</span>
+
+
+<span class="go">Modules configured to be built:</span>
+<span class="go">antenna                   aodv                      applications</span>
+<span class="go">bridge                    buildings                 config-store</span>
+<span class="go">core                      csma                      csma-layout</span>
+<span class="go">dsdv                      dsr                       energy</span>
+<span class="go">fd-net-device             flow-monitor              internet</span>
+<span class="go">internet-apps             lr-wpan                   lte</span>
+<span class="go">mesh                      mobility                  netanim</span>
+<span class="go">network                   nix-vector-routing        olsr</span>
+<span class="go">point-to-point            point-to-point-layout     propagation</span>
+<span class="go">sixlowpan                 spectrum                  stats</span>
+<span class="go">tap-bridge                test                      topology-read</span>
+<span class="go">traffic-control           uan                       virtual-net-device</span>
+<span class="go">wifi                      wimax</span>
+
+
+<span class="go">Modules that cannot be built:</span>
+<span class="go">brite                     click                     mpi</span>
+<span class="go">openflow                  visualizer</span>
+
+
+<span class="go">-- Configuring done</span>
+<span class="go">-- Generating done</span>
+<span class="go">-- Build files have been written to: /mnt/dev/tools/source/ns-3-dev/cmake-cache</span>
+<span class="go">Finished executing the following commands:</span>
+<span class="go">mkdir cmake-cache</span>
+<span class="go">cd cmake-cache; /usr/bin/cmake -DCMAKE_BUILD_TYPE=release -DNS3_NATIVE_OPTIMIZATIONS=ON -DNS3_EXAMPLES=ON -DNS3_TESTS=ON -G Unix Makefiles .. ; cd ..</span>
+</pre></div>
+</div>
+<p>Note the last part of the above output.  Some <em>ns-3</em> options are not enabled by
+default or require support from the underlying system to work properly (<code class="docutils literal notranslate"><span class="pre">OFF</span> <span class="pre">(not</span> <span class="pre">requested)</span></code>).
+Other options might depend on third-party libraries, which if not found will be disabled
+(<code class="docutils literal notranslate"><span class="pre">OFF(missing</span> <span class="pre">dependency)</span></code>).
+If this library were not found, the corresponding <em>ns-3</em> feature
+would not be enabled and a message would be displayed.  Note further that there is
+a feature to use the program <code class="docutils literal notranslate"><span class="pre">sudo</span></code> to set the suid bit of certain programs.
+This is not enabled by default and so this feature is reported as “not enabled.”
+Finally, to reprint this summary of which optional features are enabled, use
+the <code class="docutils literal notranslate"><span class="pre">show</span> <span class="pre">config</span></code> option to ns3.</p>
+<p>Now go ahead and switch back to the debug build that includes the examples and tests.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>clean
+<span class="gp">$ </span>./ns3<span class="w"> </span>configure<span class="w"> </span>--build-profile<span class="o">=</span>debug<span class="w"> </span>--enable-examples<span class="w"> </span>--enable-tests
+</pre></div>
+</div>
+<p>The build system is now configured and you can build the debug versions of
+the <em>ns-3</em> programs by simply typing:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>build
+</pre></div>
+</div>
+<p>Although the above steps made you build the <em>ns-3</em> part of the system twice,
+now you know how to change the configuration and build optimized code.</p>
+<p>A command exists for checking which profile is currently active
+for an already configured project:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>show<span class="w"> </span>profile
+<span class="go">Build profile: debug</span>
+</pre></div>
+</div>
+<p>The build.py script discussed above supports also the <code class="docutils literal notranslate"><span class="pre">--enable-examples</span></code>
+and <code class="docutils literal notranslate"><span class="pre">enable-tests</span></code> arguments and passes them through to the ns-3
+configuration, but in general, does not directly support
+other ns3 options; for example, this will not work:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./build.py<span class="w"> </span>--enable-asserts
+</pre></div>
+</div>
+<p>will result in:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">build.py: error: no such option: --enable-asserts</span>
+</pre></div>
+</div>
+<p>However, the special operator <code class="docutils literal notranslate"><span class="pre">--</span></code> can be used to pass additional
+configure options through to ns3, so instead of the above, the following will work:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./build.py<span class="w"> </span>--<span class="w"> </span>--enable-asserts
+</pre></div>
+</div>
+<p>as it generates the underlying command <code class="docutils literal notranslate"><span class="pre">./ns3</span> <span class="pre">configure</span> <span class="pre">--enable-asserts</span></code>.</p>
+<p>Here are a few more introductory tips about CMake.</p>
+<section id="handling-build-errors">
+<h4><span class="section-number">4.4.3.1. </span>Handling build errors<a class="headerlink" href="#handling-build-errors" title="Link to this heading">¶</a></h4>
+<p><em>ns-3</em> releases are tested against the most recent C++ compilers available
+in the mainstream Linux and macOS distributions at the time of the release.
+However, over time, newer distributions are released, with newer compilers,
+and these newer compilers tend to be more pedantic about warnings.  <em>ns-3</em>
+configures its build to treat all warnings as errors, so it is sometimes
+the case, if you are using an older release version on a newer system,
+that a compiler warning will cause the build to fail.</p>
+<p>For instance, ns-3.28 was released prior to Fedora 28, which included
+a new major version of gcc (gcc-8).  Building ns-3.28 or older releases
+on Fedora 28, when GTK+2 is installed, will result in an error such as:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">/usr/include/gtk-2.0/gtk/gtkfilechooserbutton.h:59:8: error: unnecessary parentheses in declaration of ‘__gtk_reserved1’ [-Werror=parentheses]</span>
+<span class="go"> void (*__gtk_reserved1);</span>
+</pre></div>
+</div>
+<p>In releases starting with ns-3.28.1, an option is available in CMake to work
+around these issues.  The option disables the inclusion of the ‘-Werror’
+flag to g++ and clang++.  The option is ‘–disable-werror’ and must be
+used at configure time; e.g.:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./ns3 configure --disable-werror --enable-examples --enable-tests</span>
+</pre></div>
+</div>
+</section>
+<section id="configure-vs-build">
+<h4><span class="section-number">4.4.3.2. </span>Configure vs. Build<a class="headerlink" href="#configure-vs-build" title="Link to this heading">¶</a></h4>
+<p>Some CMake commands are only meaningful during the configure phase and some commands are valid
+in the build phase.  For example, if you wanted to use the emulation
+features of <em>ns-3</em>, you might want to enable setting the suid bit using
+sudo as described above.  This turns out to be a configuration-time command, and so
+you could reconfigure using the following command that also includes the examples and tests.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>configure<span class="w"> </span>--enable-sudo<span class="w"> </span>--enable-examples<span class="w"> </span>--enable-tests
+</pre></div>
+</div>
+<p>If you do this, ns3 will have run sudo to change the socket creator programs of the
+emulation code to run as root.</p>
+<p>There are many other configure- and build-time options
+available in ns3.  To explore these options, type:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>--help
+</pre></div>
+</div>
+<p>We’ll use some of the testing-related commands in the next section.</p>
+</section>
+<section id="build-profiles">
+<h4><span class="section-number">4.4.3.3. </span>Build Profiles<a class="headerlink" href="#build-profiles" title="Link to this heading">¶</a></h4>
+<p>We already saw how you can configure CMake for <code class="docutils literal notranslate"><span class="pre">debug</span></code> or <code class="docutils literal notranslate"><span class="pre">optimized</span></code> builds:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>configure<span class="w"> </span>--build-profile<span class="o">=</span>debug
+</pre></div>
+</div>
+<p>There is also an intermediate build profile, <code class="docutils literal notranslate"><span class="pre">release</span></code>.  <code class="docutils literal notranslate"><span class="pre">-d</span></code> is a
+synonym for <code class="docutils literal notranslate"><span class="pre">--build-profile</span></code>.</p>
+<p>The build profile controls the use of logging, assertions, and compiler optimization:</p>
+<table class="docutils align-default" id="id3">
+<caption><span class="caption-text">Build profiles</span><a class="headerlink" href="#id3" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 7.7%" />
+<col style="width: 21.5%" />
+<col style="width: 23.1%" />
+<col style="width: 23.1%" />
+<col style="width: 24.6%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head" rowspan="2"><p>Feature</p></th>
+<th class="head" colspan="4"><p>Build Profile</p></th>
+</tr>
+<tr class="row-even"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">debug</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">default</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">release</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">optimized</span></code></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-odd"><td><p>Enabled
+Features</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">NS3_BUILD_PROFILE_DEBUG</span></code>
+<code class="docutils literal notranslate"><span class="pre">NS_LOG...</span></code>
+<code class="docutils literal notranslate"><span class="pre">NS_ASSERT...</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">NS3_BUILD_PROFILE_DEBUG</span></code>
+<code class="docutils literal notranslate"><span class="pre">NS_LOG...</span></code>
+<code class="docutils literal notranslate"><span class="pre">NS_ASSERT...</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">NS3_BUILD_PROFILE_RELEASE</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">NS3_BUILD_PROFILE_OPTIMIZED</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Code
+Wrapper
+Macro</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">NS_BUILD_DEBUG(code)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">NS_BUILD_DEBUG(code)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">NS_BUILD_RELEASE(code)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">NS_BUILD_OPTIMIZED(code)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Compiler
+Flags</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-Og</span> <span class="pre">-g</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-O2</span> <span class="pre">-g</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-O3</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-O3</span></code>
+<code class="docutils literal notranslate"><span class="pre">-march=native</span></code>
+<code class="docutils literal notranslate"><span class="pre">-mtune=native</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>As you can see, logging and assertions are only configured
+by default in debug builds, although they can be selectively enabled
+in other build profiles by using the <code class="docutils literal notranslate"><span class="pre">--enable-logs</span></code> and
+<code class="docutils literal notranslate"><span class="pre">--enable-asserts</span></code> flags during CMake configuration time.
+Recommended practice is to develop your scenario in debug mode, then
+conduct repetitive runs (for statistics or changing parameters) in
+optimized build profile.</p>
+<p>If you have code that should only run in specific build profiles,
+use the indicated Code Wrapper macro:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">NS_BUILD_DEBUG</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Part of an output line...&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">flush</span><span class="p">;</span><span class="w"> </span><span class="n">timer</span><span class="p">.</span><span class="n">Start</span><span class="p">());</span>
+<span class="n">DoLongInvolvedComputation</span><span class="p">();</span>
+<span class="n">NS_BUILD_DEBUG</span><span class="p">(</span><span class="n">timer</span><span class="p">.</span><span class="n">Stop</span><span class="p">();</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Done: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">timer</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;)</span>
+</pre></div>
+</div>
+<p>By default ns3 puts the build artifacts in the <code class="docutils literal notranslate"><span class="pre">build</span></code> directory.
+You can specify a different output directory with the <code class="docutils literal notranslate"><span class="pre">--out</span></code>
+option, e.g.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>configure<span class="w"> </span>--out<span class="o">=</span>my-build-dir
+</pre></div>
+</div>
+<p>Combining this with build profiles lets you switch between the different
+compile options in a clean way:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>configure<span class="w"> </span>--build-profile<span class="o">=</span>debug<span class="w"> </span>--out<span class="o">=</span>build/debug
+<span class="gp">$ </span>./ns3<span class="w"> </span>build
+<span class="go">...</span>
+<span class="gp">$ </span>./ns3<span class="w"> </span>configure<span class="w"> </span>--build-profile<span class="o">=</span>optimized<span class="w"> </span>--out<span class="o">=</span>build/optimized
+<span class="gp">$ </span>./ns3<span class="w"> </span>build
+<span class="go">...</span>
+</pre></div>
+</div>
+<p>This allows you to work with multiple builds rather than always
+overwriting the last build.  When you switch, ns3 will only compile
+what it has to, instead of recompiling everything.</p>
+<p>When you do switch build profiles like this, you have to be careful
+to give the same configuration parameters each time.  It may be convenient
+to define some environment variables to help you avoid mistakes:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">NS3CONFIG</span><span class="o">=</span><span class="s2">&quot;--enable-examples --enable-tests&quot;</span>
+<span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">NS3DEBUG</span><span class="o">=</span><span class="s2">&quot;--build-profile=debug --out=build/debug&quot;</span>
+<span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">NS3OPT</span><span class="o">==</span><span class="s2">&quot;--build-profile=optimized --out=build/optimized&quot;</span>
+
+<span class="gp">$ </span>./ns3<span class="w"> </span>configure<span class="w"> </span><span class="nv">$NS3CONFIG</span><span class="w"> </span><span class="nv">$NS3DEBUG</span>
+<span class="gp">$ </span>./ns3<span class="w"> </span>build
+<span class="go">...</span>
+<span class="gp">$ </span>./ns3<span class="w"> </span>configure<span class="w"> </span><span class="nv">$NS3CONFIG</span><span class="w"> </span><span class="nv">$NS3OPT</span>
+<span class="gp">$ </span>./ns3<span class="w"> </span>build
+</pre></div>
+</div>
+</section>
+<section id="compilers-and-flags">
+<h4><span class="section-number">4.4.3.4. </span>Compilers and Flags<a class="headerlink" href="#compilers-and-flags" title="Link to this heading">¶</a></h4>
+<p>In the examples above, CMake uses the GCC C++ compiler, <code class="docutils literal notranslate"><span class="pre">g++</span></code>, for
+building <em>ns-3</em>. However, it’s possible to change the C++ compiler used by CMake
+by defining the <code class="docutils literal notranslate"><span class="pre">CXX</span></code> environment variable.
+For example, to use the Clang C++ compiler, <code class="docutils literal notranslate"><span class="pre">clang++</span></code>,</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nv">CXX</span><span class="o">=</span><span class="s2">&quot;clang++&quot;</span><span class="w"> </span>./ns3<span class="w"> </span>configure
+<span class="gp">$ </span>./ns3<span class="w"> </span>build
+</pre></div>
+</div>
+<p>One can also set up ns3 to do distributed compilation with <code class="docutils literal notranslate"><span class="pre">distcc</span></code> in
+a similar way:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nv">CXX</span><span class="o">=</span><span class="s2">&quot;distcc g++&quot;</span><span class="w"> </span>./ns3<span class="w"> </span>configure
+<span class="gp">$ </span>./ns3<span class="w"> </span>build
+</pre></div>
+</div>
+<p>More info on <code class="docutils literal notranslate"><span class="pre">distcc</span></code> and distributed compilation can be found on it’s
+<a class="reference external" href="https://code.google.com/p/distcc/">project page</a>
+under Documentation section.</p>
+<p>To add compiler flags, use the <code class="docutils literal notranslate"><span class="pre">CXXFLAGS_EXTRA</span></code> environment variable when
+you configure <em>ns-3</em>.</p>
+</section>
+<section id="install">
+<h4><span class="section-number">4.4.3.5. </span>Install<a class="headerlink" href="#install" title="Link to this heading">¶</a></h4>
+<p>ns3 may be used to install libraries in various places on the system.
+The default location where libraries and executables are built is
+in the <code class="docutils literal notranslate"><span class="pre">build</span></code> directory, and because ns3 knows the location of these
+libraries and executables, it is not necessary to install the libraries
+elsewhere.</p>
+<p>If users choose to install things outside of the build directory, users
+may issue the <code class="docutils literal notranslate"><span class="pre">./ns3</span> <span class="pre">install</span></code> command.  By default, the prefix for
+installation is <code class="docutils literal notranslate"><span class="pre">/usr/local</span></code>, so <code class="docutils literal notranslate"><span class="pre">./ns3</span> <span class="pre">install</span></code> will install programs
+into <code class="docutils literal notranslate"><span class="pre">/usr/local/bin</span></code>, libraries into <code class="docutils literal notranslate"><span class="pre">/usr/local/lib</span></code>, and headers
+into <code class="docutils literal notranslate"><span class="pre">/usr/local/include</span></code>.  Superuser privileges are typically needed
+to install to the default prefix, so the typical command would be
+<code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">./ns3</span> <span class="pre">install</span></code>.  When running programs with ns3, ns3 will
+first prefer to use shared libraries in the build directory, then
+will look for libraries in the library path configured in the local
+environment.  So when installing libraries to the system, it is good
+practice to check that the intended libraries are being used.</p>
+<p>Users may choose to install to a different prefix by passing the <code class="docutils literal notranslate"><span class="pre">--prefix</span></code>
+option at configure time, such as:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./ns3 configure --prefix=/opt/local</span>
+</pre></div>
+</div>
+<p>If later after the build the user issues the <code class="docutils literal notranslate"><span class="pre">./ns3</span> <span class="pre">install</span></code> command, the
+prefix <code class="docutils literal notranslate"><span class="pre">/opt/local</span></code> will be used.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">./ns3</span> <span class="pre">clean</span></code> command should be used prior to reconfiguring
+the project if ns3 will be used to install things at a different prefix.</p>
+<p>In summary, it is not necessary to call <code class="docutils literal notranslate"><span class="pre">./ns3</span> <span class="pre">install</span></code> to use <em>ns-3</em>.
+Most users will not need this command since ns3 will pick up the
+current libraries from the <code class="docutils literal notranslate"><span class="pre">build</span></code> directory, but some users may find
+it useful if their use case involves working with programs outside
+of the <em>ns-3</em> directory.</p>
+</section>
+<section id="clean">
+<h4><span class="section-number">4.4.3.6. </span>Clean<a class="headerlink" href="#clean" title="Link to this heading">¶</a></h4>
+<p>Cleaning refers to the removal of artifacts (e.g. files) generated or edited
+by the build process.  There are different levels of cleaning possible:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Scope</p></th>
+<th class="head"><p>Command</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>clean</p></td>
+<td><p><cite>./ns3 clean</cite></p></td>
+<td><p>Remove artifacts generated by the CMake configuration and the build</p></td>
+</tr>
+<tr class="row-odd"><td><p>distclean</p></td>
+<td><p><cite>./ns3 distclean</cite></p></td>
+<td><p>Remove artifacts from the configuration, build, documentation, test and Python</p></td>
+</tr>
+<tr class="row-even"><td><p>ccache</p></td>
+<td><p><cite>ccache -C</cite></p></td>
+<td><p>Remove all compiled artifacts from the ccache</p></td>
+</tr>
+</tbody>
+</table>
+<p><cite>clean</cite> can be used if the focus is on reconfiguring the way that ns-3 is
+presently being compiled.  <cite>distclean</cite> can be used if the focus is
+on restoring the ns-3 directory to an original state.</p>
+<p>The ccache lies outside of the ns-3 directory (typically in a hidden
+directory at <cite>~/.cache/ccache</cite>) and is shared across projects.
+Users should be aware that cleaning the ccache will cause cache misses
+on other build directories outside of the current working directory.
+Cleaning this cache periodically may be helpful to reclaim disk space.
+Cleaning the ccache is completely separate from cleaning any files
+within the ns-3 directory.</p>
+<p>Because clean operations involve removing files, the option conservatively
+refuses to remove files if one of the deleted files or directories lies
+outside of the current working directory.  Users may wish to precede the
+actual clean with a <cite>–dry-run</cite>, when in doubt about what the clean
+command will do, because a dry run will print the warning if one exists.
+For example:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./ns3 clean --dry-run</span>
+<span class="go">./ns3 clean</span>
+</pre></div>
+</div>
+</section>
+<section id="one-ns3">
+<h4><span class="section-number">4.4.3.7. </span>One ns3<a class="headerlink" href="#one-ns3" title="Link to this heading">¶</a></h4>
+<p>There is only one ns3 script, at the top level of the <em>ns-3</em> source tree.
+As you work, you may find yourself spending a lot of time in <code class="docutils literal notranslate"><span class="pre">scratch/</span></code>,
+or deep in <code class="docutils literal notranslate"><span class="pre">src/...</span></code>, and needing to invoke ns3.  You could just
+remember where you are, and invoke ns3 like this:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>../../../ns3<span class="w"> </span>...
+</pre></div>
+</div>
+<p>but that gets tedious, and error prone, and there are better solutions.</p>
+<p>One common way when using a text-based editor such as emacs or vim is to
+open two terminal sessions and use one to build <em>ns-3</em> and one to
+edit source code.</p>
+<p>If you only have the tarball, an environment variable can help:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">NS3DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$PWD</span><span class="s2">&quot;</span>
+<span class="gp">$ </span><span class="k">function</span><span class="w"> </span>ns3f<span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span><span class="nv">$NS3DIR</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>./ns3<span class="w"> </span><span class="nv">$*</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="o">}</span>
+
+<span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>scratch
+<span class="gp">$ </span>ns3f<span class="w"> </span>build
+</pre></div>
+</div>
+<p>It might be tempting in a module directory to add a trivial <code class="docutils literal notranslate"><span class="pre">ns3</span></code>
+script along the lines of <code class="docutils literal notranslate"><span class="pre">exec</span> <span class="pre">../../ns3</span></code>.  Please don’t.  It’s
+confusing to newcomers, and when done poorly it leads to subtle build
+errors.  The solutions above are the way to go.</p>
+</section>
+</section>
+<section id="building-with-cmake">
+<h3><span class="section-number">4.4.4. </span>Building with CMake<a class="headerlink" href="#building-with-cmake" title="Link to this heading">¶</a></h3>
+<p>The ns3 wrapper script calls CMake directly, mapping Waf-like options
+to the verbose settings used by CMake. Calling <code class="docutils literal notranslate"><span class="pre">./ns3</span></code> will execute
+a series of commands, that will be shown at the end of their execution.
+The execution of those underlying commands can be skipped to just
+print them using <code class="docutils literal notranslate"><span class="pre">./ns3</span> <span class="pre">--dry-run</span></code>.</p>
+<p>Here is are a few examples showing why we suggest the use of the ns3 wrapper script.</p>
+<section id="configuration-command">
+<h4><span class="section-number">4.4.4.1. </span>Configuration command<a class="headerlink" href="#configuration-command" title="Link to this heading">¶</a></h4>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>configure<span class="w"> </span>--enable-tests<span class="w"> </span>--enable-examples<span class="w"> </span>-d<span class="w"> </span>optimized
+</pre></div>
+</div>
+<p>Corresponds to</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>/ns-3-dev/cmake-cache/
+<span class="gp">$ </span>cmake<span class="w"> </span>-DCMAKE_BUILD_TYPE<span class="o">=</span>release<span class="w"> </span>-DNS3_NATIVE_OPTIMIZATIONS<span class="o">=</span>ON<span class="w"> </span>-DNS3_ASSERT<span class="o">=</span>OFF<span class="w"> </span>-DNS3_LOG<span class="o">=</span>OFF<span class="w"> </span>-DNS3_TESTS<span class="o">=</span>ON<span class="w"> </span>-DNS3_EXAMPLES<span class="o">=</span>ON<span class="w"> </span>..
+</pre></div>
+</div>
+</section>
+<section id="build-command">
+<h4><span class="section-number">4.4.4.2. </span>Build command<a class="headerlink" href="#build-command" title="Link to this heading">¶</a></h4>
+<p>To build a specific target such as <code class="docutils literal notranslate"><span class="pre">test-runner</span></code> we use the following ns3 command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>build<span class="w"> </span>test-runner
+</pre></div>
+</div>
+<p>Which corresponds to the following commands:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>/ns-3-dev/cmake-cache/
+<span class="gp">$ </span>cmake<span class="w"> </span>--build<span class="w"> </span>.<span class="w"> </span>-j<span class="w"> </span><span class="m">16</span><span class="w"> </span>--target<span class="w"> </span>test-runner<span class="w"> </span><span class="c1"># This command builds the test-runner target with the underlying build system</span>
+</pre></div>
+</div>
+<p>To build all targets such as modules, examples and tests, we use the following ns3 command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>build
+</pre></div>
+</div>
+<p>Which corresponds to:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>/ns-3-dev/cmake-cache/
+<span class="gp">$ </span>cmake<span class="w"> </span>--build<span class="w"> </span>.<span class="w"> </span>-j<span class="w"> </span><span class="m">16</span><span class="w">  </span><span class="c1"># This command builds all the targets with the underlying build system</span>
+</pre></div>
+</div>
+</section>
+<section id="run-command">
+<h4><span class="section-number">4.4.4.3. </span>Run command<a class="headerlink" href="#run-command" title="Link to this heading">¶</a></h4>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>run<span class="w"> </span>test-runner
+</pre></div>
+</div>
+<p>Corresponds to:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>/ns-3-dev/cmake-cache/
+<span class="gp">$ </span>cmake<span class="w"> </span>--build<span class="w"> </span>.<span class="w"> </span>-j<span class="w"> </span><span class="m">16</span><span class="w"> </span>--target<span class="w"> </span>test-runner<span class="w"> </span><span class="c1"># This command builds the test-runner target calling the underlying build system</span>
+<span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:/ns-3-dev/build/:/ns-3-dev/build/lib:/ns-3-dev/build/bindings/python<span class="w"> </span><span class="c1"># export library paths</span>
+<span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span>/ns-3-dev/build/:/ns-3-dev/build/lib:/ns-3-dev/build/bindings/python
+<span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_PATH</span><span class="o">=</span>/ns-3-dev/build/:/ns-3-dev/build/lib:/ns-3-dev/build/bindings/python
+<span class="gp">$ </span>/ns-3-dev/build/utils/ns3-dev-test-runner-optimized<span class="w"> </span><span class="c1"># call the executable with the real path</span>
+</pre></div>
+</div>
+<p>Note: the command above would fail if <code class="docutils literal notranslate"><span class="pre">./ns3</span> <span class="pre">build</span></code> was not executed first,
+since the examples won’t be built by the test-runner target.</p>
+<p>On Windows, the Msys2/MinGW64/bin directory path must be on the PATH environment variable,
+otherwise the DLL’s required by the C++ runtime will not be found, resulting in crashes
+without any explicit reasoning.</p>
+<p>Note: The ns-3 script adds only the ns-3 lib directory path to the PATH,
+ensuring the ns-3 DLLs will be found by running programs. If you are using CMake directly or
+an IDE, make sure to also include the path to ns-3-dev/build/lib in the PATH variable.</p>
+<p>If you are using one of Windows’s terminals (CMD, PowerShell or Terminal), you can use the <a class="reference external" href="https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/setx/">setx</a>
+command to change environment variables permanently or <cite>set</cite> to set them temporarily for that shell:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">C:\\Windows\\system32&gt;echo %PATH%</span>
+<span class="go">C:\\Windows\\system32;C:\\Windows;D:\\tools\\msys64\\mingw64\\bin;</span>
+
+<span class="go">C:\\Windows\\system32&gt;setx PATH &quot;%PATH%;D:\\tools\\msys64\\usr\\bin;&quot; /m</span>
+
+<span class="go">C:\\Windows\\system32&gt;echo %PATH%</span>
+<span class="go">C:\\Windows\\system32;C:\\Windows;D:\\tools\\msys64\\mingw64\\bin;</span>
+<span class="go">D:\\tools\\msys64\\usr\\bin;</span>
+</pre></div>
+</div>
+<p>Note: running on an administrator terminal will change the system PATH,
+while the user terminal will change the user PATH, unless the <cite>/m</cite> flag is added.</p>
+</section>
+</section>
+<section id="building-with-ides">
+<h3><span class="section-number">4.4.5. </span>Building with IDEs<a class="headerlink" href="#building-with-ides" title="Link to this heading">¶</a></h3>
+<p>With CMake, IDE integration is much easier. We list the steps on how to use ns-3 with a few IDEs.</p>
+<section id="microsoft-visual-studio-code">
+<h4><span class="section-number">4.4.5.1. </span>Microsoft Visual Studio Code<a class="headerlink" href="#microsoft-visual-studio-code" title="Link to this heading">¶</a></h4>
+<p>Start by downloading <a class="reference external" href="https://code.visualstudio.com/">VS Code</a>.</p>
+<p>Then install it and then install the CMake and C++ plugins.</p>
+<p>This can be done accessing the extensions’ menu button on the left.</p>
+<figure class="align-default">
+<img alt="../../../_images/install_cmake_tools.png" src="../../../_images/install_cmake_tools.png" />
+</figure>
+<figure class="align-default">
+<img alt="../../../_images/install_cpp_tools.png" src="../../../_images/install_cpp_tools.png" />
+</figure>
+<p>It will take a while, but it will locate the available toolchains for you to use.</p>
+<p>After that, open the ns-3-dev folder. It should run CMake automatically and preconfigure it.</p>
+<figure class="align-default">
+<img alt="../../../_images/open_project.png" src="../../../_images/open_project.png" />
+</figure>
+<p>After this happens, you can choose ns-3 features by opening the CMake cache and toggling them on or off.</p>
+<figure class="align-default">
+<img alt="../../../_images/open_cmake_cache.png" src="../../../_images/open_cmake_cache.png" />
+</figure>
+<figure class="align-default">
+<img alt="../../../_images/configure_ns3.png" src="../../../_images/configure_ns3.png" />
+</figure>
+<p>Just as an example, here is how to enable examples</p>
+<figure class="align-default">
+<img alt="../../../_images/enable_examples_and_save_to_reload_cache.png" src="../../../_images/enable_examples_and_save_to_reload_cache.png" />
+</figure>
+<p>After saving the cache, CMake will run, refreshing the cache. Then VsCode will update its
+list of targets on the left side of the screen in the CMake menu.</p>
+<p>After selecting a target on the left side menu, there are options to build, run or debug it.</p>
+<figure class="align-default">
+<img alt="../../../_images/select_target_build_and_debug.png" src="../../../_images/select_target_build_and_debug.png" />
+</figure>
+<p>Any of them will automatically build the selected target.
+If you choose run or debug, the executable targets will be executed.
+You can open the source files you want, put some breakpoints and then click debug to visually debug programs.</p>
+<figure class="align-default">
+<img alt="../../../_images/debugging.png" src="../../../_images/debugging.png" />
+</figure>
+</section>
+<section id="jetbrains-clion">
+<h4><span class="section-number">4.4.5.2. </span>JetBrains CLion<a class="headerlink" href="#jetbrains-clion" title="Link to this heading">¶</a></h4>
+<p>Start by downloading <a class="reference external" href="https://www.jetbrains.com/clion/">CLion</a>.</p>
+<p>The following image contains the toolchain configuration window for
+CLion running on Windows (only WSLv2 is currently supported).</p>
+<figure class="align-default">
+<img alt="../../../_images/toolchains.png" src="../../../_images/toolchains.png" />
+</figure>
+<p>CLion uses Makefiles for your platform as the default generator.
+Here you can choose a better generator like <cite>ninja</cite> by setting the cmake options flag to <cite>-G Ninja</cite>.
+You can also set options to enable examples (<cite>-DNS3_EXAMPLES=ON</cite>) and tests (<cite>-DNS3_TESTS=ON</cite>).</p>
+<figure class="align-default">
+<img alt="../../../_images/cmake_configuration.png" src="../../../_images/cmake_configuration.png" />
+</figure>
+<p>To refresh the CMake cache, triggering the discovery of new targets (libraries, executables and/or modules),
+you can either configure to re-run CMake automatically after editing CMake files (pretty slow and easily
+triggered) or reload it manually. The following image shows how to trigger the CMake cache refresh.</p>
+<figure class="align-default">
+<img alt="../../../_images/reload_cache.png" src="../../../_images/reload_cache.png" />
+</figure>
+<p>After configuring the project, the available targets are listed in a drop-down list on the top right corner.
+Select the target you want and then click the hammer symbol to build, as shown in the image below.</p>
+<figure class="align-default">
+<img alt="../../../_images/build_targets.png" src="../../../_images/build_targets.png" />
+</figure>
+<p>If you have selected and executable target, you can click either the play button to execute the program;
+the bug to debug the program; the play button with a chip, to run Valgrind and analyze memory usage,
+leaks and so on.</p>
+<figure class="align-default">
+<img alt="../../../_images/run_target.png" src="../../../_images/run_target.png" />
+</figure>
+</section>
+<section id="code-blocks">
+<h4><span class="section-number">4.4.5.3. </span>Code::Blocks<a class="headerlink" href="#code-blocks" title="Link to this heading">¶</a></h4>
+<p>Start by installing <a class="reference external" href="https://www.codeblocks.org/">Code::Blocks</a>.</p>
+<p>Code::Blocks does not support CMake project natively, but we can use the corresponding CMake
+generator to generate a project in order to use it. The generator name depends on the operating
+system and underlying build system. https://cmake.org/cmake/help/latest/generator/CodeBlocks.html</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>configure<span class="w"> </span>-G<span class="s2">&quot;CodeBlocks - Ninja&quot;</span><span class="w"> </span>--enable-examples
+
+<span class="go">...</span>
+
+<span class="gp">$ </span>--<span class="w"> </span>Build<span class="w"> </span>files<span class="w"> </span>have<span class="w"> </span>been<span class="w"> </span>written<span class="w"> </span>to:<span class="w"> </span>/ns-3-dev/cmake-cache
+</pre></div>
+</div>
+<p>There will be a NS3.cbp file inside the cache folder used during configuration (in this case cmake-cache).
+This is a Code::Blocks project file that can be opened by the IDE.</p>
+<p>When you first open the IDE, you will be greeted by a window asking you to select the compiler you want.</p>
+<figure class="align-default">
+<img alt="../../../_images/compiler_detection.png" src="../../../_images/compiler_detection.png" />
+</figure>
+<p>After that you will get into the landing page where you can open the project.</p>
+<figure class="align-default">
+<img alt="../../../_images/landing.png" src="../../../_images/landing.png" />
+</figure>
+<p>Loading it will take a while.</p>
+<figure class="align-default">
+<img alt="../../../_images/open_project1.png" src="../../../_images/open_project1.png" />
+</figure>
+<p>After that we can select a target in the top menu (where it says “all”) and click to build, run or debug.
+We can also set breakpoints on the source code.</p>
+<figure class="align-default">
+<img alt="../../../_images/breakpoint_and_debug.png" src="../../../_images/breakpoint_and_debug.png" />
+</figure>
+<p>After clicking to build, the build commands of the underlying build system will be printed in the tab at the bottom.
+If you clicked to debug, the program will start automatically and stop at the first breakpoint.</p>
+<figure class="align-default">
+<img alt="../../../_images/build_finished_breakpoint_waiting.png" src="../../../_images/build_finished_breakpoint_waiting.png" />
+</figure>
+<p>You can inspect memory and the current stack enabling those views in Debug-&gt;Debugging Windows-&gt;Watches and Call Stack.
+Using the debugging buttons, you can advance line by line, continue until the next breakpoint.</p>
+<figure class="align-default">
+<img alt="../../../_images/debug_watches.png" src="../../../_images/debug_watches.png" />
+</figure>
+<p>Note: as Code::Blocks doesn’t natively support CMake projects, it doesn’t refresh the CMake cache, which means you
+will need to close the project, run the <code class="docutils literal notranslate"><span class="pre">./ns3</span></code> command to refresh the CMake caches after adding/removing
+source files to/from the CMakeLists.txt files, adding a new module or dependencies between modules.</p>
+</section>
+<section id="apple-xcode">
+<h4><span class="section-number">4.4.5.4. </span>Apple XCode<a class="headerlink" href="#apple-xcode" title="Link to this heading">¶</a></h4>
+<p>Start by installing <a class="reference external" href="https://developer.apple.com/xcode/">XCode</a>.
+Then open it for the first time and accept the license.
+Then open Xcode-&gt;Preferences-&gt;Locations and select the command-line tools location.</p>
+<figure class="align-default">
+<img alt="../../../_images/select_command_line.png" src="../../../_images/select_command_line.png" />
+</figure>
+<p>XCode does not support CMake project natively, but we can use the corresponding CMake
+generator to generate a project in order to use it. The generator name depends on the operating
+system and underlying build system. <a class="reference external" href="https://cmake.org/cmake/help/latest/generator/Xcode.html">https://cmake.org/cmake/help/latest/generator/Xcode.html</a></p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>configure<span class="w"> </span>-GXcode<span class="w"> </span>--enable-examples
+
+<span class="go">...</span>
+
+<span class="gp">$ </span>--<span class="w"> </span>Build<span class="w"> </span>files<span class="w"> </span>have<span class="w"> </span>been<span class="w"> </span>written<span class="w"> </span>to:<span class="w"> </span>/ns-3-dev/cmake-cache
+</pre></div>
+</div>
+<p>There will be a NS3.xcodeproj file inside the cache folder used during configuration
+(in this case cmake-cache). This is a XCode project file that can be opened by the IDE.</p>
+<p>Loading the project will take a while, and you will be greeted with the following prompt.
+Select to automatically create the schemes.</p>
+<figure class="align-default">
+<img alt="../../../_images/create_schemes.png" src="../../../_images/create_schemes.png" />
+</figure>
+<p>After that we can select a target in the top menu and click to run, which will build and run
+(if executable, or debug if build with debugging symbols).</p>
+<figure class="align-default">
+<img alt="../../../_images/target_dropdown.png" src="../../../_images/target_dropdown.png" />
+</figure>
+<p>After clicking to build, the build will start and progress is shown in the top bar.</p>
+<figure class="align-default">
+<img alt="../../../_images/select_target_and_build.png" src="../../../_images/select_target_and_build.png" />
+</figure>
+<p>Before debugging starts, Xcode will request for permissions to attach to the process
+(as an attacker could pretend to be a debugging tool and steal data from other processes).</p>
+<figure class="align-default">
+<img alt="../../../_images/debug_permission_to_attach.png" src="../../../_images/debug_permission_to_attach.png" />
+</figure>
+<p>After attaching, we are greeted with profiling information and call stack on the left panel,
+source code, breakpoint and warnings on the central panel. At the bottom there are the memory
+watches panel in the left and the output panel on the right, which is also used to read the command line.</p>
+<figure class="align-default">
+<img alt="../../../_images/profiling_stack_watches_output.png" src="../../../_images/profiling_stack_watches_output.png" />
+</figure>
+<p>Note: as XCode doesn’t natively support CMake projects, it doesn’t refresh the CMake cache, which means you
+will need to close the project, run the <code class="docutils literal notranslate"><span class="pre">./ns3</span></code> command to refresh the CMake caches after adding/removing
+source files to/from the CMakeLists.txt files, adding a new module or dependencies between modules.</p>
+</section>
+</section>
+</section>
+<section id="testing-ns-3">
+<h2><span class="section-number">4.5. </span>Testing ns-3<a class="headerlink" href="#testing-ns-3" title="Link to this heading">¶</a></h2>
+<p>You can run the unit tests of the <em>ns-3</em> distribution by running the
+<code class="docutils literal notranslate"><span class="pre">./test.py</span></code> script:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./test.py<span class="w"> </span>--no-build
+</pre></div>
+</div>
+<p>These tests are run in parallel by ns3. You should eventually
+see a report saying that</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>92 of 92 tests passed (92 passed, 0 failed, 0 crashed, 0 valgrind errors)
+</pre></div>
+</div>
+<p>This is the important message to check for; failures, crashes, or valgrind
+errors indicate problems with the code or incompatibilities between the
+tools and the code.</p>
+<p>You will also see the summary output from ns3 and the test runner
+executing each test, which will actually look something like:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">-- CCache is enabled</span>
+<span class="go">-- The CXX compiler identification is GNU 11.2.0</span>
+<span class="go">-- The C compiler identification is GNU 11.2.0</span>
+
+<span class="go">...</span>
+
+<span class="go">-- Configuring done</span>
+<span class="go">-- Generating done</span>
+<span class="go">-- Build files have been written to: /ns-3-dev/cmake-cache</span>
+
+<span class="go">...</span>
+<span class="go">Scanning dependencies of target tap-creator</span>
+<span class="go">[  1%] Building CXX object src/fd-net-device/CMakeFiles/tap-device-creator.dir/helper/tap-device-creator.cc.o</span>
+<span class="go">[  1%] Building CXX object src/tap-bridge/CMakeFiles/tap-creator.dir/model/tap-creator.cc.o</span>
+<span class="go">[  1%] Building CXX object src/fd-net-device/CMakeFiles/raw-sock-creator.dir/helper/creator-utils.cc.o</span>
+<span class="go">[  1%] Building CXX object src/tap-bridge/CMakeFiles/tap-creator.dir/model/tap-encode-decode.cc.o</span>
+<span class="go">[  1%] Linking CXX executable ../../../build/src/fd-net-device/ns3-dev-tap-device-creator</span>
+
+<span class="go"> ...</span>
+
+<span class="go">[100%] Linking CXX executable ../../../build/examples/matrix-topology/ns3-dev-matrix-topology</span>
+<span class="go">[100%] Built target manet-routing-compare</span>
+<span class="go">[100%] Built target matrix-topology</span>
+<span class="go">[1/742] PASS: TestSuite aodv-routing-id-cache</span>
+<span class="go">[2/742] PASS: TestSuite routing-aodv</span>
+<span class="go">[3/742] PASS: TestSuite uniform-planar-array-test</span>
+<span class="go">[4/742] PASS: TestSuite angles</span>
+
+<span class="go">...</span>
+
+<span class="go">[740/742] PASS: Example src/wifi/examples/wifi-manager-example --wifiManager=MinstrelHt --standard=802.11ax-6GHz --serverChannelWidth=160 --clientChannelWidth=160 --serverShortGuardInterval=3200 --clientShortGuardInterval=3200 --serverNss=4 --clientNss=4 --stepTime=0.1</span>
+<span class="go">[741/742] PASS: Example src/lte/examples/lena-radio-link-failure --numberOfEnbs=2 --useIdealRrc=0 --interSiteDistance=700 --simTime=17</span>
+<span class="go">[742/742] PASS: Example src/lte/examples/lena-radio-link-failure --numberOfEnbs=2 --interSiteDistance=700 --simTime=17</span>
+<span class="go">739 of 742 tests passed (739 passed, 3 skipped, 0 failed, 0 crashed, 0 valgrind errors)</span>
+</pre></div>
+</div>
+<p>This command is typically run by users to quickly verify that an
+<em>ns-3</em> distribution has built correctly.  (Note the order of the <code class="docutils literal notranslate"><span class="pre">PASS:</span> <span class="pre">...</span></code>
+lines can vary, which is okay.  What’s important is that the summary line at
+the end report that all tests passed; none failed or crashed.)</p>
+<p>Both ns3 and <code class="docutils literal notranslate"><span class="pre">test.py</span></code> will split up the job on the available CPU cores
+of the machine, in parallel.</p>
+</section>
+<section id="running-a-script">
+<h2><span class="section-number">4.6. </span>Running a Script<a class="headerlink" href="#running-a-script" title="Link to this heading">¶</a></h2>
+<p>We typically run scripts under the control of ns3.  This allows the build
+system to ensure that the shared library paths are set correctly and that
+the libraries are available at run time.  To run a program, simply use the
+<code class="docutils literal notranslate"><span class="pre">--run</span></code> option in ns3.  Let’s run the <em>ns-3</em> equivalent of the
+ubiquitous hello world program by typing the following:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>run<span class="w"> </span>hello-simulator
+</pre></div>
+</div>
+<p>ns3 first checks to make sure that the program is built correctly and
+executes a build if required.  ns3 then executes the program, which
+produces the following output.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Hello Simulator
+</pre></div>
+</div>
+<p>Congratulations!  You are now an ns-3 user!</p>
+<p><strong>What do I do if I don’t see the output?</strong></p>
+<p>If you see ns3 messages indicating that the build was
+completed successfully, but do not see the “Hello Simulator” output,
+chances are that you have switched your build mode to <code class="docutils literal notranslate"><span class="pre">optimized</span></code> in
+the <a class="reference internal" href="#building-with-the-ns3-cmake-wrapper">Building with the ns3 CMake wrapper</a> section, but have missed the change back to
+<code class="docutils literal notranslate"><span class="pre">debug</span></code> mode.  All of the console output used in this tutorial uses a
+special <em>ns-3</em> logging component that is useful for printing
+user messages to the console.  Output from this component is
+automatically disabled when you compile optimized code – it is
+“optimized out.”  If you don’t see the “Hello Simulator” output,
+type the following:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>configure<span class="w"> </span>--build-profile<span class="o">=</span>debug<span class="w"> </span>--enable-examples<span class="w"> </span>--enable-tests
+</pre></div>
+</div>
+<p>to tell ns3 to build the debug versions of the <em>ns-3</em>
+programs that includes the examples and tests.  You must still build
+the actual debug version of the code by typing</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3
+</pre></div>
+</div>
+<p>Now, if you run the <code class="docutils literal notranslate"><span class="pre">hello-simulator</span></code> program, you should see the
+expected output.</p>
+<section id="program-arguments">
+<h3><span class="section-number">4.6.1. </span>Program Arguments<a class="headerlink" href="#program-arguments" title="Link to this heading">¶</a></h3>
+<p>To feed command line arguments to an <em>ns-3</em> program use this pattern:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>run<span class="w"> </span>&lt;ns3-program&gt;<span class="w"> </span>--command-template<span class="o">=</span><span class="s2">&quot;%s &lt;args&gt;&quot;</span>
+</pre></div>
+</div>
+<p>Substitute your program name for <code class="docutils literal notranslate"><span class="pre">&lt;ns3-program&gt;</span></code>, and the arguments
+for <code class="docutils literal notranslate"><span class="pre">&lt;args&gt;</span></code>.  The <code class="docutils literal notranslate"><span class="pre">--command-template</span></code> argument to ns3 is
+basically a recipe for constructing the actual command line ns3 should use
+to execute the program.  ns3 checks that the build is complete,
+sets the shared library paths, then invokes the executable
+using the provided command line template,
+inserting the program name for the <code class="docutils literal notranslate"><span class="pre">%s</span></code> placeholder.</p>
+<p>If you find the above to be syntactically complicated, a simpler variant
+exists, which is to include the <em>ns-3</em> program and its arguments enclosed
+by single quotes, such as:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>run<span class="w"> </span><span class="s1">&#39;&lt;ns3-program&gt; --arg1=value1 --arg2=value2 ...&#39;</span>
+</pre></div>
+</div>
+<p>Another particularly useful example is to run a test suite by itself.
+Let’s assume that a <code class="docutils literal notranslate"><span class="pre">mytest</span></code> test suite exists (it doesn’t).
+Above, we used the <code class="docutils literal notranslate"><span class="pre">./test.py</span></code> script to run a whole slew of
+tests in parallel, by repeatedly invoking the real testing program,
+<code class="docutils literal notranslate"><span class="pre">test-runner</span></code>.  To invoke <code class="docutils literal notranslate"><span class="pre">test-runner</span></code> directly for a single test:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>run<span class="w"> </span>test-runner<span class="w"> </span>--command-template<span class="o">=</span><span class="s2">&quot;%s --suite=mytest --verbose&quot;</span>
+</pre></div>
+</div>
+<p>This passes the arguments to the <code class="docutils literal notranslate"><span class="pre">test-runner</span></code> program.
+Since <code class="docutils literal notranslate"><span class="pre">mytest</span></code> does not exist, an error message will be generated.
+To print the available <code class="docutils literal notranslate"><span class="pre">test-runner</span></code> options:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>run<span class="w"> </span>test-runner<span class="w"> </span>--command-template<span class="o">=</span><span class="s2">&quot;%s --help&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="debugging">
+<h3><span class="section-number">4.6.2. </span>Debugging<a class="headerlink" href="#debugging" title="Link to this heading">¶</a></h3>
+<p>To run <em>ns-3</em> programs under the control of another utility, such as
+a debugger (<em>e.g.</em> <code class="docutils literal notranslate"><span class="pre">gdb</span></code>) or memory checker (<em>e.g.</em> <code class="docutils literal notranslate"><span class="pre">valgrind</span></code>),
+you use a similar <code class="docutils literal notranslate"><span class="pre">--command-template=&quot;...&quot;</span></code> form.</p>
+<p>For example, to run your <em>ns-3</em> program <code class="docutils literal notranslate"><span class="pre">hello-simulator</span></code> with the arguments
+<code class="docutils literal notranslate"><span class="pre">&lt;args&gt;</span></code> under the <code class="docutils literal notranslate"><span class="pre">gdb</span></code> debugger:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>run<span class="w"> </span>hello-simulator<span class="w"> </span>--command-template<span class="o">=</span><span class="s2">&quot;gdb %s --args &lt;args&gt;&quot;</span>
+</pre></div>
+</div>
+<p>Notice that the <em>ns-3</em> program name goes with the <code class="docutils literal notranslate"><span class="pre">--run</span></code> argument,
+and the control utility (here <code class="docutils literal notranslate"><span class="pre">gdb</span></code>) is the first token
+in the <code class="docutils literal notranslate"><span class="pre">--command-template</span></code> argument.  The <code class="docutils literal notranslate"><span class="pre">--args</span></code> tells <code class="docutils literal notranslate"><span class="pre">gdb</span></code>
+that the remainder of the command line belongs to the “inferior” program.
+(Some <code class="docutils literal notranslate"><span class="pre">gdb</span></code>’s don’t understand the <code class="docutils literal notranslate"><span class="pre">--args</span></code> feature.  In this case,
+omit the program arguments from the <code class="docutils literal notranslate"><span class="pre">--command-template</span></code>,
+and use the <code class="docutils literal notranslate"><span class="pre">gdb</span></code> command <code class="docutils literal notranslate"><span class="pre">set</span> <span class="pre">args</span></code>.)</p>
+<p>We can combine this recipe and the previous one to run a test under the
+debugger:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>run<span class="w"> </span>test-runner<span class="w"> </span>--command-template<span class="o">=</span><span class="s2">&quot;gdb %s --args --suite=mytest --verbose&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="working-directory">
+<h3><span class="section-number">4.6.3. </span>Working Directory<a class="headerlink" href="#working-directory" title="Link to this heading">¶</a></h3>
+<p>ns3 needs to run from its location at the top of the <em>ns-3</em> tree.
+This becomes the working directory where output files will be written.
+But what if you want to keep those files out of the <em>ns-3</em> source tree?  Use
+the <code class="docutils literal notranslate"><span class="pre">--cwd</span></code> argument:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>run<span class="w"> </span>program-name<span class="w"> </span>--cwd<span class="o">=</span>...
+</pre></div>
+</div>
+<p>We mention this <code class="docutils literal notranslate"><span class="pre">--cwd</span></code> command for completeness; most users will simply
+run ns3 from the top-level directory and generate the output data files there.</p>
+</section>
+<section id="running-without-building">
+<h3><span class="section-number">4.6.4. </span>Running without Building<a class="headerlink" href="#running-without-building" title="Link to this heading">¶</a></h3>
+<p>As of the ns-3.30 release, a new ns3 option was introduced to allow the
+running of programs while skipping the build step.  This can reduce the time
+to run programs when, for example, running the same program repeatedly
+through a shell script, or when demonstrating program execution.
+The option <code class="docutils literal notranslate"><span class="pre">--no-build</span></code> modifies the <code class="docutils literal notranslate"><span class="pre">run</span></code> option,
+skipping the build steps of the program and required ns-3 libraries.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>run<span class="w"> </span><span class="s1">&#39;&lt;ns3-program&gt; --arg1=value1 --arg2=value2 ...&#39;</span><span class="w"> </span>--no-build
+</pre></div>
+</div>
+</section>
+<section id="build-version">
+<h3><span class="section-number">4.6.5. </span>Build version<a class="headerlink" href="#build-version" title="Link to this heading">¶</a></h3>
+<p>As of the ns-3.32 release, a new ns3 configure option <code class="docutils literal notranslate"><span class="pre">--enable-build-version</span></code>
+was introduced which inspects the local ns3 git repository during builds and adds
+version metadata to the core module.</p>
+<p>This configuration option has the following prerequisites:</p>
+<ul class="simple">
+<li><p>The ns-3 directory must be part of a local git repository</p></li>
+<li><p>The local git repository must have at least one ns-3 release tag</p></li>
+</ul>
+<p>or</p>
+<ul class="simple">
+<li><p>A file named version.cache, containing version information, is located in the
+src/core directory</p></li>
+</ul>
+<p>If these prerequisites are not met, the configuration will fail.</p>
+<p>When these prerequisites are met and ns-3 is configured with the
+<code class="docutils literal notranslate"><span class="pre">--enable-build-version</span></code> option, the ns3 command <code class="docutils literal notranslate"><span class="pre">show</span> <span class="pre">version</span></code> can be
+used to query the local git repository and display the current version metadata.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./ns3<span class="w"> </span>show<span class="w"> </span>version
+</pre></div>
+</div>
+<p>ns3 will collect information about the build and print out something similar
+to the output below.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ns-3.33+249@g80e0dd0-dirty-debug
+</pre></div>
+</div>
+<p>If <code class="docutils literal notranslate"><span class="pre">show</span> <span class="pre">version</span></code> is run when <code class="docutils literal notranslate"><span class="pre">--enable-build-version</span></code> was not configured,
+an error message indicating that the option is disabled will be displayed instead.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Build version support is not enabled, reconfigure with --enable-build-version flag
+</pre></div>
+</div>
+<p>The build information is generated by examining the current state of the git
+repository.  The output of  <code class="docutils literal notranslate"><span class="pre">show</span> <span class="pre">version</span></code> will change whenever the state
+of the active branch changes.</p>
+<p>The output of <code class="docutils literal notranslate"><span class="pre">show</span> <span class="pre">version</span></code> has the following format:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;version_tag&gt;[+closest_tag][+distance_from_tag]@&lt;commit_hash&gt;[-tree_state]-&lt;profile&gt;
+</pre></div>
+</div>
+<dl class="simple">
+<dt>version_tag</dt><dd><p>version_tag contains the version of the ns-3 code.  The version tag is
+defined as a git tag with the format ns-3*.  If multiple git tags match the
+format, the tag on the active branch which is closest to the current commit
+is chosen.</p>
+</dd>
+<dt>closest_tag</dt><dd><p>closest_tag is similar to version_tag except it is the first tag found,
+regardless of format.  The closest tag is not included in the output when
+closest_tag and version_tag have the same value.</p>
+</dd>
+<dt>distance_from_tag</dt><dd><p>distance_from_tag contains the number of commits between the current commit
+and closest_tag.  distance_from_tag is not included in the output when the
+value is 0 (i.e. when closest_tag points to the current commit)</p>
+</dd>
+<dt>commit_hash</dt><dd><p>commit_hash is the hash of the commit at the tip of the active branch. The
+value is ‘g’ followed by the first 7 characters of the commit hash. The ‘g’
+prefix is used to indicate that this is a git hash.</p>
+</dd>
+<dt>tree_state</dt><dd><p>tree_state indicates the state of the working tree.  When the working tree
+has uncommitted changes this field has the value ‘dirty’.  The tree state is
+not included in the version output when the working tree is clean (e.g. when
+there are no uncommitted changes).</p>
+</dd>
+<dt>profile</dt><dd><p>The build profile specified in the <code class="docutils literal notranslate"><span class="pre">--build-profile</span></code> option passed to
+<code class="docutils literal notranslate"><span class="pre">ns3</span> <span class="pre">configure</span></code></p>
+</dd>
+</dl>
+<p>A new class, named Version, has been added to the core module.  The Version class
+contains functions to retrieve individual fields of the build version as well
+as functions to print the full build version like <code class="docutils literal notranslate"><span class="pre">show</span> <span class="pre">version</span></code>.
+The <code class="docutils literal notranslate"><span class="pre">build-version-example</span></code>  application provides an example of how to use
+the Version class to retrieve the various build version fields.  See the
+documentation for the Version class for specifics on the output of the Version
+class functions.</p>
+<p>The version information stored in the Version class is updated every time the
+git repository changes.  This may lead to frequent recompilations/linking of
+the core module when the <code class="docutils literal notranslate"><span class="pre">--enable-build-version</span></code> option is configured.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>build-version-example:
+Program Version (according to CommandLine): ns-3.33+249@g80e0dd0-dirty-debug
+
+Version fields:
+LongVersion:        ns-3.33+249@g80e0dd0-dirty-debug
+ShortVersion:       ns-3.33+*
+BuildSummary:       ns-3.33+*
+VersionTag:         ns-3.33
+Major:              3
+Minor:              33
+Patch:              0
+ReleaseCandidate:
+ClosestAncestorTag: ns-3.33
+TagDistance:        249
+CommitHash:         g80e0dd0
+BuildProfile:       debug
+WorkingTree:        dirty
+</pre></div>
+</div>
+<p>The CommandLine class has also been updated to support the <code class="docutils literal notranslate"><span class="pre">--version</span></code>
+option which will print the full build version and exit.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>./ns3 run &quot;command-line-example --version&quot; --no-build
+ns-3.33+249@g80e0dd0-dirty-debug
+</pre></div>
+</div>
+<p>If the <code class="docutils literal notranslate"><span class="pre">--enable-build-version</span></code> option was not configured, <code class="docutils literal notranslate"><span class="pre">--version</span></code>
+will print out a message similar to <code class="docutils literal notranslate"><span class="pre">show</span> <span class="pre">version</span></code> indicating that the build
+version option is not enabled.</p>
+</section>
+<section id="source-version">
+<h3><span class="section-number">4.6.6. </span>Source version<a class="headerlink" href="#source-version" title="Link to this heading">¶</a></h3>
+<p>An alternative to storing build version information in the <em>ns-3</em> libraries
+is to track the source code version used to build the code.  When using
+Git, the following recipe can be added to Bash shell scripts to
+create a <code class="docutils literal notranslate"><span class="pre">version.txt</span></code> file with Git revision information, appended
+with a patch of any changes to that revision if the repository is dirty.
+The resulting text file can then be saved with any corresponding
+<em>ns-3</em> simulation results.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">echo `git describe` &gt; version.txt</span>
+<span class="go">gitDiff=`git diff`</span>
+<span class="go">if [[ $gitDiff ]]</span>
+<span class="go">then</span>
+<span class="go">    echo &quot;$gitDiff&quot; &gt;&gt; version.txt</span>
+<span class="go">fi</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/doc/tutorial/source/getting-started.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

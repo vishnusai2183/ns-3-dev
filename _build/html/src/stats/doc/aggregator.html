@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Aggregators &#8212; ns-3 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b3523f8e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=039e1c02" />
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="aggregators">
+<h1>Aggregators<a class="headerlink" href="#aggregators" title="Link to this heading">¶</a></h1>
+<p>This section details the functionalities provided by the Aggregator
+class to an <a href="#id4"><span class="problematic" id="id5">|ns3|</span></a> simulation. This section is meant for users
+interested in developing simulations with the <a href="#id6"><span class="problematic" id="id7">|ns3|</span></a> tools and using
+the Data Collection Framework, of which the Aggregator class is a
+part, to generate data output with their simulation’s results.</p>
+<section id="aggregator-overview">
+<h2>Aggregator Overview<a class="headerlink" href="#aggregator-overview" title="Link to this heading">¶</a></h2>
+<p>An Aggregator object is supposed to be hooked to one or more trace
+sources in order to receive input. Aggregators are the end point of
+the data collected by the network of Probes and Collectors during the
+simulation.  It is the Aggregator’s job to take these values and
+transform them into their final output format such as plain text
+files, spreadsheet files, plots, or databases.</p>
+<p>Typically, an aggregator is connected to one or more Collectors.  In
+this manner, whenever the Collectors’ trace sources export new values,
+the Aggregator can process the value so that it can be used in the
+final output format where the data values will reside after the
+simulation.</p>
+<p>Note the following about Aggregators:</p>
+<ul class="simple">
+<li><p>Aggregators may be dynamically turned on and off during the
+simulation with calls to <code class="docutils literal notranslate"><span class="pre">Enable()</span></code> and <code class="docutils literal notranslate"><span class="pre">Disable()</span></code>.  For
+example, the aggregating of data may be turned off during the
+simulation warmup phase, which means those values won’t be included
+in the final output medium.</p></li>
+<li><p>Aggregators receive data from Collectors via callbacks. When a
+Collector is associated to an aggregator, a call to TraceConnect is
+made to establish the Aggregator’s trace sink method as a callback.</p></li>
+</ul>
+<p>To date, two Aggregators have been implemented:</p>
+<ul class="simple">
+<li><p>GnuplotAggregator</p></li>
+<li><p>FileAggregator</p></li>
+</ul>
+</section>
+<section id="gnuplotaggregator">
+<h2>GnuplotAggregator<a class="headerlink" href="#gnuplotaggregator" title="Link to this heading">¶</a></h2>
+<p>The GnuplotAggregator produces output files used to make gnuplots.</p>
+<p>The GnuplotAggregator will create 3 different files at the end of the
+simulation:</p>
+<ul class="simple">
+<li><p>A space separated gnuplot data file</p></li>
+<li><p>A gnuplot control file</p></li>
+<li><p>A shell script to generate the gnuplot</p></li>
+</ul>
+<section id="creation">
+<h3>Creation<a class="headerlink" href="#creation" title="Link to this heading">¶</a></h3>
+<p>An object of type GnuplotAggregator will be created here to show what needs
+to be done.</p>
+<p>One declares a GnuplotAggregator in dynamic memory by using the smart
+pointer class (Ptr&lt;T&gt;). To create a GnuplotAggregator in dynamic
+memory with smart pointers, one just needs to call the <a href="#id8"><span class="problematic" id="id9">|ns3|</span></a> method
+<code class="docutils literal notranslate"><span class="pre">CreateObject()</span></code>.  The following code from
+<code class="docutils literal notranslate"><span class="pre">src/stats/examples/gnuplot-aggregator-example.cc</span></code> shows
+how to do this:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">string</span><span class="w"> </span><span class="n">fileNameWithoutExtension</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;gnuplot-aggregator&quot;</span><span class="p">;</span>
+
+<span class="c1">// Create an aggregator.</span>
+<span class="n">Ptr</span><span class="o">&lt;</span><span class="n">GnuplotAggregator</span><span class="o">&gt;</span><span class="w"> </span><span class="n">aggregator</span><span class="w"> </span><span class="o">=</span>
+<span class="w">  </span><span class="n">CreateObject</span><span class="o">&lt;</span><span class="n">GnuplotAggregator</span><span class="o">&gt;</span><span class="p">(</span><span class="n">fileNameWithoutExtension</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The first argument for the constructor, fileNameWithoutExtension, is
+the name of the gnuplot related files to write with no extension.
+This GnuplotAggregator will create a space separated gnuplot data file
+named “gnuplot-aggregator.dat”, a gnuplot control file named
+“gnuplot-aggregator.plt”, and a shell script to generate the gnuplot
+named + “gnuplot-aggregator.sh”.</p>
+<p>The gnuplot that is created can have its key in 4 different locations:</p>
+<ul class="simple">
+<li><p>No key</p></li>
+<li><p>Key inside the plot (the default)</p></li>
+<li><p>Key above the plot</p></li>
+<li><p>Key below the plot</p></li>
+</ul>
+<p>The following gnuplot key location enum values are allowed to specify the key’s position:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">enum</span><span class="w"> </span><span class="nc">KeyLocation</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">NO_KEY</span><span class="p">,</span>
+<span class="w">  </span><span class="n">KEY_INSIDE</span><span class="p">,</span>
+<span class="w">  </span><span class="n">KEY_ABOVE</span><span class="p">,</span>
+<span class="w">  </span><span class="n">KEY_BELOW</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>If it was desired to have the key below rather than the default position of inside, then you could do the following.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">aggregator</span><span class="o">-&gt;</span><span class="n">SetKeyLocation</span><span class="p">(</span><span class="n">GnuplotAggregator</span><span class="o">::</span><span class="n">KEY_BELOW</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h3>
+<p>One example will be discussed in detail here:</p>
+<ul class="simple">
+<li><p>Gnuplot Aggregator Example</p></li>
+</ul>
+<section id="gnuplot-aggregator-example">
+<h4>Gnuplot Aggregator Example<a class="headerlink" href="#gnuplot-aggregator-example" title="Link to this heading">¶</a></h4>
+<p>An example that exercises the GnuplotAggregator can be found in
+<code class="docutils literal notranslate"><span class="pre">src/stats/examples/gnuplot-aggregator-example.cc</span></code>.</p>
+<p>The following 2-D gnuplot was created using the example.</p>
+<figure class="align-default" id="id3">
+<span id="gnuplot-aggregator"></span><img alt="src/stats/doc/figures/gnuplot-aggregator.png" src="src/stats/doc/figures/gnuplot-aggregator.png" />
+<figcaption>
+<p><span class="caption-text">2-D Gnuplot Created by gnuplot-aggregator-example.cc Example.</span><a class="headerlink" href="#id3" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>This code from the example shows how to construct the
+GnuplotAggregator as was discussed above.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">Create2dPlot</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">fileNameWithoutExtension</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;gnuplot-aggregator&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">plotTitle</span><span class="w">                </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Gnuplot Aggregator Plot&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">plotXAxisHeading</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Time(seconds)&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">plotYAxisHeading</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Double Values&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">plotDatasetLabel</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Data Values&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">datasetContext</span><span class="w">           </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Dataset/Context/String&quot;</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">// Create an aggregator.</span>
+<span class="w">  </span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">GnuplotAggregator</span><span class="o">&gt;</span><span class="w"> </span><span class="n">aggregator</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="n">CreateObject</span><span class="o">&lt;</span><span class="n">GnuplotAggregator</span><span class="o">&gt;</span><span class="p">(</span><span class="n">fileNameWithoutExtension</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Various GnuplotAggregator attributes are set including the 2-D dataset
+that will be plotted.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Set the aggregator&#39;s properties.</span>
+<span class="n">aggregator</span><span class="o">-&gt;</span><span class="n">SetTerminal</span><span class="p">(</span><span class="s">&quot;png&quot;</span><span class="p">);</span>
+<span class="n">aggregator</span><span class="o">-&gt;</span><span class="n">SetTitle</span><span class="p">(</span><span class="n">plotTitle</span><span class="p">);</span>
+<span class="n">aggregator</span><span class="o">-&gt;</span><span class="n">SetLegend</span><span class="p">(</span><span class="n">plotXAxisHeading</span><span class="p">,</span><span class="w"> </span><span class="n">plotYAxisHeading</span><span class="p">);</span>
+
+<span class="c1">// Add a data set to the aggregator.</span>
+<span class="n">aggregator</span><span class="o">-&gt;</span><span class="n">Add2dDataset</span><span class="p">(</span><span class="n">datasetContext</span><span class="p">,</span><span class="w"> </span><span class="n">plotDatasetLabel</span><span class="p">);</span>
+
+<span class="c1">// aggregator must be turned on</span>
+<span class="n">aggregator</span><span class="o">-&gt;</span><span class="n">Enable</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Next, the 2-D values are calculated, and each one is individually
+written to the GnuplotAggregator using the <code class="docutils literal notranslate"><span class="pre">Write2d()</span></code> function.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">time</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">value</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">// Create the 2-D dataset.</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">-5.0</span><span class="p">;</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="o">+</span><span class="mf">5.0</span><span class="p">;</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="c1">// Calculate the 2-D curve</span>
+<span class="w">      </span><span class="c1">//</span>
+<span class="w">      </span><span class="c1">//                   2</span>
+<span class="w">      </span><span class="c1">//     value  =  time   .</span>
+<span class="w">      </span><span class="c1">//</span>
+<span class="w">      </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">time</span><span class="p">;</span>
+
+<span class="w">      </span><span class="c1">// Add this point to the plot.</span>
+<span class="w">      </span><span class="n">aggregator</span><span class="o">-&gt;</span><span class="n">Write2d</span><span class="p">(</span><span class="n">datasetContext</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Disable logging of data for the aggregator.</span>
+<span class="w">  </span><span class="n">aggregator</span><span class="o">-&gt;</span><span class="n">Disable</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="fileaggregator">
+<h2>FileAggregator<a class="headerlink" href="#fileaggregator" title="Link to this heading">¶</a></h2>
+<p>The FileAggregator sends the values it receives to a file.</p>
+<p>The FileAggregator can create 4 different types of files:</p>
+<ul class="simple">
+<li><p>Formatted</p></li>
+<li><p>Space separated (the default)</p></li>
+<li><p>Comma separated</p></li>
+<li><p>Tab separated</p></li>
+</ul>
+<p>Formatted files use C-style format strings and the sprintf() function
+to print their values in the file being written.</p>
+<section id="id1">
+<h3>Creation<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<p>An object of type FileAggregator will be created here to show what needs
+to be done.</p>
+<p>One declares a FileAggregator in dynamic memory by using the smart
+pointer class (Ptr&lt;T&gt;). To create a FileAggregator in dynamic memory
+with smart pointers, one just needs to call the <a href="#id10"><span class="problematic" id="id11">|ns3|</span></a> method
+CreateObject.  The following code from
+<code class="docutils literal notranslate"><span class="pre">src/stats/examples/file-aggregator-example.cc</span></code> shows how
+to do this:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">string</span><span class="w"> </span><span class="n">fileName</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;file-aggregator-formatted-values.txt&quot;</span><span class="p">;</span>
+
+<span class="c1">// Create an aggregator that will have formatted values.</span>
+<span class="n">Ptr</span><span class="o">&lt;</span><span class="n">FileAggregator</span><span class="o">&gt;</span><span class="w"> </span><span class="n">aggregator</span><span class="w"> </span><span class="o">=</span>
+<span class="w">  </span><span class="n">CreateObject</span><span class="o">&lt;</span><span class="n">FileAggregator</span><span class="o">&gt;</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span><span class="w"> </span><span class="n">FileAggregator</span><span class="o">::</span><span class="n">FORMATTED</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The first argument for the constructor, filename, is the name of the
+file to write; the second argument, fileType, is type of file to
+write. This FileAggregator will create a file named
+“file-aggregator-formatted-values.txt” with its values printed as
+specified by fileType, i.e., formatted in this case.</p>
+<p>The following file type enum values are allowed:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">enum</span><span class="w"> </span><span class="nc">FileType</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">FORMATTED</span><span class="p">,</span>
+<span class="w">  </span><span class="n">SPACE_SEPARATED</span><span class="p">,</span>
+<span class="w">  </span><span class="n">COMMA_SEPARATED</span><span class="p">,</span>
+<span class="w">  </span><span class="n">TAB_SEPARATED</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h3>Examples<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<p>One example will be discussed in detail here:</p>
+<ul class="simple">
+<li><p>File Aggregator Example</p></li>
+</ul>
+<section id="file-aggregator-example">
+<h4>File Aggregator Example<a class="headerlink" href="#file-aggregator-example" title="Link to this heading">¶</a></h4>
+<p>An example that exercises the FileAggregator can be found in
+<code class="docutils literal notranslate"><span class="pre">src/stats/examples/file-aggregator-example.cc</span></code>.</p>
+<p>The following text file with 2 columns of values separated by commas
+was created using the example.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="mi">-5</span><span class="p">,</span><span class="mi">25</span>
+<span class="mi">-4</span><span class="p">,</span><span class="mi">16</span>
+<span class="mi">-3</span><span class="p">,</span><span class="mi">9</span>
+<span class="mi">-2</span><span class="p">,</span><span class="mi">4</span>
+<span class="mi">-1</span><span class="p">,</span><span class="mi">1</span>
+<span class="mi">0</span><span class="p">,</span><span class="mi">0</span>
+<span class="mi">1</span><span class="p">,</span><span class="mi">1</span>
+<span class="mi">2</span><span class="p">,</span><span class="mi">4</span>
+<span class="mi">3</span><span class="p">,</span><span class="mi">9</span>
+<span class="mi">4</span><span class="p">,</span><span class="mi">16</span>
+<span class="mi">5</span><span class="p">,</span><span class="mi">25</span>
+</pre></div>
+</div>
+<p>This code from the example shows how to construct the
+FileAggregator as was discussed above.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">CreateCommaSeparatedFile</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">fileName</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;file-aggregator-comma-separated.txt&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">datasetContext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Dataset/Context/String&quot;</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">// Create an aggregator.</span>
+<span class="w">  </span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">FileAggregator</span><span class="o">&gt;</span><span class="w"> </span><span class="n">aggregator</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="n">CreateObject</span><span class="o">&lt;</span><span class="n">FileAggregator</span><span class="o">&gt;</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span><span class="w"> </span><span class="n">FileAggregator</span><span class="o">::</span><span class="n">COMMA_SEPARATED</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>FileAggregator attributes are set.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// aggregator must be turned on</span>
+<span class="n">aggregator</span><span class="o">-&gt;</span><span class="n">Enable</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Next, the 2-D values are calculated, and each one is individually
+written to the FileAggregator using the <code class="docutils literal notranslate"><span class="pre">Write2d()</span></code> function.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">time</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">value</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">// Create the 2-D dataset.</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">-5.0</span><span class="p">;</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="o">+</span><span class="mf">5.0</span><span class="p">;</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="c1">// Calculate the 2-D curve</span>
+<span class="w">      </span><span class="c1">//</span>
+<span class="w">      </span><span class="c1">//                   2</span>
+<span class="w">      </span><span class="c1">//     value  =  time   .</span>
+<span class="w">      </span><span class="c1">//</span>
+<span class="w">      </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">time</span><span class="p">;</span>
+
+<span class="w">      </span><span class="c1">// Add this point to the plot.</span>
+<span class="w">      </span><span class="n">aggregator</span><span class="o">-&gt;</span><span class="n">Write2d</span><span class="p">(</span><span class="n">datasetContext</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Disable logging of data for the aggregator.</span>
+<span class="w">  </span><span class="n">aggregator</span><span class="o">-&gt;</span><span class="n">Disable</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The following text file with 2 columns of formatted values was also
+created using the example.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">Time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">-5.000e+00</span><span class="w">  </span><span class="n">Value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">25</span>
+<span class="n">Time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">-4.000e+00</span><span class="w">  </span><span class="n">Value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span>
+<span class="n">Time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">-3.000e+00</span><span class="w">  </span><span class="n">Value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">9</span>
+<span class="n">Time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">-2.000e+00</span><span class="w">  </span><span class="n">Value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span>
+<span class="n">Time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">-1.000e+00</span><span class="w">  </span><span class="n">Value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="n">Time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.000e+00</span><span class="w">   </span><span class="n">Value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="n">Time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.000e+00</span><span class="w">   </span><span class="n">Value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="n">Time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.000e+00</span><span class="w">   </span><span class="n">Value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span>
+<span class="n">Time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.000e+00</span><span class="w">   </span><span class="n">Value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">9</span>
+<span class="n">Time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">4.000e+00</span><span class="w">   </span><span class="n">Value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span>
+<span class="n">Time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">5.000e+00</span><span class="w">   </span><span class="n">Value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">25</span>
+</pre></div>
+</div>
+<p>This code from the example shows how to construct the
+FileAggregator as was discussed above.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">CreateFormattedFile</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">fileName</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;file-aggregator-formatted-values.txt&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">datasetContext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Dataset/Context/String&quot;</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">// Create an aggregator that will have formatted values.</span>
+<span class="w">  </span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">FileAggregator</span><span class="o">&gt;</span><span class="w"> </span><span class="n">aggregator</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="n">CreateObject</span><span class="o">&lt;</span><span class="n">FileAggregator</span><span class="o">&gt;</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span><span class="w"> </span><span class="n">FileAggregator</span><span class="o">::</span><span class="n">FORMATTED</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>FileAggregator attributes are set, including the C-style format string
+to use.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Set the format for the values.</span>
+<span class="n">aggregator</span><span class="o">-&gt;</span><span class="n">Set2dFormat</span><span class="p">(</span><span class="s">&quot;Time = %.3e</span><span class="se">\t</span><span class="s">Value = %.0f&quot;</span><span class="p">);</span>
+
+<span class="c1">// aggregator must be turned on</span>
+<span class="n">aggregator</span><span class="o">-&gt;</span><span class="n">Enable</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Next, the 2-D values are calculated, and each one is individually
+written to the FileAggregator using the <code class="docutils literal notranslate"><span class="pre">Write2d()</span></code> function.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">time</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">value</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">// Create the 2-D dataset.</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">-5.0</span><span class="p">;</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="o">+</span><span class="mf">5.0</span><span class="p">;</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="c1">// Calculate the 2-D curve</span>
+<span class="w">      </span><span class="c1">//</span>
+<span class="w">      </span><span class="c1">//                   2</span>
+<span class="w">      </span><span class="c1">//     value  =  time   .</span>
+<span class="w">      </span><span class="c1">//</span>
+<span class="w">      </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">time</span><span class="p">;</span>
+
+<span class="w">      </span><span class="c1">// Add this point to the plot.</span>
+<span class="w">      </span><span class="n">aggregator</span><span class="o">-&gt;</span><span class="n">Write2d</span><span class="p">(</span><span class="n">datasetContext</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Disable logging of data for the aggregator.</span>
+<span class="w">  </span><span class="n">aggregator</span><span class="o">-&gt;</span><span class="n">Disable</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ns-3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, vishnu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../../../_sources/src/stats/doc/aggregator.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
