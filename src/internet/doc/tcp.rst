@@ -1035,62 +1035,101 @@ https://tools.ietf.org/html/rfc8257
 
 BBR
 ^^^
-BBR (class :cpp:class:`TcpBbr`) is a congestion control algorithm that
-regulates the sending rate by deriving an estimate of the bottleneck's
-available bandwidth and RTT of the path. It seeks to operate at an optimal
-point where sender experiences maximum delivery rate with minimum RTT. It
-creates a network model comprising maximum delivery rate with minimum RTT
-observed so far, and then estimates BDP (maximum bandwidth * minimum RTT)
-to control the maximum amount of inflight data. BBR controls congestion by
-limiting the rate at which packets are sent. It caps the cwnd to one BDP
-and paces out packets at a rate which is adjusted based on the latest estimate
-of delivery rate. BBR algorithm is agnostic to packet losses and ECN marks.
+BBR (class :cpp:class:`TcpBbr`) is a congestion control algorithm that regulates the 
+sending rate by estimating the following two parameters: (i) Available Bottleneck Bandwidth(BtlBw) 
+for a flow, based on delivery rate estimation, i.e., the amount of data delivered to the receiver 
+and (ii)  minimum round trip propagation delay(RTprop) based on the RTT measurements. It seeks to 
+operate at an optimal point where the sender experiences maximum delivery rate with minimum RTT.
+It then estimates Bandwidth Delay Product (BDP = maximum bandwidth * minimum RTT) to control 
+the maximum amount of inflight data. 
 
-pacing_gain controls the rate of sending data and cwnd_gain controls the amount
-of data to send.
 
-The following is a high level overview of BBR congestion control algorithm:
+Pacing Gain values are considered from the array: PACING_GAIN_CYCLE = {5.0 / 4, 3.0 / 4, 1, 1, 1, 1, 1, 1} 
+and "tcb" refers to the Transmission Control Block. The variable "m_highGain" is a constant specifying the 
+highest gain factor, whose default value  is 2.89. "rs" refers to the rate sample being considered. Gain 
+cycle length is the length of PACING_GAIN_CYCLE (=8) .
 
-On receiving an ACK::
 
-    rtt = now - packet.sent_time
-    update_minimum_rtt(rtt)
-    delivery_rate = estimate_delivery_rate(packet)
-    update_maximum_bandwidth(delivery_rate)
+BBR operates in four different states wherein its control parameters (pacing rate, send quantum, cwnd) 
+are adapted to achieve high throughput and low latency.  Four different states are shown below:
 
-After transmitting a data packet::
+* BBR_STARTUP : Ramp up sending rate rapidly to fill pipe to know the maximum bandwidth.
+ Startup implements a binary search for BtlBw by using a gain of 2/ln2 to double the sending 
+ rate, while delivery rate is increasing. This discovers BtlBw in log2 BDP RTTs but creates 
+ up to 2BDP excess queue in the process. Once Startup finds BtlBw, BBR transitions to Drain.
+* BBR_DRAIN : Drain any queue created during startup.
+ Once the model enters into the drain state, pacing gain value and congestion window gain are updated. 
+ ::
+  m_pacingGain = 1.0 / m_highGain; 
+  m_cWndGain = m_highGain;
 
-    bdp = max_bandwidth * min_rtt
-    if (cwnd * bdp < inflight)
-      return
-    if (now > nextSendTime)
-      {
-        transmit(packet)
-        nextSendTime = now + packet.size /(pacing_gain * max_bandwidth)
-      }
-    else
-      return
-    Schedule(nextSendTime, Send)
+* BBR_PROBE_BW : Discover, share bandwidth and pace around the estimated bandwidth.
+ ::
+  m_pacingGain = 1; 
+  m_cWndGain = 2; 
+  m_cycleIndex = GAIN_CYCLE_LENGTH - 1 - (int) m_uv->GetValue (0, 6); 
+  //GetValue() acts as a random number generator in the range-0  to 6. 
+  AdvanceCyclePhase ();// Advances pacing gain using cycle gain algorithm, while in BBR_PROBE_BW state.
 
-To enable BBR on all TCP sockets, the following configuration can be used::
+* BBR_PROBE_RTT: Cut inflight to min to probe min_rtt.
+  Sets pacing gain to 1 and congestion window to 1. 
+  If the probe RTT is not done and the bytes in flight are less than or equal to the 
+  minimum pipe congestion window (tcb->m_bytesInFlight <= m_minPipeCwnd), then it 
+  initiates the probe RTT phase by setting the m_probeRttDoneStamp, m_probeRttRoundDone, 
+  and m_nextRoundDelivered variables. It begins with the function named  CongControl() 
+  being called when packets are delivered to update congestion window and pacing rate.
+  ::
+    TcpBbr::CongControl (tcb,&rc)
+    {
+      //Update the total amount of data in bytes delivered so far
+      //Update the number of bytes already delivered at the time 
+      //of new packet transmission.
 
-  Config::SetDefault("ns3::TcpL4Protocol::SocketType", TypeIdValue(TcpBbr::GetTypeId()));
+      UpdateModelAndState (tcb, rs);
+      UpdateControlParameters (tcb, rs);
+    }
 
-To enable BBR on a chosen TCP socket, the following configuration can be used
-(note that an appropriate Node ID must be used instead of 1)::
+* UpdateModelAndState()  - Updates the BBR network model calling the below functions
+  UpdateBtlBw (tcb, rs);
 
-  Config::Set("$ns3::NodeListPriv/NodeList/1/$ns3::TcpL4Protocol/SocketType", TypeIdValue(TcpBbr::GetTypeId()));
 
-The ns-3 implementation of BBR is based on its Linux implementation. Linux 5.4
-kernel implementation has been used to validate the behavior of ns-3
-implementation of BBR (See below section on Validation).
+  UpdateAckAggregation (tcb, rs);  Estimates maximum degree of aggregation.
 
-In addition, the following unit tests have been written to validate the
-implementation of BBR in ns-3:
 
-* BBR should enable (if not already done) TCP pacing feature.
-* Test to validate the values of pacing_gain and cwnd_gain in different phases
-  of BBR.
+  CheckCyclePhase (tcb, rs):  
+  Checks whether to advance pacing gain in BBR_PROBE_BW state, and if allowed calls AdvanceCyclePhase ().
+
+
+  CheckFullPipe (rs):
+  Identifies whether pipe or BDP is already full. This block checks if the bottleneck bandwidth is still growing. If the maximum bandwidth from a filter (m_maxBwFilter) is greater than or equal to 1.25 times the current full bandwidth (m_fullBandwidth), it updates the full bandwidth to the maximum bandwidth and resets the full bandwidth count (m_fullBandwidthCount) to zero. If the previous condition is not met, it increments the full bandwidth count. If the full bandwidth count is equal to or greater than 3, it logs a debug message indicating that the pipe is filled (NS_LOG_DEBUG("Pipe filled")) and sets the m_isPipeFilled flag to true.
+
+
+  CheckDrain (tcb):
+  If the current mode is StartUp and the pipe is filled, we enter the drain phase, and set the slow-start threshold to the inflight data size, calculated by the InFlight function with a factor of 1. 
+
+
+  UpdateRTprop (tcb):
+  Updates the minimum RTT calculated from the current acknowledgement.
+
+
+  CheckProbeRTT (tcb, rs):
+  If the round-trip propagation time has expired and the network has not been idle, it enters the probe RTT phase by calling EnterProbeRTT(), saves the congestion window (SaveCwnd(tcb)), and resets the probe RTT done timestamp to zero . Depending on whether the ProbeRTT is active or inactive, the simulator probes the network for a fixed time interval and exits probing. 
+
+* UpdateControlParameters() - Updates control parameters- congestion window, pacing rate, send quantum. 
+  SetPacingRate (tcb, pacingGain);
+  Initializes the pacing_rate in the beginning depending on pacing gain and nominal bandwidth. 
+  It calculates a new pacing rate based on the product of the given gain and the maximum bandwidth obtained from a filter.. 
+
+
+  SetCwnd (tcb, rs);
+  Depending on whether the pipe is filled, it adjusts the congestion window by adding the acknowledged and sacked packets. If the pipe is not filled, it also checks additional conditions related to the current congestion window and delivered data.
+
+
+
+
+
+
+
 
 An example program, examples/tcp/tcp-bbr-example.cc, is provided to experiment
 with BBR for one long running flow. This example uses a simple topology
